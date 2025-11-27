@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema Marcenaria - Gestão Completa</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; }
+    .sidebar { height: 100vh; position: fixed; top: 0; left: 0; width: 250px; background: #343a40; padding-top: 20px; }
+    .sidebar .nav-link { color: #ddd; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #495057; color: white; }
+    .content { margin-left: 250px; padding: 20px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    table { font-size: 0.9rem; }
+    .badge-stock-baixo { background: #dc3545; }
+    .badge-stock-ok { background: #28a745; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar text-white">
+    <div class="p-3">
+      <h4 class="text-center"><i class="bi bi-tools"></i> Marcenaria System</h4>
+    </div>
+    <ul class="nav flex-column px-3">
+      <li class="nav-item"><a href="#clientes" class="nav-link active"><i class="bi bi-people"></i> Clientes</a></li>
+      <li class="nav-item"><a href="#fornecedores" class="nav-link"><i class="bi bi-truck"></i> Fornecedores</a></li>
+      <li class="nav-item"><a href="#orcamentos" class="nav-link"><i class="bi bi-calculator"></i> Orçamentos</a></li>
+      <li class="nav-item"><a href="#estoque" class="nav-link"><i class="bi bi-box-seam"></i> Estoque</a></li>
+      <li class="nav-item"><a href="#financeiro" class="nav-link"><i class="bi bi-cash-coin"></i> Financeiro</a></li>
+      <li class="nav-item"><a href="#patrimonio" class="nav-link"><i class="bi bi-building"></i> Patrimônio</a></li>
+      <li class="nav-item"><a href="#contratos" class="nav-link"><i class="bi bi-file-earmark-text"></i> Contratos</a></li>
+    </ul>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <div class="content">
+
+    <!-- Clientes -->
+    <div id="clientes" class="tab-content active">
+      <h2>Cadastro de Clientes</h2>
+      <form id="formCliente">
+        <div class="row g-3">
+          <div class="col-md-6"><input type="text" class="form-control" placeholder="Nome" id="cliNome" required></div>
+          <div class="col-md-6"><input type="text" class="form-control" placeholder="Telefone" id="cliTel"></div>
+          <div class="col-md-8"><input type="text" class="form-control" placeholder="Endereço" id="cliEnd"></div>
+          <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Adicionar Cliente</button></div>
+        </div>
+      </form>
+      <hr>
+      <table class="table table-striped mt-3">
+        <thead class="table-dark"><tr><th>Nome</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead>
+        <tbody id="listaClientes"></tbody>
+      </table>
+    </div>
+
+    <!-- Fornecedores -->
+    <div id="fornecedores" class="tab-content">
+      <h2>Cadastro de Fornecedores</h2>
+      <form id="formFornecedor">
+        <div class="row g-3">
+          <div class="col-md-5"><input type="text" class="form-control" placeholder="Razão Social" id="forRazao" required></div>
+          <div class="col-md-4"><input type="text" class="form-control" placeholder="CNPJ" id="forCnpj"></div>
+          <div class="col-md-3"><button type="submit" class="btn btn-success w-100">Adicionar</button></div>
+        </div>
+      </form>
+      <hr>
+      <table class="table table-striped mt-3">
+        <thead class="table-dark"><tr><th>Razão Social</th><th>CNPJ</th><th>Ações</th></tr></thead>
+        <tbody id="listaFornecedores"></tbody>
+      </table>
+    </div>
+
+    <!-- Orçamentos -->
+    <div id="orcamentos" class="tab-content">
+      <h2>Orçamentos</h2>
+      <form id="formOrcamento">
+        <div class="row g-3">
+          <div class="col-md-4"><input type="text" class="form-control" placeholder="Cliente" list="clientesList" required></div>
+          <datalist id="clientesList"></datalist>
+          <div class="col-md-6"><input type="text" class="form-control" placeholder="Descrição do Serviço" required></div>
+          <div class="col-md-2"><input type="number" class="form-control" placeholder="Valor R$" step="0.01" required></div>
+          <div class="col-12"><button type="submit" class="btn btn-primary">Criar Orçamento</button></div>
+        </div>
+      </form>
+      <hr>
+      <table class="table table-striped mt-3">
+        <thead class="table-dark"><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead>
+        <tbody id="listaOrcamentos"></tbody>
+      </table>
+    </div>
+
+    <!-- Estoque -->
+    <div id="estoque" class="tab-content">
+      <h2>Controle de Estoque</h2>
+      <form id="formEstoque">
+        <div class="row g-3">
+          <div class="col-md-4"><input type="text" class="form-control" placeholder="Produto" required></div>
+          <div class="col-md-2"><input type="number" class="form-control" placeholder="Quantidade" required></div>
+          <div class="col-md-3"><input type="number" class="form-control" placeholder="Estoque Mínimo" value="5"></div>
+          <div class="col-md-3"><button type="submit" class="btn btn-warning w-100">Adicionar / Atualizar</button></div>
+        </div>
+      </form>
+      <hr>
+      <table class="table table-striped mt-3">
+        <thead class="table-dark"><tr><th>Produto</th><th>Quantidade</th><th>Mínimo</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="listaEstoque"></tbody>
+      </table>
+    </div>
+
+    <!-- Financeiro -->
+    <div id="financeiro" class="tab-content">
+      <h2>Gestão Financeira</h2>
+      <div class="row">
+        <div class="col-md-6">
+          <h4>Contas a Receber</h4>
+          <form id="formReceber">
+            <div class="row g-3 mb-3">
+              <div class="col"><input type="text" class="form-control" placeholder="Descrição" required></div>
+              <div class="col-4"><input type="number" class="form-control" placeholder="Valor R$" step="0.01" required></div>
+              <div class="col-3"><button type="submit" class="btn btn-success">+ Receita</button></div>
+            </div>
+          </form>
+          <table class="table table-success table-striped"><tbody id="listaReceber"></tbody></table>
+        </div>
+        <div class="col-md-6">
+          <h4>Contas a Pagar</h4>
+          <form id="formPagar">
+            <div class="row g-3 mb-3">
+              <div class="col"><input type="text" class="form-control" placeholder="Descrição" required></div>
+              <div class="col-4"><input type="number" class="form-control" placeholder="Valor R$" step="0.01" required></div>
+              <div class="col-3"><button type="submit" class="btn btn-danger">+ Despesa</button></div>
+            </div>
+          </form>
+          <table class="table table-danger table-striped"><tbody id="listaPagar"></tbody></table>
+        </div>
+      </div>
+      <div class="alert alert-info mt-4">
+        <strong>Saldo Atual:</strong> R$ <span id="saldoAtual">0,00</span>
+      </div>
+    </div>
+
+    <!-- Patrimônio -->
+    <div id="patrimonio" class="tab-content">
+      <h2>Controle de Patrimônio e Inventário</h2>
+      <form id="formPatrimonio">
+        <div class="row g-3">
+          <div class="col-md-5"><input type="text" class="form-control" placeholder="Item (ex: Serra de Bancada)" required></div>
+          <div class="col-md-3"><input type="date" class="form-control" required></div>
+          <div class="col-md-2"><input type="number" class="form-control" placeholder="Valor R$" step="0.01"></div>
+          <div class="col-md-2"><button type="submit" class="btn btn-info text-white w-100">Adicionar</button></div>
+        </div>
+      </form>
+      <hr>
+      <table class="table table-striped mt-3">
+        <thead class="table-dark"><tr><th>Item</th><th>Data Aquisição</th><th>Valor</th><th>Ações</th></tr></thead>
+        <tbody id="listaPatrimonio"></tbody>
+      </table>
+    </div>
+
+    <!-- Contratos -->
+    <div id="contratos" class="tab-content">
+      <h2>Controle de Contratos</h2>
+      <form id="formContrato">
+        <div class="row g-3">
+          <div class="col-md-4"><input type="text" class="form-control" placeholder="Cliente" list="clientesList"></div>
+          <div class="col-md-5"><input type="text" class="form-control" placeholder="Descrição do Serviço" required></div>
+          <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">Gerar Contrato</button></div>
+        </div>
+      </form>
+      <hr>
+      <div id="listaContratos"></div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ==================== UTILIDADES ====================
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    function salvar(chave, dados) {
+      localStorage.setItem(chave, JSON.stringify(dados));
+    }
+    function carregar(chave, padrao = []) {
+      const item = localStorage.getItem(chave);
+      return item ? JSON.parse(item) : padrao;
+    }
+
+    // ==================== MENU ====================
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        const target = link.getAttribute('href');
+        document.querySelector(target).classList.add('active');
+        link.classList.add('active');
+      });
+    });
+
+    // ==================== CLIENTES ====================
+    let clientes = carregar('clientes');
+    function atualizarListaClientes() {
+      const tbody = $('#listaClientes');
+      tbody.innerHTML = '';
+      clientes.forEach((c, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${c.nome}</td><td>${c.tel}</td><td>${c.end}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="removerCliente(${i})">Excluir</button></td>`;
+        tbody.appendChild(tr);
+      });
+      // atualiza datalist
+      const datalist = $('#clientesList');
+      datalist.innerHTML = clientes.map(c => `<option value="${c.nome}">`).join('');
+    }
+    function removerCliente(i) {
+      clientes.splice(i, 1);
+      salvar('clientes', clientes);
+      atualizarListaClientes();
+    }
+    $('#formCliente').addEventListener('submit', e => {
+      e.preventDefault();
+      clientes.push({
+        nome: $('#cliNome').value,
+        tel: $('#cliTel').value,
+        end: $('#cliEnd').value
+      });
+      salvar('clientes', clientes);
+      e.target.reset();
+      atualizarListaClientes();
+    });
+    atualizarListaClientes();
+
+    // ==================== FORNECacks ====================
+    let fornecedores = carregar('fornecedores');
+    function atualizarListaFornecedores() {
+      const tbody = $('#listaFornecedores');
+      tbody.innerHTML = '';
+      fornecedores.forEach((f, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${f.razao}</td><td>${f.cnpj}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="removerFornecedor(${i})">Excluir</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function removerFornecedor(i) {
+      fornecedores.splice(i, 1);
+      salvar('fornecedores', fornecedores);
+      atualizarListaFornecedores();
+    }
+    $('#formFornecedor').addEventListener('submit', e => {
+      e.preventDefault();
+      fornecedores.push({
+        razao: $('#forRazao').value,
+        cnpj: $('#forCnpj').value
+      });
+      salvar('fornecedores', fornecedores);
+      e.target.reset();
+      atualizarListaFornecedores();
+    });
+    atualizarListaFornecedores();
+
+    // ==================== ORÇAMENTOS ====================
+    let orcamentos = carregar('orcamentos');
+    function atualizarListaOrcamentos() {
+      const tbody = $('#listaOrcamentos');
+      tbody.innerHTML = '';
+      orcamentos.forEach((o, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${o.cliente}</td><td>${o.descricao}</td><td>R$ ${parseFloat(o.valor).toFixed(2)}</td><td>${o.data}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="removerOrcamento(${i})">Excluir</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function removerOrcamento(i) {
+      orcamentos.splice(i, 1);
+      salvar('orcamentos', orcamentos);
+      atualizarListaOrcamentos();
+    }
+    $('#formOrcamento').addEventListener('submit', e => {
+      e.preventDefault();
+      const form = e.target;
+      orcamentos.push({
+        cliente: form[0].value,
+        descricao: form[1].value,
+        valor: form[2].value,
+        data: new Date().toLocaleDateString('pt-BR')
+      });
+      salvar('orcamentos', orcamentos);
+      form.reset();
+      atualizarListaOrcamentos();
+    });
+    atualizarListaOrcamentos();
+
+    // ==================== ESTOQUE ====================
+    let estoque = carregar('estoque');
+    function atualizarListaEstoque() {
+      const tbody = $('#listaEstoque');
+      tbody.innerHTML = '';
+      estoque.forEach((item, i) => {
+        const status = item.qtd <= item.min ? 'badge-stock-baixo' : 'badge-stock-ok';
+        const texto = item.qtd <= item.min ? 'Baixo' : 'OK';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${item.produto}</td><td>${item.qtd}</td><td>${item.min}</td>
+          <td><span class="badge ${status}">${texto}</span></td>
+          <td><button class="btn btn-danger btn-sm" onclick="removerEstoque(${i})">Excluir</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    function removerEstoque(i) {
+      estoque.splice(i, 1);
+      salvar('estoque', estoque);
+      atualizarListaEstoque();
+    }
+    $('#formEstoque').addEventListener('submit', e => {
+      e.preventDefault();
+      const produto = e.target[0].value.trim();
+      const qtd = parseInt(e.target[1].value);
+      const min = parseInt(e.target[2].value) || 5;
+      const existente = estoque.findIndex(p => p.produto.toLowerCase() === produto.toLowerCase());
+      if (existente >= 0) {
+        estoque[existente].qtd = qtd;
+        estoque[existente].min = min;
+      } else {
+        estoque.push({ produto, qtd, min });
+      }
+      salvar('estoque', estoque);
+      e.target.reset();
+      atualizarListaEstoque();
+    });
+    atualizarListaEstoque();
+
+    // ==================== FINANCEIRO ====================
+    let receber = carregar('receber');
+    let pagar = carregar('pagar');
+
+    function calcularSaldo() {
+      const totalReceber = receber.reduce((s, v) => s + parseFloat(v.valor), 0);
+      const totalPagar = pagar.reduce((s, v) => s + parseFloat(v.valor), 0);
+      const saldo = totalReceber - totalPagar;
+      $('#saldoAtual').textContent = saldo.toFixed(2).replace('.', ',');
+      $('#saldoAtual').parentElement.className = 'alert ' + (saldo >= 0 ? 'alert-success' : 'alert-danger');
+    }
+
+    function atualizarFinanceiro() {
+      $('#listaReceber').innerHTML = receber.map((r, i) => `<tr><td>${r.desc}</td><td>R$ ${parseFloat(r.valor).toFixed(2)}</td><td><button class="btn btn-danger btn-sm" onclick="removerReceita(${i})">X</button></td></tr>`).join('');
+      $('#listaPagar').innerHTML = pagar.map((p, i) => `<tr><td>${p.desc}</td><td>R$ ${parseFloat(p.valor).toFixed(2)}</td><td><button class="btn btn-danger btn-sm" onclick="removerDespesa(${i})">X</button></td></tr>`).join('');
+      calcularSaldo();
+    }
+    window.removerReceita = i => { receber.splice(i,1); salvar('receber', receber); atualizarFinanceiro(); };
+    window.removerDespesa = i => { pagar.splice(i,1); salvar('pagar', pagar); atualizarFinanceiro(); };
+
+    $('#formReceber').addEventListener('submit', e => { e.preventDefault(); receber.push({desc: e.target[0].value, valor: e.target[1].value}); salvar('receber', receber); e.target.reset(); atualizarFinanceiro(); });
+    $('#formPagar').addEventListener('submit', e => { e.preventDefault(); pagar.push({desc: e.target[0].value, valor: e.target[1].value}); salvar('pagar', pagar); e.target.reset(); atualizarFinanceiro(); });
+    atualizarFinanceiro();
+
+    // ==================== PATRIMÔNIO ====================
+    let patrimonio = carregar('patrimonio');
+    function atualizarPatrimonio() {
+      const tbody = $('#listaPatrimonio');
+      tbody.innerHTML = '';
+      patrimonio.forEach((p, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.item}</td><td>${p.data}</td><td>R$ ${parseFloat(p.valor||0).toFixed(2)}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="removerPatrimonio(${i})">Excluir</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    window.removerPatrimonio = i => { patrimonio.splice(i,1); salvar('patrimonio', patrimonio); atualizarPatrimonio(); };
+    $('#formPatrimonio').addEventListener('submit', e => {
+      e.preventDefault();
+      patrimonio.push({
+        item: e.target[0].value,
+        data: e.target[1].value,
+        valor: e.target[2].value
+      });
+      salvar('patrimonio', patrimonio);
+      e.target.reset();
+      atualizarPatrimonio();
+    });
+    atualizarPatrimonio();
+
+    // ==================== CONTRATOS ====================
+    let contratos = carregar('contratos', []);
+    function atualizarContratos() {
+      const div = $('#listaContratos');
+      div.innerHTML = '';
+      contratos.forEach((c, i) => {
+        const card = document.createElement('div');
+        card.className = 'card mb-3';
+        card.innerHTML = `
+          <div class="card-body">
+            <h5 class="card-title">${c.cliente}</h5>
+            <p class="card-text">${c.descricao}</p>
+            <small class="text-muted">Gerado em: ${c.data}</small>
+            <button class="btn btn-danger btn-sm float-end" onclick="removerContrato(${i})">Excluir</button>
+          </div>`;
+        div.appendChild(card);
+      });
+    }
+    window.removerContrato = i => { contratos.splice(i,1); salvar('contratos', contratos); atualizarContratos(); };
+    $('#formContrato').addEventListener('submit', e => {
+      e.preventDefault();
+      contratos.push({
+        cliente: e.target[0].value,
+        descricao: e.target[1].value,
+        data: new Date().toLocaleString('pt-BR')
+      });
+      salvar('contratos', contratos);
+      e.target.reset();
+      atualizarContratos();
+    });
+    atualizarContratos();
+
+  </script>
+</body>
+</html>
