@@ -3,421 +3,2777 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sistema Marcenaria - Gestão Completa</title>
+  <title>Sistema de Marcenaria - Gestão Completa</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    body { background: #f8f9fa; }
-    .sidebar { height: 100vh; position: fixed; top: 0; left: 0; width: 250px; background: #343a40; padding-top: 20px; }
-    .sidebar .nav-link { color: #ddd; }
-    .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #495057; color: white; }
-    .content { margin-left: 250px; padding: 20px; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    table { font-size: 0.9rem; }
-    .badge-stock-baixo { background: #dc3545; }
-    .badge-stock-ok { background: #28a745; }
+    /* ==================== VARIÁVEIS CSS ==================== */
+    :root {
+      /* Cores do sistema - PODE ALTERAR */
+      --cor-primaria: #2c3e50;
+      --cor-secundaria: #3498db;
+      --cor-sucesso: #27ae60;
+      --cor-aviso: #f39c12;
+      --cor-perigo: #e74c3c;
+      --cor-info: #17a2b8;
+      --cor-clara: #f5f7fa;
+      --cor-escura: #343a40;
+      
+      /* Tamanhos e espaçamentos - PODE ALTERAR */
+      --navbar-altura: 80px;
+      --navbar-altura-mobile: 70px;
+      --sidebar-largura: 260px;
+      --sidebar-largura-mobile: 70px;
+      --card-border-radius: 12px;
+      --card-border-size: 4px;
+      --transition-speed: 0.3s;
+      
+      /* Fontes - PODE ALTERAR */
+      --fonte-principal: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --fonte-tamanho-base: 16px;
+      --fonte-tamanho-pequeno: 0.9rem;
+      --fonte-tamanho-grande: 1.2rem;
+      
+      /* Sombras - PODE ALTERAR */
+      --sombra-leve: 0 2px 5px rgba(0,0,0,0.05);
+      --sombra-media: 0 2px 10px rgba(0,0,0,0.1);
+      --sombra-forte: 0 2px 15px rgba(0,0,0,0.08);
+      
+      /* Bordas - PODE ALTERAR */
+      --border-radius-padrao: 6px;
+      --border-radius-grande: 12px;
+      --border-color: #dee2e6;
+    }
+    
+    /* ==================== ESTILOS BASE ==================== */
+    body {
+      background: var(--cor-clara);
+      font-family: var(--fonte-principal);
+      font-size: var(--fonte-tamanho-base);
+      padding-top: var(--navbar-altura);
+    }
+    
+    /* ==================== NAVBAR ==================== */
+    .navbar-superior {
+      background: var(--cor-primaria);
+      box-shadow: var(--sombra-media);
+      padding: 10px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1030;
+      height: var(--navbar-altura);
+    }
+    
+    .navbar-brand {
+      font-weight: 600;
+      font-size: var(--fonte-tamanho-grande);
+      color: white;
+    }
+    
+    .navbar-brand i {
+      margin-right: 10px;
+    }
+    
+    .nav-link-top {
+      color: rgba(255,255,255,0.9) !important;
+      padding: 10px 15px !important;
+      margin: 0 5px;
+      border-radius: var(--border-radius-padrao);
+      transition: all var(--transition-speed);
+      cursor: pointer;
+    }
+    
+    .nav-link-top:hover, .nav-link-top.active {
+      background: rgba(255,255,255,0.1);
+      color: white !important;
+    }
+    
+    .nav-link-top i {
+      margin-right: 8px;
+      font-size: 1.1rem;
+    }
+    
+    /* Botões de Ação na Navbar */
+    .navbar-actions .btn {
+      margin-left: 5px;
+    }
+    
+    .btn-impressao {
+      background: var(--cor-sucesso);
+      border: none;
+      color: white;
+    }
+    
+    .btn-impressao:hover {
+      background: #219653;
+      color: white;
+    }
+    
+    /* ==================== CONTEÚDO PRINCIPAL ==================== */
+    .content {
+      padding: 20px;
+      animation: fadeIn var(--transition-speed);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* ==================== CARDS ==================== */
+    .card {
+      border: none;
+      box-shadow: var(--sombra-forte);
+      border-radius: var(--card-border-radius);
+      margin-bottom: 20px;
+      border-top: var(--card-border-size) solid var(--cor-secundaria);
+    }
+    
+    .card-header {
+      background: white;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+      padding: 15px 20px;
+      border-radius: var(--card-border-radius) var(--card-border-radius) 0 0 !important;
+    }
+    
+    /* ==================== TABELAS ==================== */
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table th {
+      font-weight: 600;
+      border-top: none;
+      background: #f8f9fa;
+    }
+    
+    /* ==================== BADGES ==================== */
+    .badge-estoque-baixo {
+      background: var(--cor-perigo);
+    }
+    
+    .badge-estoque-ok {
+      background: var(--cor-sucesso);
+    }
+    
+    .badge-estoque-medio {
+      background: var(--cor-aviso);
+    }
+    
+    /* ==================== FORMULÁRIOS ==================== */
+    .form-control:focus {
+      border-color: var(--cor-secundaria);
+      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    /* ==================== ESTATÍSTICAS ==================== */
+    .stats-card {
+      border-left: var(--card-border-size) solid var(--cor-secundaria);
+      padding: 20px;
+      margin-bottom: 20px;
+      background: white;
+      border-radius: var(--border-radius-padrao);
+      box-shadow: var(--sombra-leve);
+    }
+    
+    .stats-card h3 {
+      margin: 0;
+      font-weight: bold;
+    }
+    
+    /* ==================== IMPRESSÃO ==================== */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      
+      body {
+        padding-top: 0;
+        background: white;
+      }
+      
+      .card {
+        box-shadow: none;
+        border: 1px solid var(--border-color);
+      }
+      
+      .content {
+        padding: 0;
+      }
+    }
+    
+    /* ==================== ESTADOS VAZIOS ==================== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #dee2e6;
+    }
+    
+    /* ==================== SALDO FINANCEIRO ==================== */
+    .saldo-positivo {
+      color: var(--cor-sucesso);
+      font-weight: bold;
+    }
+    
+    .saldo-negativo {
+      color: var(--cor-perigo);
+      font-weight: bold;
+    }
+    
+    /* ==================== MODAL DE CONFIGURAÇÃO ==================== */
+    .config-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-padrao);
+      background: #f8f9fa;
+    }
+    
+    .config-group h6 {
+      margin-bottom: 15px;
+      color: var(--cor-primaria);
+      border-bottom: 2px solid var(--cor-secundaria);
+      padding-bottom: 5px;
+    }
+    
+    .color-preview {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--border-radius-padrao);
+      display: inline-block;
+      margin-right: 10px;
+      border: 1px solid var(--border-color);
+    }
+    
+    /* ==================== RESPONSIVIDADE ==================== */
+    @media (max-width: 768px) {
+      body {
+        padding-top: var(--navbar-altura-mobile);
+      }
+      
+      .nav-link-top span {
+        display: none;
+      }
+      
+      .nav-link-top i {
+        margin-right: 0;
+        font-size: 1.3rem;
+      }
+      
+      .navbar-brand span {
+        font-size: 1.2rem;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar text-white">
-    <div class="p-3">
-      <h4 class="text-center"><i class="bi bi-tools"></i> Marcenaria System</h4>
+  <!-- Navbar Superior Fixa -->
+  <nav class="navbar navbar-superior navbar-expand-lg">
+    <div class="container-fluid">
+      <!-- Logo -->
+      <a class="navbar-brand" href="#" onclick="mostrarDashboard(event)">
+        <i class="bi bi-tools"></i>
+        <span id="nomeSistema">MarcenariaPro</span>
+      </a>
+      
+      <!-- Botão Hamburguer -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPrincipal">
+        <span class="navbar-toggler-icon" style="filter: invert(1);">☰</span>
+      </button>
+      
+      <!-- Menu -->
+      <div class="collapse navbar-collapse" id="navbarPrincipal">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link-top active" onclick="mostrarSecao('clientes')">
+              <i class="bi bi-people"></i>
+              <span>Clientes</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('fornecedores')">
+              <i class="bi bi-truck"></i>
+              <span>Fornecedores</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('orcamentos')">
+              <i class="bi bi-calculator"></i>
+              <span>Orçamentos</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('estoque')">
+              <i class="bi bi-box-seam"></i>
+              <span>Estoque</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('financeiro')">
+              <i class="bi bi-cash-coin"></i>
+              <span>Financeiro</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('patrimonio')">
+              <i class="bi bi-building"></i>
+              <span>Patrimônio</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('contratos')">
+              <i class="bi bi-file-earmark-text"></i>
+              <span>Contratos</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('relatorios')">
+              <i class="bi bi-graph-up"></i>
+              <span>Relatórios</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('configuracoes')">
+              <i class="bi bi-gear"></i>
+              <span>Configurações</span>
+            </a>
+          </li>
+        </ul>
+        
+        <!-- Botões de Ação -->
+        <div class="navbar-actions">
+          <button class="btn btn-outline-light btn-sm" onclick="imprimirSecaoAtual()">
+            <i class="bi bi-printer"></i>
+            <span class="d-none d-md-inline"> Imprimir</span>
+          </button>
+          <button class="btn btn-impressao btn-sm" onclick="exportarDados()">
+            <i class="bi bi-download"></i>
+            <span class="d-none d-md-inline"> Exportar</span>
+          </button>
+        </div>
+      </div>
     </div>
-    <ul class="nav flex-column px-3">
-      <li class="nav-item"><a href="#clientes" class="nav-link active"><i class="bi bi-people"></i> Clientes</a></li>
-      <li class="nav-item"><a href="#fornecedores" class="nav-link"><i class="bi bi-truck"></i> Fornecedores</a></li>
-      <li class="nav-item"><a href="#orcamentos" class="nav-link"><i class="bi bi-calculator"></i> Orçamentos</a></li>
-      <li class="nav-item"><a href="#estoque" class="nav-link"><i class="bi bi-box-seam"></i> Estoque</a></li>
-      <li class="nav-item"><a href="#financeiro" class="nav-link"><i class="bi bi-cash-coin"></i> Financeiro</a></li>
-      <li class="nav-item"><a href="#patrimonio" class="nav-link"><i class="bi bi-building"></i> Patrimônio</a></li>
-      <li class="nav-item"><a href="#contratos" class="nav-link"><i class="bi bi-file-earmark-text"></i> Contratos</a></li>
-    </ul>
-  </div>
+  </nav>
 
   <!-- Conteúdo Principal -->
-  <div class="content">
+  <div class="container-fluid content">
+    
+    <!-- Dashboard -->
+    <div id="dashboard">
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2 id="tituloDashboard">Dashboard</h2>
+          <p class="text-muted" id="subtituloDashboard">Visão geral do sistema</p>
+        </div>
+      </div>
+
+      <!-- Estatísticas -->
+      <div class="row mb-4">
+        <div class="col-md-3 col-sm-6">
+          <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="text-muted">Total Clientes</h6>
+                <h3 id="totalClientes">0</h3>
+              </div>
+              <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="text-muted">Orçamentos</h6>
+                <h3 id="totalOrcamentos">0</h3>
+              </div>
+              <i class="bi bi-calculator text-warning" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="text-muted">Estoque Baixo</h6>
+                <h3 id="estoqueBaixo">0</h3>
+              </div>
+              <i class="bi bi-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="stats-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="text-muted">Saldo</h6>
+                <h3 id="saldoResumo">R$ 0,00</h3>
+              </div>
+              <i class="bi bi-cash-stack text-success" style="font-size: 2rem;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ações Rápidas -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3 col-sm-6 mb-3">
+                  <button class="btn btn-primary w-100" onclick="mostrarSecao('clientes'); adicionarClienteRapido();">
+                    <i class="bi bi-person-plus me-2"></i>Novo Cliente
+                  </button>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                  <button class="btn btn-success w-100" onclick="mostrarSecao('orcamentos'); adicionarOrcamentoRapido();">
+                    <i class="bi bi-calculator me-2"></i>Novo Orçamento
+                  </button>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                  <button class="btn btn-warning w-100" onclick="mostrarSecao('estoque'); adicionarEstoqueRapido();">
+                    <i class="bi bi-box me-2"></i>Adicionar Estoque
+                  </button>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                  <button class="btn btn-info w-100" onclick="imprimirRelatorioCompleto()">
+                    <i class="bi bi-printer me-2"></i>Imprimir Relatório
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Clientes -->
-    <div id="clientes" class="tab-content active">
-      <h2>Cadastro de Clientes</h2>
-      <form id="formCliente">
-        <div class="row g-3">
-          <div class="col-md-6"><input type="text" class="form-control" placeholder="Nome" id="cliNome" required></div>
-          <div class="col-md-6"><input type="text" class="form-control" placeholder="Telefone" id="cliTel"></div>
-          <div class="col-md-8"><input type="text" class="form-control" placeholder="Endereço" id="cliEnd"></div>
-          <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Adicionar Cliente</button></div>
+    <div id="clientes" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-people me-2"></i>Clientes</h5>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="adicionarCliente()">
+              <i class="bi bi-plus-circle me-2"></i>Novo Cliente
+            </button>
+          </div>
         </div>
-      </form>
-      <hr>
-      <table class="table table-striped mt-3">
-        <thead class="table-dark"><tr><th>Nome</th><th>Telefone</th><th>Endereço</th><th>Ações</th></tr></thead>
-        <tbody id="listaClientes"></tbody>
-      </table>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" id="buscarCliente" placeholder="Buscar cliente..." onkeyup="filtrarClientes()">
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Nome</th>
+                  <th>Telefone</th>
+                  <th>E-mail</th>
+                  <th>Endereço</th>
+                  <th>Cadastro</th>
+                  <th class="no-print">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="listaClientes">
+                <!-- Dados serão carregados aqui -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Fornecedores -->
-    <div id="fornecedores" class="tab-content">
-      <h2>Cadastro de Fornecedores</h2>
-      <form id="formFornecedor">
-        <div class="row g-3">
-          <div class="col-md-5"><input type="text" class="form-control" placeholder="Razão Social" id="forRazao" required></div>
-          <div class="col-md-4"><input type="text" class="form-control" placeholder="CNPJ" id="forCnpj"></div>
-          <div class="col-md-3"><button type="submit" class="btn btn-success w-100">Adicionar</button></div>
+    <div id="fornecedores" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-truck me-2"></i>Fornecedores</h5>
+          <div>
+            <button class="btn btn-success btn-sm" onclick="adicionarFornecedor()">
+              <i class="bi bi-plus-circle me-2"></i>Novo Fornecedor
+            </button>
+          </div>
         </div>
-      </form>
-      <hr>
-      <table class="table table-striped mt-3">
-        <thead class="table-dark"><tr><th>Razão Social</th><th>CNPJ</th><th>Ações</th></tr></thead>
-        <tbody id="listaFornecedores"></tbody>
-      </table>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Razão Social</th>
+                  <th>CNPJ</th>
+                  <th>Telefone</th>
+                  <th>E-mail</th>
+                  <th class="no-print">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="listaFornecedores">
+                <!-- Dados serão carregados aqui -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Orçamentos -->
-    <div id="orcamentos" class="tab-content">
-      <h2>Orçamentos</h2>
-      <form id="formOrcamento">
-        <div class="row g-3">
-          <div class="col-md-4"><input type="text" class="form-control" placeholder="Cliente" list="clientesList" required></div>
-          <datalist id="clientesList"></datalist>
-          <div class="col-md-6"><input type="text" class="form-control" placeholder="Descrição do Serviço" required></div>
-          <div class="col-md-2"><input type="number" class="form-control" placeholder="Valor R$" step="0.01" required></div>
-          <div class="col-12"><button type="submit" class="btn btn-primary">Criar Orçamento</button></div>
+    <div id="orcamentos" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-calculator me-2"></i>Orçamentos</h5>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="adicionarOrcamento()">
+              <i class="bi bi-plus-circle me-2"></i>Novo Orçamento
+            </button>
+          </div>
         </div>
-      </form>
-      <hr>
-      <table class="table table-striped mt-3">
-        <thead class="table-dark"><tr><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Data</th><th>Ações</th></tr></thead>
-        <tbody id="listaOrcamentos"></tbody>
-      </table>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <select class="form-select" id="filtroStatus" onchange="filtrarOrcamentos()">
+                <option value="todos">Todos os Status</option>
+                <option value="pendente">Pendentes</option>
+                <option value="aprovado">Aprovados</option>
+                <option value="recusado">Recusados</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Nº</th>
+                  <th>Cliente</th>
+                  <th>Descrição</th>
+                  <th>Valor</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th class="no-print">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="listaOrcamentos">
+                <!-- Dados serão carregados aqui -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Estoque -->
-    <div id="estoque" class="tab-content">
-      <h2>Controle de Estoque</h2>
-      <form id="formEstoque">
-        <div class="row g-3">
-          <div class="col-md-4"><input type="text" class="form-control" placeholder="Produto" required></div>
-          <div class="col-md-2"><input type="number" class="form-control" placeholder="Quantidade" required></div>
-          <div class="col-md-3"><input type="number" class="form-control" placeholder="Estoque Mínimo" value="5"></div>
-          <div class="col-md-3"><button type="submit" class="btn btn-warning w-100">Adicionar / Atualizar</button></div>
+    <div id="estoque" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>Estoque</h5>
+          <div>
+            <button class="btn btn-warning btn-sm" onclick="adicionarItemEstoque()">
+              <i class="bi bi-plus-circle me-2"></i>Novo Item
+            </button>
+          </div>
         </div>
-      </form>
-      <hr>
-      <table class="table table-striped mt-3">
-        <thead class="table-dark"><tr><th>Produto</th><th>Quantidade</th><th>Mínimo</th><th>Status</th><th>Ações</th></tr></thead>
-        <tbody id="listaEstoque"></tbody>
-      </table>
+        <div class="card-body">
+          <div class="alert alert-warning d-flex align-items-center no-print" role="alert">
+            <i class="bi bi-exclamation-triangle me-3"></i>
+            <div>Itens com estoque baixo são marcados em vermelho</div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Produto</th>
+                  <th>Quantidade</th>
+                  <th>Mínimo</th>
+                  <th>Fornecedor</th>
+                  <th>Valor Unitário</th>
+                  <th>Status</th>
+                  <th class="no-print">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="listaEstoque">
+                <!-- Dados serão carregados aqui -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Financeiro -->
-    <div id="financeiro" class="tab-content">
-      <h2>Gestão Financeira</h2>
-      <div class="row">
-        <div class="col-md-6">
-          <h4>Contas a Receber</h4>
-          <form id="formReceber">
-            <div class="row g-3 mb-3">
-              <div class="col"><input type="text" class="form-control" placeholder="Descrição" required></div>
-              <div class="col-4"><input type="number" class="form-control" placeholder="Valor R$" step="0.01" required></div>
-              <div class="col-3"><button type="submit" class="btn btn-success">+ Receita</button></div>
-            </div>
-          </form>
-          <table class="table table-success table-striped"><tbody id="listaReceber"></tbody></table>
+    <div id="financeiro" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-cash-coin me-2"></i>Financeiro</h5>
+          <div>
+            <button class="btn btn-outline-secondary btn-sm" onclick="imprimirRelatorioFinanceiro()">
+              <i class="bi bi-printer me-2"></i>Imprimir Relatório
+            </button>
+          </div>
         </div>
-        <div class="col-md-6">
-          <h4>Contas a Pagar</h4>
-          <form id="formPagar">
-            <div class="row g-3 mb-3">
-              <div class="col"><input type="text" class="form-control" placeholder="Descrição" required></div>
-              <div class="col-4"><input type="number" class="form-control" placeholder="Valor R$" step="0.01" required></div>
-              <div class="col-3"><button type="submit" class="btn btn-danger">+ Despesa</button></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                  <h6 class="mb-0">Contas a Receber</h6>
+                </div>
+                <div class="card-body">
+                  <form id="formReceber" class="mb-3">
+                    <div class="row g-2">
+                      <div class="col-md-7">
+                        <input type="text" class="form-control" placeholder="Descrição" id="descReceber" required>
+                      </div>
+                      <div class="col-md-3">
+                        <input type="number" class="form-control" placeholder="Valor R$" id="valorReceber" step="0.01" required>
+                      </div>
+                      <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">+</button>
+                      </div>
+                    </div>
+                  </form>
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Descrição</th>
+                          <th>Valor</th>
+                          <th class="no-print"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="listaReceber">
+                        <!-- Dados serão carregados aqui -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
-          </form>
-          <table class="table table-danger table-striped"><tbody id="listaPagar"></tbody></table>
+            <div class="col-md-6">
+              <div class="card mb-3">
+                <div class="card-header bg-danger text-white">
+                  <h6 class="mb-0">Contas a Pagar</h6>
+                </div>
+                <div class="card-body">
+                  <form id="formPagar" class="mb-3">
+                    <div class="row g-2">
+                      <div class="col-md-7">
+                        <input type="text" class="form-control" placeholder="Descrição" id="descPagar" required>
+                      </div>
+                      <div class="col-md-3">
+                        <input type="number" class="form-control" placeholder="Valor R$" id="valorPagar" step="0.01" required>
+                      </div>
+                      <div class="col-md-2">
+                        <button type="submit" class="btn btn-danger w-100">+</button>
+                      </div>
+                    </div>
+                  </form>
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Descrição</th>
+                          <th>Valor</th>
+                          <th class="no-print"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="listaPagar">
+                        <!-- Dados serão carregados aqui -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-md-12">
+              <div class="alert" id="saldoAlert">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>Saldo Atual:</strong>
+                    <span id="saldoAtual" class="ms-2">R$ 0,00</span>
+                  </div>
+                  <div>
+                    <span class="me-3">Receitas: R$ <span id="totalReceitas">0,00</span></span>
+                    <span>Despesas: R$ <span id="totalDespesas">0,00</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="alert alert-info mt-4">
-        <strong>Saldo Atual:</strong> R$ <span id="saldoAtual">0,00</span>
       </div>
     </div>
 
     <!-- Patrimônio -->
-    <div id="patrimonio" class="tab-content">
-      <h2>Controle de Patrimônio e Inventário</h2>
-      <form id="formPatrimonio">
-        <div class="row g-3">
-          <div class="col-md-5"><input type="text" class="form-control" placeholder="Item (ex: Serra de Bancada)" required></div>
-          <div class="col-md-3"><input type="date" class="form-control" required></div>
-          <div class="col-md-2"><input type="number" class="form-control" placeholder="Valor R$" step="0.01"></div>
-          <div class="col-md-2"><button type="submit" class="btn btn-info text-white w-100">Adicionar</button></div>
+    <div id="patrimonio" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-building me-2"></i>Patrimônio</h5>
+          <div>
+            <button class="btn btn-info btn-sm text-white" onclick="adicionarPatrimonio()">
+              <i class="bi bi-plus-circle me-2"></i>Novo Item
+            </button>
+          </div>
         </div>
-      </form>
-      <hr>
-      <table class="table table-striped mt-3">
-        <thead class="table-dark"><tr><th>Item</th><th>Data Aquisição</th><th>Valor</th><th>Ações</th></tr></thead>
-        <tbody id="listaPatrimonio"></tbody>
-      </table>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Item</th>
+                  <th>Data Aquisição</th>
+                  <th>Valor</th>
+                  <th>Departamento</th>
+                  <th>Estado</th>
+                  <th class="no-print">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="listaPatrimonio">
+                <!-- Dados serão carregados aqui -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Contratos -->
-    <div id="contratos" class="tab-content">
-      <h2>Controle de Contratos</h2>
-      <form id="formContrato">
-        <div class="row g-3">
-          <div class="col-md-4"><input type="text" class="form-control" placeholder="Cliente" list="clientesList"></div>
-          <div class="col-md-5"><input type="text" class="form-control" placeholder="Descrição do Serviço" required></div>
-          <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">Gerar Contrato</button></div>
+    <div id="contratos" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Contratos</h5>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="adicionarContrato()">
+              <i class="bi bi-plus-circle me-2"></i>Novo Contrato
+            </button>
+          </div>
         </div>
-      </form>
-      <hr>
-      <div id="listaContratos"></div>
+        <div class="card-body">
+          <div id="listaContratos">
+            <!-- Contratos serão carregados aqui -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relatórios -->
+    <div id="relatorios" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Relatórios</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4 mb-4">
+              <div class="card text-center h-100">
+                <div class="card-body">
+                  <i class="bi bi-cash-stack text-success" style="font-size: 3rem;"></i>
+                  <h5 class="mt-3">Financeiro</h5>
+                  <button class="btn btn-success w-100 mt-2" onclick="imprimirRelatorioFinanceiro()">
+                    <i class="bi bi-printer me-2"></i>Imprimir Relatório
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-4">
+              <div class="card text-center h-100">
+                <div class="card-body">
+                  <i class="bi bi-box text-warning" style="font-size: 3rem;"></i>
+                  <h5 class="mt-3">Estoque</h5>
+                  <button class="btn btn-warning w-100 mt-2" onclick="imprimirRelatorioEstoque()">
+                    <i class="bi bi-printer me-2"></i>Imprimir Relatório
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4 mb-4">
+              <div class="card text-center h-100">
+                <div class="card-body">
+                  <i class="bi bi-people text-primary" style="font-size: 3rem;"></i>
+                  <h5 class="mt-3">Clientes</h5>
+                  <button class="btn btn-primary w-100 mt-2" onclick="imprimirRelatorioClientes()">
+                    <i class="bi bi-printer me-2"></i>Imprimir Relatório
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configurações -->
+    <div id="configuracoes" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Configurações do Sistema</h5>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="salvarConfiguracoes()">
+              <i class="bi bi-save me-2"></i>Salvar Configurações
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <!-- Configurações da Empresa -->
+              <div class="config-group">
+                <h6>Informações da Empresa</h6>
+                <div class="mb-3">
+                  <label class="form-label">Nome do Sistema</label>
+                  <input type="text" class="form-control" id="configNomeSistema" value="MarcenariaPro">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Nome da Empresa</label>
+                  <input type="text" class="form-control" id="configNomeEmpresa" value="Marcenaria Express">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">CNPJ</label>
+                  <input type="text" class="form-control" id="configCNPJ" value="12.345.678/0001-99">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Endereço</label>
+                  <input type="text" class="form-control" id="configEndereco" value="Rua das Madeiras, 123">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Telefone</label>
+                  <input type="text" class="form-control" id="configTelefone" value="(11) 3333-4444">
+                </div>
+              </div>
+
+              <!-- Configurações de Estoque -->
+              <div class="config-group">
+                <h6>Configurações de Estoque</h6>
+                <div class="mb-3">
+                  <label class="form-label">Estoque Mínimo Padrão</label>
+                  <input type="number" class="form-control" id="configEstoqueMinimo" value="5" min="1">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Nível de Alerta Baixo (%)</label>
+                  <input type="number" class="form-control" id="configAlertaBaixo" value="30" min="1" max="100">
+                  <small class="text-muted">Percentual em relação ao estoque mínimo para alerta vermelho</small>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Nível de Atenção (%)</label>
+                  <input type="number" class="form-control" id="configAlertaAtencao" value="60" min="1" max="100">
+                  <small class="text-muted">Percentual para alerta amarelo</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <!-- Configurações de Cores -->
+              <div class="config-group">
+                <h6>Cores do Sistema</h6>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Cor Primária</label>
+                    <div class="input-group">
+                      <span class="color-preview" id="previewPrimaria" style="background: #2c3e50;"></span>
+                      <input type="color" class="form-control" id="configCorPrimaria" value="#2c3e50">
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Cor Secundária</label>
+                    <div class="input-group">
+                      <span class="color-preview" id="previewSecundaria" style="background: #3498db;"></span>
+                      <input type="color" class="form-control" id="configCorSecundaria" value="#3498db">
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Cor de Sucesso</label>
+                    <div class="input-group">
+                      <span class="color-preview" id="previewSucesso" style="background: #27ae60;"></span>
+                      <input type="color" class="form-control" id="configCorSucesso" value="#27ae60">
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Cor de Aviso</label>
+                    <div class="input-group">
+                      <span class="color-preview" id="previewAviso" style="background: #f39c12;"></span>
+                      <input type="color" class="form-control" id="configCorAviso" value="#f39c12">
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Cor de Perigo</label>
+                    <div class="input-group">
+                      <span class="color-preview" id="previewPerigo" style="background: #e74c3c;"></span>
+                      <input type="color" class="form-control" id="configCorPerigo" value="#e74c3c">
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Cor de Informação</label>
+                    <div class="input-group">
+                      <span class="color-preview" id="previewInfo" style="background: #17a2b8;"></span>
+                      <input type="color" class="form-control" id="configCorInfo" value="#17a2b8">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Configurações de Sistema -->
+              <div class="config-group">
+                <h6>Configurações do Sistema</h6>
+                <div class="mb-3">
+                  <label class="form-label">Tamanho da Fonte Base</label>
+                  <input type="number" class="form-control" id="configTamanhoFonte" value="16" min="12" max="20" step="1">
+                  <small class="text-muted">em pixels</small>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Arredondamento de Bordas</label>
+                  <input type="number" class="form-control" id="configBorderRadius" value="6" min="0" max="20" step="1">
+                  <small class="text-muted">em pixels</small>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Velocidade de Transição</label>
+                  <input type="number" class="form-control" id="configTransitionSpeed" value="0.3" min="0.1" max="2" step="0.1">
+                  <small class="text-muted">em segundos</small>
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="configAnimacoes" checked>
+                  <label class="form-check-label" for="configAnimacoes">
+                    Ativar animações
+                  </label>
+                </div>
+              </div>
+
+              <!-- Ações do Sistema -->
+              <div class="config-group">
+                <h6>Ações do Sistema</h6>
+                <div class="d-grid gap-2">
+                  <button class="btn btn-success" onclick="exportarConfiguracoes()">
+                    <i class="bi bi-download me-2"></i>Exportar Configurações
+                  </button>
+                  <button class="btn btn-primary" onclick="importarConfiguracoes()">
+                    <i class="bi bi-upload me-2"></i>Importar Configurações
+                  </button>
+                  <button class="btn btn-warning" onclick="restaurarPadroes()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Restaurar Padrões
+                  </button>
+                  <button class="btn btn-danger" onclick="limparTodosDados()">
+                    <i class="bi bi-trash me-2"></i>Limpar Todos os Dados
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
 
+  <!-- Modal para Adicionar Cliente -->
+  <div class="modal fade" id="modalCliente">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Novo Cliente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formClienteModal">
+            <div class="mb-3">
+              <label class="form-label">Nome Completo *</label>
+              <input type="text" class="form-control" id="nomeCliente" required>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Telefone</label>
+                <input type="text" class="form-control" id="telefoneCliente" placeholder="(11) 99999-9999">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">E-mail</label>
+                <input type="email" class="form-control" id="emailCliente">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Endereço</label>
+              <input type="text" class="form-control" id="enderecoCliente">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="salvarCliente()">Salvar Cliente</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Adicionar Orçamento -->
+  <div class="modal fade" id="modalOrcamento">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Novo Orçamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formOrcamentoModal">
+            <div class="mb-3">
+              <label class="form-label">Cliente *</label>
+              <select class="form-select" id="clienteOrcamento" required>
+                <option value="">Selecione um cliente</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Descrição *</label>
+              <textarea class="form-control" id="descricaoOrcamento" rows="3" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Valor (R$) *</label>
+              <input type="number" class="form-control" id="valorOrcamento" step="0.01" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="salvarOrcamento()">Salvar Orçamento</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
   <script>
-    // ==================== UTILIDADES ====================
-    const $ = s => document.querySelector(s);
-    const $$ = s => document.querySelectorAll(s);
+    // ==================== CONFIGURAÇÕES DO SISTEMA ====================
+    // TODAS AS VARIÁVEIS SÃO CONFIGURÁVEIS AQUI
 
-    function salvar(chave, dados) {
-      localStorage.setItem(chave, JSON.stringify(dados));
-    }
-    function carregar(chave, padrao = []) {
-      const item = localStorage.getItem(chave);
-      return item ? JSON.parse(item) : padrao;
-    }
-
-    // ==================== MENU ====================
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        const target = link.getAttribute('href');
-        document.querySelector(target).classList.add('active');
-        link.classList.add('active');
-      });
-    });
-
-    // ==================== CLIENTES ====================
-    let clientes = carregar('clientes');
-    function atualizarListaClientes() {
-      const tbody = $('#listaClientes');
-      tbody.innerHTML = '';
-      clientes.forEach((c, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${c.nome}</td><td>${c.tel}</td><td>${c.end}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="removerCliente(${i})">Excluir</button></td>`;
-        tbody.appendChild(tr);
-      });
-      // atualiza datalist
-      const datalist = $('#clientesList');
-      datalist.innerHTML = clientes.map(c => `<option value="${c.nome}">`).join('');
-    }
-    function removerCliente(i) {
-      clientes.splice(i, 1);
-      salvar('clientes', clientes);
-      atualizarListaClientes();
-    }
-    $('#formCliente').addEventListener('submit', e => {
-      e.preventDefault();
-      clientes.push({
-        nome: $('#cliNome').value,
-        tel: $('#cliTel').value,
-        end: $('#cliEnd').value
-      });
-      salvar('clientes', clientes);
-      e.target.reset();
-      atualizarListaClientes();
-    });
-    atualizarListaClientes();
-
-    // ==================== FORNECacks ====================
-    let fornecedores = carregar('fornecedores');
-    function atualizarListaFornecedores() {
-      const tbody = $('#listaFornecedores');
-      tbody.innerHTML = '';
-      fornecedores.forEach((f, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${f.razao}</td><td>${f.cnpj}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="removerFornecedor(${i})">Excluir</button></td>`;
-        tbody.appendChild(tr);
-      });
-    }
-    function removerFornecedor(i) {
-      fornecedores.splice(i, 1);
-      salvar('fornecedores', fornecedores);
-      atualizarListaFornecedores();
-    }
-    $('#formFornecedor').addEventListener('submit', e => {
-      e.preventDefault();
-      fornecedores.push({
-        razao: $('#forRazao').value,
-        cnpj: $('#forCnpj').value
-      });
-      salvar('fornecedores', fornecedores);
-      e.target.reset();
-      atualizarListaFornecedores();
-    });
-    atualizarListaFornecedores();
-
-    // ==================== ORÇAMENTOS ====================
-    let orcamentos = carregar('orcamentos');
-    function atualizarListaOrcamentos() {
-      const tbody = $('#listaOrcamentos');
-      tbody.innerHTML = '';
-      orcamentos.forEach((o, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${o.cliente}</td><td>${o.descricao}</td><td>R$ ${parseFloat(o.valor).toFixed(2)}</td><td>${o.data}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="removerOrcamento(${i})">Excluir</button></td>`;
-        tbody.appendChild(tr);
-      });
-    }
-    function removerOrcamento(i) {
-      orcamentos.splice(i, 1);
-      salvar('orcamentos', orcamentos);
-      atualizarListaOrcamentos();
-    }
-    $('#formOrcamento').addEventListener('submit', e => {
-      e.preventDefault();
-      const form = e.target;
-      orcamentos.push({
-        cliente: form[0].value,
-        descricao: form[1].value,
-        valor: form[2].value,
-        data: new Date().toLocaleDateString('pt-BR')
-      });
-      salvar('orcamentos', orcamentos);
-      form.reset();
-      atualizarListaOrcamentos();
-    });
-    atualizarListaOrcamentos();
-
-    // ==================== ESTOQUE ====================
-    let estoque = carregar('estoque');
-    function atualizarListaEstoque() {
-      const tbody = $('#listaEstoque');
-      tbody.innerHTML = '';
-      estoque.forEach((item, i) => {
-        const status = item.qtd <= item.min ? 'badge-stock-baixo' : 'badge-stock-ok';
-        const texto = item.qtd <= item.min ? 'Baixo' : 'OK';
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${item.produto}</td><td>${item.qtd}</td><td>${item.min}</td>
-          <td><span class="badge ${status}">${texto}</span></td>
-          <td><button class="btn btn-danger btn-sm" onclick="removerEstoque(${i})">Excluir</button></td>`;
-        tbody.appendChild(tr);
-      });
-    }
-    function removerEstoque(i) {
-      estoque.splice(i, 1);
-      salvar('estoque', estoque);
-      atualizarListaEstoque();
-    }
-    $('#formEstoque').addEventListener('submit', e => {
-      e.preventDefault();
-      const produto = e.target[0].value.trim();
-      const qtd = parseInt(e.target[1].value);
-      const min = parseInt(e.target[2].value) || 5;
-      const existente = estoque.findIndex(p => p.produto.toLowerCase() === produto.toLowerCase());
-      if (existente >= 0) {
-        estoque[existente].qtd = qtd;
-        estoque[existente].min = min;
-      } else {
-        estoque.push({ produto, qtd, min });
+    const CONFIGURACOES_DEFAULT = {
+      // Informações da Empresa
+      nomeSistema: "MarcenariaPro",
+      nomeEmpresa: "Marcenaria Express",
+      cnpj: "12.345.678/0001-99",
+      endereco: "Rua das Madeiras, 123",
+      telefone: "(11) 3333-4444",
+      
+      // Cores do Sistema
+      cores: {
+        primaria: "#2c3e50",
+        secundaria: "#3498db",
+        sucesso: "#27ae60",
+        aviso: "#f39c12",
+        perigo: "#e74c3c",
+        info: "#17a2b8",
+        clara: "#f5f7fa",
+        escura: "#343a40"
+      },
+      
+      // Layout
+      layout: {
+        navbarAltura: "80px",
+        navbarAlturaMobile: "70px",
+        sidebarLargura: "260px",
+        sidebarLarguraMobile: "70px",
+        cardBorderRadius: "12px",
+        cardBorderSize: "4px",
+        borderRadiusPadrao: "6px",
+        borderRadiusGrande: "12px"
+      },
+      
+      // Tipografia
+      tipografia: {
+        fontePrincipal: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        tamanhoBase: "16px",
+        tamanhoPequeno: "0.9rem",
+        tamanhoGrande: "1.2rem"
+      },
+      
+      // Efeitos
+      efeitos: {
+        transitionSpeed: "0.3s",
+        sombraLeve: "0 2px 5px rgba(0,0,0,0.05)",
+        sombraMedia: "0 2px 10px rgba(0,0,0,0.1)",
+        sombraForte: "0 2px 15px rgba(0,0,0,0.08)",
+        animacoes: true
+      },
+      
+      // Configurações de Negócio
+      negocio: {
+        estoqueMinimoPadrao: 5,
+        alertaBaixoPercentual: 30,  // Percentual para estoque baixo
+        alertaAtencaoPercentual: 60, // Percentual para atenção
+        moeda: "BRL",
+        locale: "pt-BR"
+      },
+      
+      // Textos do Sistema (PODE ALTERAR TODOS)
+      textos: {
+        dashboard: {
+          titulo: "Dashboard",
+          subtitulo: "Visão geral do sistema",
+          totalClientes: "Total Clientes",
+          totalOrcamentos: "Orçamentos",
+          estoqueBaixo: "Estoque Baixo",
+          saldo: "Saldo",
+          acoesRapidas: "Ações Rápidas"
+        },
+        clientes: {
+          titulo: "Clientes",
+          subtitulo: "Gerencie seus clientes",
+          buscarPlaceholder: "Buscar cliente...",
+          colunas: ["Nome", "Telefone", "E-mail", "Endereço", "Cadastro", "Ações"]
+        },
+        fornecedores: {
+          titulo: "Fornecedores",
+          subtitulo: "Gerencie seus fornecedores",
+          colunas: ["Razão Social", "CNPJ", "Telefone", "E-mail", "Ações"]
+        },
+        orcamentos: {
+          titulo: "Orçamentos",
+          subtitulo: "Gerencie seus orçamentos",
+          colunas: ["Nº", "Cliente", "Descrição", "Valor", "Data", "Status", "Ações"],
+          status: {
+            todos: "Todos os Status",
+            pendente: "Pendentes",
+            aprovado: "Aprovados",
+            recusado: "Recusados"
+          }
+        },
+        estoque: {
+          titulo: "Estoque",
+          subtitulo: "Gerencie seu estoque",
+          colunas: ["Produto", "Quantidade", "Mínimo", "Fornecedor", "Valor Unitário", "Status", "Ações"],
+          alertaEstoque: "Itens com estoque baixo são marcados em vermelho"
+        },
+        financeiro: {
+          titulo: "Financeiro",
+          subtitulo: "Gerencie suas finanças",
+          receber: "Contas a Receber",
+          pagar: "Contas a Pagar",
+          saldoAtual: "Saldo Atual:",
+          receitas: "Receitas:",
+          despesas: "Despesas:"
+        },
+        patrimonio: {
+          titulo: "Patrimônio",
+          subtitulo: "Gerencie seu patrimônio",
+          colunas: ["Item", "Data Aquisição", "Valor", "Departamento", "Estado", "Ações"]
+        },
+        contratos: {
+          titulo: "Contratos",
+          subtitulo: "Gerencie seus contratos"
+        },
+        relatorios: {
+          titulo: "Relatórios",
+          subtitulo: "Gerencie seus relatórios"
+        },
+        configuracoes: {
+          titulo: "Configurações",
+          subtitulo: "Configure o sistema"
+        },
+        mensagens: {
+          sucesso: "Operação realizada com sucesso!",
+          erro: "Ocorreu um erro!",
+          confirmacao: "Tem certeza?",
+          carregando: "Carregando..."
+        }
+      },
+      
+      // Preferências do Usuário
+      usuario: {
+        tema: "claro",
+        notificacoes: true,
+        autoSave: true,
+        intervaloAutoSave: 30000 // 30 segundos
       }
-      salvar('estoque', estoque);
-      e.target.reset();
-      atualizarListaEstoque();
+    };
+
+    // ==================== VARIÁVEIS GLOBAIS ====================
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => document.querySelectorAll(s);
+    const modalCliente = new bootstrap.Modal($('#modalCliente'));
+    const modalOrcamento = new bootstrap.Modal($('#modalOrcamento'));
+    
+    let secaoAtual = 'dashboard';
+    let editandoClienteId = null;
+    let editandoOrcamentoId = null;
+    let configuracaoAtual = { ...CONFIGURACOES_DEFAULT };
+
+    // Dados do sistema
+    let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
+    let fornecedores = JSON.parse(localStorage.getItem('fornecedores') || '[]');
+    let orcamentos = JSON.parse(localStorage.getItem('orcamentos') || '[]');
+    let estoque = JSON.parse(localStorage.getItem('estoque') || '[]');
+    let receber = JSON.parse(localStorage.getItem('receber') || '[]');
+    let pagar = JSON.parse(localStorage.getItem('pagar') || '[]');
+    let patrimonio = JSON.parse(localStorage.getItem('patrimonio') || '[]');
+    let contratos = JSON.parse(localStorage.getItem('contratos') || '[]');
+
+    // ==================== FUNÇÕES DE CONFIGURAÇÃO ====================
+    function carregarConfiguracoes() {
+      const configSalva = localStorage.getItem('configuracoesSistema');
+      if (configSalva) {
+        configuracaoAtual = { ...CONFIGURACOES_DEFAULT, ...JSON.parse(configSalva) };
+      } else {
+        configuracaoAtual = { ...CONFIGURACOES_DEFAULT };
+      }
+      aplicarConfiguracoes();
+      preencherFormularioConfiguracoes();
+    }
+
+    function salvarConfiguracoes() {
+      // Atualiza configurações do formulário
+      configuracaoAtual.nomeSistema = $('#configNomeSistema').value;
+      configuracaoAtual.nomeEmpresa = $('#configNomeEmpresa').value;
+      configuracaoAtual.cnpj = $('#configCNPJ').value;
+      configuracaoAtual.endereco = $('#configEndereco').value;
+      configuracaoAtual.telefone = $('#configTelefone').value;
+      
+      configuracaoAtual.cores.primaria = $('#configCorPrimaria').value;
+      configuracaoAtual.cores.secundaria = $('#configCorSecundaria').value;
+      configuracaoAtual.cores.sucesso = $('#configCorSucesso').value;
+      configuracaoAtual.cores.aviso = $('#configCorAviso').value;
+      configuracaoAtual.cores.perigo = $('#configCorPerigo').value;
+      configuracaoAtual.cores.info = $('#configCorInfo').value;
+      
+      configuracaoAtual.negocio.estoqueMinimoPadrao = parseInt($('#configEstoqueMinimo').value);
+      configuracaoAtual.negocio.alertaBaixoPercentual = parseInt($('#configAlertaBaixo').value);
+      configuracaoAtual.negocio.alertaAtencaoPercentual = parseInt($('#configAlertaAtencao').value);
+      
+      configuracaoAtual.layout.borderRadiusPadrao = $('#configBorderRadius').value + 'px';
+      configuracaoAtual.efeitos.transitionSpeed = $('#configTransitionSpeed').value + 's';
+      configuracaoAtual.efeitos.animacoes = $('#configAnimacoes').checked;
+      configuracaoAtual.tipografia.tamanhoBase = $('#configTamanhoFonte').value + 'px';
+      
+      localStorage.setItem('configuracoesSistema', JSON.stringify(configuracaoAtual));
+      aplicarConfiguracoes();
+      
+      Swal.fire({
+        title: 'Sucesso!',
+        text: 'Configurações salvas com sucesso!',
+        icon: 'success',
+        timer: 2000
+      });
+    }
+
+    function aplicarConfiguracoes() {
+      // Aplica cores
+      const root = document.documentElement;
+      
+      // Cores
+      root.style.setProperty('--cor-primaria', configuracaoAtual.cores.primaria);
+      root.style.setProperty('--cor-secundaria', configuracaoAtual.cores.secundaria);
+      root.style.setProperty('--cor-sucesso', configuracaoAtual.cores.sucesso);
+      root.style.setProperty('--cor-aviso', configuracaoAtual.cores.aviso);
+      root.style.setProperty('--cor-perigo', configuracaoAtual.cores.perigo);
+      root.style.setProperty('--cor-info', configuracaoAtual.cores.info);
+      root.style.setProperty('--cor-clara', configuracaoAtual.cores.clara);
+      root.style.setProperty('--cor-escura', configuracaoAtual.cores.escura);
+      
+      // Layout
+      root.style.setProperty('--navbar-altura', configuracaoAtual.layout.navbarAltura);
+      root.style.setProperty('--navbar-altura-mobile', configuracaoAtual.layout.navbarAlturaMobile);
+      root.style.setProperty('--card-border-radius', configuracaoAtual.layout.cardBorderRadius + 'px');
+      root.style.setProperty('--card-border-size', configuracaoAtual.layout.cardBorderSize + 'px');
+      root.style.setProperty('--border-radius-padrao', configuracaoAtual.layout.borderRadiusPadrao);
+      root.style.setProperty('--border-radius-grande', configuracaoAtual.layout.borderRadiusGrande);
+      
+      // Tipografia
+      root.style.setProperty('--fonte-principal', configuracaoAtual.tipografia.fontePrincipal);
+      root.style.setProperty('--fonte-tamanho-base', configuracaoAtual.tipografia.tamanhoBase);
+      root.style.setProperty('--fonte-tamanho-pequeno', configuracaoAtual.tipografia.tamanhoPequeno);
+      root.style.setProperty('--fonte-tamanho-grande', configuracaoAtual.tipografia.tamanhoGrande);
+      
+      // Efeitos
+      root.style.setProperty('--transition-speed', configuracaoAtual.efeitos.transitionSpeed);
+      root.style.setProperty('--sombra-leve', configuracaoAtual.efeitos.sombraLeve);
+      root.style.setProperty('--sombra-media', configuracaoAtual.efeitos.sombraMedia);
+      root.style.setProperty('--sombra-forte', configuracaoAtual.efeitos.sombraForte);
+      
+      // Atualiza previews de cores
+      atualizarPreviewsCores();
+      
+      // Atualiza textos do sistema
+      atualizarTextosSistema();
+    }
+
+    function preencherFormularioConfiguracoes() {
+      // Informações da empresa
+      $('#configNomeSistema').value = configuracaoAtual.nomeSistema;
+      $('#configNomeEmpresa').value = configuracaoAtual.nomeEmpresa;
+      $('#configCNPJ').value = configuracaoAtual.cnpj;
+      $('#configEndereco').value = configuracaoAtual.endereco;
+      $('#configTelefone').value = configuracaoAtual.telefone;
+      
+      // Cores
+      $('#configCorPrimaria').value = configuracaoAtual.cores.primaria;
+      $('#configCorSecundaria').value = configuracaoAtual.cores.secundaria;
+      $('#configCorSucesso').value = configuracaoAtual.cores.sucesso;
+      $('#configCorAviso').value = configuracaoAtual.cores.aviso;
+      $('#configCorPerigo').value = configuracaoAtual.cores.perigo;
+      $('#configCorInfo').value = configuracaoAtual.cores.info;
+      
+      // Configurações de estoque
+      $('#configEstoqueMinimo').value = configuracaoAtual.negocio.estoqueMinimoPadrao;
+      $('#configAlertaBaixo').value = configuracaoAtual.negocio.alertaBaixoPercentual;
+      $('#configAlertaAtencao').value = configuracaoAtual.negocio.alertaAtencaoPercentual;
+      
+      // Configurações de sistema
+      $('#configBorderRadius').value = parseInt(configuracaoAtual.layout.borderRadiusPadrao);
+      $('#configTransitionSpeed').value = parseFloat(configuracaoAtual.efeitos.transitionSpeed);
+      $('#configAnimacoes').checked = configuracaoAtual.efeitos.animacoes;
+      $('#configTamanhoFonte').value = parseInt(configuracaoAtual.tipografia.tamanhoBase);
+      
+      atualizarPreviewsCores();
+    }
+
+    function atualizarPreviewsCores() {
+      $('#previewPrimaria').style.background = configuracaoAtual.cores.primaria;
+      $('#previewSecundaria').style.background = configuracaoAtual.cores.secundaria;
+      $('#previewSucesso').style.background = configuracaoAtual.cores.sucesso;
+      $('#previewAviso').style.background = configuracaoAtual.cores.aviso;
+      $('#previewPerigo').style.background = configuracaoAtual.cores.perigo;
+      $('#previewInfo').style.background = configuracaoAtual.cores.info;
+    }
+
+    function atualizarTextosSistema() {
+      // Atualiza nome do sistema na navbar
+      $('#nomeSistema').textContent = configuracaoAtual.nomeSistema;
+      
+      // Atualiza textos do dashboard
+      $('#tituloDashboard').textContent = configuracaoAtual.textos.dashboard.titulo;
+      $('#subtituloDashboard').textContent = configuracaoAtual.textos.dashboard.subtitulo;
+    }
+
+    function exportarConfiguracoes() {
+      const configExport = {
+        ...configuracaoAtual,
+        dataExportacao: new Date().toISOString(),
+        versao: "1.0.0"
+      };
+      
+      const json = JSON.stringify(configExport, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `config-marcenaria-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      Swal.fire('Sucesso!', 'Configurações exportadas com sucesso!', 'success');
+    }
+
+    function importarConfiguracoes() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      
+      input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+          try {
+            const configImportada = JSON.parse(event.target.result);
+            
+            Swal.fire({
+              title: 'Importar Configurações?',
+              text: 'Isso substituirá todas as configurações atuais.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Sim, importar',
+              cancelButtonText: 'Cancelar'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                configuracaoAtual = { ...CONFIGURACOES_DEFAULT, ...configImportada };
+                localStorage.setItem('configuracoesSistema', JSON.stringify(configuracaoAtual));
+                aplicarConfiguracoes();
+                preencherFormularioConfiguracoes();
+                Swal.fire('Sucesso!', 'Configurações importadas com sucesso!', 'success');
+              }
+            });
+          } catch (error) {
+            Swal.fire('Erro!', 'Arquivo de configuração inválido!', 'error');
+          }
+        };
+        
+        reader.readAsText(file);
+      };
+      
+      input.click();
+    }
+
+    function restaurarPadroes() {
+      Swal.fire({
+        title: 'Restaurar Padrões?',
+        text: 'Isso redefinirá todas as configurações para os valores padrão.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, restaurar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          configuracaoAtual = { ...CONFIGURACOES_DEFAULT };
+          localStorage.removeItem('configuracoesSistema');
+          aplicarConfiguracoes();
+          preencherFormularioConfiguracoes();
+          Swal.fire('Sucesso!', 'Configurações restauradas para os padrões!', 'success');
+        }
+      });
+    }
+
+    // ==================== FUNÇÕES DE NAVEGAÇÃO ====================
+    function mostrarDashboard(e) {
+      if (e) e.preventDefault();
+      secaoAtual = 'dashboard';
+      atualizarNavbar();
+      esconderTodasSecoes();
+      $('#dashboard').style.display = 'block';
+      atualizarEstatisticas();
+      window.scrollTo(0, 0);
+    }
+
+    function mostrarSecao(secao) {
+      secaoAtual = secao;
+      atualizarNavbar();
+      esconderTodasSecoes();
+      $(`#${secao}`).style.display = 'block';
+      
+      // Carrega os dados da seção
+      switch(secao) {
+        case 'clientes':
+          carregarClientes();
+          break;
+        case 'fornecedores':
+          carregarFornecedores();
+          break;
+        case 'orcamentos':
+          carregarOrcamentos();
+          break;
+        case 'estoque':
+          carregarEstoque();
+          break;
+        case 'financeiro':
+          carregarFinanceiro();
+          break;
+        case 'patrimonio':
+          carregarPatrimonio();
+          break;
+        case 'contratos':
+          carregarContratos();
+          break;
+        case 'configuracoes':
+          preencherFormularioConfiguracoes();
+          break;
+        case 'relatorios':
+          atualizarEstatisticas();
+          break;
+      }
+      
+      window.scrollTo(0, 0);
+    }
+
+    function atualizarNavbar() {
+      $$('.nav-link-top').forEach(link => {
+        link.classList.remove('active');
+      });
+      
+      const linkAtivo = Array.from($$('.nav-link-top')).find(link => 
+        link.textContent.includes(getTituloSecao(secaoAtual))
+      );
+      
+      if (linkAtivo) {
+        linkAtivo.classList.add('active');
+      }
+    }
+
+    function getTituloSecao(secao) {
+      const titulos = {
+        'dashboard': 'Dashboard',
+        'clientes': 'Clientes',
+        'fornecedores': 'Fornecedores',
+        'orcamentos': 'Orçamentos',
+        'estoque': 'Estoque',
+        'financeiro': 'Financeiro',
+        'patrimonio': 'Patrimônio',
+        'contratos': 'Contratos',
+        'relatorios': 'Relatórios',
+        'configuracoes': 'Configurações'
+      };
+      return titulos[secao] || secao;
+    }
+
+    function esconderTodasSecoes() {
+      $$('.secao, #dashboard').forEach(secao => {
+        secao.style.display = 'none';
+      });
+    }
+
+    // ==================== FUNÇÕES UTILITÁRIAS ====================
+    function formatarData(data) {
+      if (!data) return '-';
+      const date = new Date(data);
+      return date.toLocaleDateString(configuracaoAtual.negocio.locale);
+    }
+
+    function formatarMoeda(valor) {
+      return parseFloat(valor || 0).toLocaleString(configuracaoAtual.negocio.locale, {
+        style: 'currency',
+        currency: configuracaoAtual.negocio.moeda
+      });
+    }
+
+    function gerarId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function salvarDados() {
+      localStorage.setItem('clientes', JSON.stringify(clientes));
+      localStorage.setItem('fornecedores', JSON.stringify(fornecedores));
+      localStorage.setItem('orcamentos', JSON.stringify(orcamentos));
+      localStorage.setItem('estoque', JSON.stringify(estoque));
+      localStorage.setItem('receber', JSON.stringify(receber));
+      localStorage.setItem('pagar', JSON.stringify(pagar));
+      localStorage.setItem('patrimonio', JSON.stringify(patrimonio));
+      localStorage.setItem('contratos', JSON.stringify(contratos));
+      atualizarEstatisticas();
+    }
+
+    // ==================== FUNÇÕES DE CLIENTES ====================
+    function adicionarCliente() {
+      editandoClienteId = null;
+      $('#formClienteModal').reset();
+      $('#nomeCliente').focus();
+      modalCliente.show();
+    }
+
+    function adicionarClienteRapido() {
+      const nome = prompt('Nome do cliente:');
+      if (nome) {
+        const cliente = {
+          id: gerarId(),
+          nome: nome,
+          telefone: '',
+          email: '',
+          endereco: '',
+          dataCadastro: new Date().toISOString()
+        };
+        clientes.push(cliente);
+        salvarDados();
+        carregarClientes();
+        Swal.fire('Sucesso!', 'Cliente adicionado com sucesso!', 'success');
+      }
+    }
+
+    function salvarCliente() {
+      const nome = $('#nomeCliente').value.trim();
+      if (!nome) {
+        Swal.fire('Atenção', 'O nome é obrigatório!', 'warning');
+        return;
+      }
+
+      const cliente = {
+        id: editandoClienteId || gerarId(),
+        nome: nome,
+        telefone: $('#telefoneCliente').value.trim(),
+        email: $('#emailCliente').value.trim(),
+        endereco: $('#enderecoCliente').value.trim(),
+        dataCadastro: editandoClienteId ? 
+          clientes.find(c => c.id === editandoClienteId)?.dataCadastro || new Date().toISOString() : 
+          new Date().toISOString()
+      };
+
+      if (editandoClienteId) {
+        const index = clientes.findIndex(c => c.id === editandoClienteId);
+        if (index !== -1) {
+          clientes[index] = cliente;
+        }
+      } else {
+        clientes.push(cliente);
+      }
+
+      salvarDados();
+      modalCliente.hide();
+      carregarClientes();
+      Swal.fire('Sucesso!', 'Cliente salvo com sucesso!', 'success');
+    }
+
+    function editarCliente(id) {
+      const cliente = clientes.find(c => c.id === id);
+      if (cliente) {
+        editandoClienteId = id;
+        $('#nomeCliente').value = cliente.nome;
+        $('#telefoneCliente').value = cliente.telefone;
+        $('#emailCliente').value = cliente.email;
+        $('#enderecoCliente').value = cliente.endereco;
+        modalCliente.show();
+      }
+    }
+
+    function excluirCliente(id) {
+      Swal.fire({
+        title: 'Tem certeza?',
+        text: "Esta ação não pode ser desfeita!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          clientes = clientes.filter(c => c.id !== id);
+          salvarDados();
+          carregarClientes();
+          Swal.fire('Excluído!', 'Cliente removido com sucesso.', 'success');
+        }
+      });
+    }
+
+    function filtrarClientes() {
+      const termo = $('#buscarCliente').value.toLowerCase();
+      carregarClientes(termo);
+    }
+
+    function carregarClientes(filtro = '') {
+      const tbody = $('#listaClientes');
+      let clientesFiltrados = clientes;
+      
+      if (filtro) {
+        clientesFiltrados = clientes.filter(c =>
+          c.nome.toLowerCase().includes(filtro) ||
+          (c.email && c.email.toLowerCase().includes(filtro)) ||
+          (c.telefone && c.telefone.includes(filtro))
+        );
+      }
+
+      if (clientesFiltrados.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-4">
+              <i class="bi bi-people display-4 text-muted mb-3 d-block"></i>
+              <p class="text-muted">${filtro ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = clientesFiltrados.map(cliente => `
+        <tr>
+          <td>${cliente.nome}</td>
+          <td>${cliente.telefone || '-'}</td>
+          <td>${cliente.email || '-'}</td>
+          <td>${cliente.endereco || '-'}</td>
+          <td>${formatarData(cliente.dataCadastro)}</td>
+          <td class="no-print">
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="editarCliente('${cliente.id}')">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="excluirCliente('${cliente.id}')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ==================== FUNÇÕES DE FORNECEDORES ====================
+    function adicionarFornecedor() {
+      const nome = prompt('Razão Social do fornecedor:');
+      if (nome) {
+        const cnpj = prompt('CNPJ (opcional):');
+        const fornecedor = {
+          id: gerarId(),
+          nome: nome,
+          cnpj: cnpj || '',
+          telefone: '',
+          email: '',
+          dataCadastro: new Date().toISOString()
+        };
+        fornecedores.push(fornecedor);
+        salvarDados();
+        carregarFornecedores();
+        Swal.fire('Sucesso!', 'Fornecedor adicionado com sucesso!', 'success');
+      }
+    }
+
+    function carregarFornecedores() {
+      const tbody = $('#listaFornecedores');
+      
+      if (fornecedores.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center py-4">
+              <i class="bi bi-truck display-4 text-muted mb-3 d-block"></i>
+              <p class="text-muted">Nenhum fornecedor cadastrado</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = fornecedores.map(fornecedor => `
+        <tr>
+          <td>${fornecedor.nome}</td>
+          <td>${fornecedor.cnpj || '-'}</td>
+          <td>${fornecedor.telefone || '-'}</td>
+          <td>${fornecedor.email || '-'}</td>
+          <td class="no-print">
+            <button class="btn btn-sm btn-outline-danger" onclick="excluirFornecedor('${fornecedor.id}')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function excluirFornecedor(id) {
+      Swal.fire({
+        title: 'Excluir Fornecedor',
+        text: "Tem certeza que deseja excluir este fornecedor?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fornecedores = fornecedores.filter(f => f.id !== id);
+          salvarDados();
+          carregarFornecedores();
+          Swal.fire('Excluído!', 'Fornecedor removido com sucesso.', 'success');
+        }
+      });
+    }
+
+    // ==================== FUNÇÕES DE ORÇAMENTOS ====================
+    function adicionarOrcamento() {
+      editandoOrcamentoId = null;
+      $('#formOrcamentoModal').reset();
+      
+      // Preenche o select de clientes
+      const select = $('#clienteOrcamento');
+      select.innerHTML = '<option value="">Selecione um cliente</option>' +
+        clientes.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+      
+      modalOrcamento.show();
+    }
+
+    function adicionarOrcamentoRapido() {
+      if (clientes.length === 0) {
+        Swal.fire('Atenção', 'Cadastre primeiro um cliente!', 'warning');
+        return;
+      }
+      
+      const clienteId = prompt('ID do cliente (deixe em branco para usar o primeiro):');
+      let cliente = clientes[0];
+      
+      if (clienteId) {
+        cliente = clientes.find(c => c.id === clienteId) || clientes[0];
+      }
+      
+      const descricao = prompt('Descrição do orçamento:');
+      if (!descricao) return;
+      
+      const valorStr = prompt('Valor do orçamento (R$):');
+      const valor = parseFloat(valorStr);
+      
+      if (isNaN(valor)) {
+        Swal.fire('Erro', 'Valor inválido!', 'error');
+        return;
+      }
+      
+      const orcamento = {
+        id: gerarId(),
+        clienteId: cliente.id,
+        clienteNome: cliente.nome,
+        descricao: descricao,
+        valor: valor,
+        status: 'pendente',
+        data: new Date().toISOString()
+      };
+      
+      orcamentos.push(orcamento);
+      salvarDados();
+      carregarOrcamentos();
+      Swal.fire('Sucesso!', 'Orçamento criado com sucesso!', 'success');
+    }
+
+    function salvarOrcamento() {
+      const clienteId = $('#clienteOrcamento').value;
+      const descricao = $('#descricaoOrcamento').value.trim();
+      const valor = parseFloat($('#valorOrcamento').value);
+      
+      if (!clienteId || !descricao || isNaN(valor)) {
+        Swal.fire('Atenção', 'Preencha todos os campos corretamente!', 'warning');
+        return;
+      }
+      
+      const cliente = clientes.find(c => c.id === clienteId);
+      if (!cliente) {
+        Swal.fire('Erro', 'Cliente não encontrado!', 'error');
+        return;
+      }
+      
+      const orcamento = {
+        id: editandoOrcamentoId || gerarId(),
+        clienteId: cliente.id,
+        clienteNome: cliente.nome,
+        descricao: descricao,
+        valor: valor,
+        status: editandoOrcamentoId ? 
+          orcamentos.find(o => o.id === editandoOrcamentoId)?.status || 'pendente' : 
+          'pendente',
+        data: editandoOrcamentoId ? 
+          orcamentos.find(o => o.id === editandoOrcamentoId)?.data || new Date().toISOString() : 
+          new Date().toISOString()
+      };
+      
+      if (editandoOrcamentoId) {
+        const index = orcamentos.findIndex(o => o.id === editandoOrcamentoId);
+        if (index !== -1) {
+          orcamentos[index] = orcamento;
+        }
+      } else {
+        orcamentos.push(orcamento);
+      }
+      
+      salvarDados();
+      modalOrcamento.hide();
+      carregarOrcamentos();
+      Swal.fire('Sucesso!', 'Orçamento salvo com sucesso!', 'success');
+    }
+
+    function filtrarOrcamentos() {
+      const status = $('#filtroStatus').value;
+      carregarOrcamentos(status);
+    }
+
+    function carregarOrcamentos(filtroStatus = 'todos') {
+      const tbody = $('#listaOrcamentos');
+      let orcamentosFiltrados = orcamentos;
+      
+      if (filtroStatus !== 'todos') {
+        orcamentosFiltrados = orcamentos.filter(o => o.status === filtroStatus);
+      }
+      
+      if (orcamentosFiltrados.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-4">
+              <i class="bi bi-calculator display-4 text-muted mb-3 d-block"></i>
+              <p class="text-muted">${filtroStatus !== 'todos' ? 'Nenhum orçamento com esse status' : 'Nenhum orçamento cadastrado'}</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = orcamentosFiltrados.map((orcamento, index) => {
+        let statusClass = 'bg-secondary';
+        if (orcamento.status === 'aprovado') statusClass = 'bg-success';
+        if (orcamento.status === 'pendente') statusClass = 'bg-warning';
+        if (orcamento.status === 'recusado') statusClass = 'bg-danger';
+        
+        return `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${orcamento.clienteNome}</td>
+            <td>${orcamento.descricao}</td>
+            <td>${formatarMoeda(orcamento.valor)}</td>
+            <td>${formatarData(orcamento.data)}</td>
+            <td><span class="badge ${statusClass}">${orcamento.status}</span></td>
+            <td class="no-print">
+              <button class="btn btn-sm btn-outline-success me-1" onclick="alterarStatusOrcamento('${orcamento.id}', 'aprovado')">
+                <i class="bi bi-check"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="excluirOrcamento('${orcamento.id}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function alterarStatusOrcamento(id, status) {
+      const orcamento = orcamentos.find(o => o.id === id);
+      if (orcamento) {
+        orcamento.status = status;
+        salvarDados();
+        carregarOrcamentos();
+        Swal.fire('Sucesso!', `Orçamento marcado como ${status}!`, 'success');
+      }
+    }
+
+    function excluirOrcamento(id) {
+      Swal.fire({
+        title: 'Excluir Orçamento',
+        text: "Tem certeza que deseja excluir este orçamento?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          orcamentos = orcamentos.filter(o => o.id !== id);
+          salvarDados();
+          carregarOrcamentos();
+          Swal.fire('Excluído!', 'Orçamento removido com sucesso.', 'success');
+        }
+      });
+    }
+
+    // ==================== FUNÇÕES DE ESTOQUE ====================
+    function adicionarItemEstoque() {
+      const produto = prompt('Nome do produto:');
+      if (!produto) return;
+      
+      const quantidadeStr = prompt('Quantidade:');
+      const quantidade = parseInt(quantidadeStr);
+      
+      if (isNaN(quantidade)) {
+        Swal.fire('Erro', 'Quantidade inválida!', 'error');
+        return;
+      }
+      
+      const minimoStr = prompt(`Estoque mínimo (padrão: ${configuracaoAtual.negocio.estoqueMinimoPadrao}):`) || configuracaoAtual.negocio.estoqueMinimoPadrao;
+      const minimo = parseInt(minimoStr);
+      
+      const item = {
+        id: gerarId(),
+        produto: produto,
+        quantidade: quantidade,
+        minimo: minimo,
+        fornecedor: '',
+        valorUnitario: 0,
+        dataCadastro: new Date().toISOString()
+      };
+      
+      estoque.push(item);
+      salvarDados();
+      carregarEstoque();
+      Swal.fire('Sucesso!', 'Item adicionado ao estoque!', 'success');
+    }
+
+    function adicionarEstoqueRapido() {
+      if (estoque.length === 0) {
+        Swal.fire('Atenção', 'Primeiro cadastre um item no estoque!', 'warning');
+        return;
+      }
+      
+      let produtos = estoque.map(e => `${e.produto} (${e.quantidade} unidades)`).join('\n');
+      const produto = prompt(`Itens disponíveis:\n${produtos}\n\nDigite o nome do produto para adicionar:`);
+      
+      if (!produto) return;
+      
+      const item = estoque.find(e => e.produto.toLowerCase().includes(produto.toLowerCase()));
+      if (!item) {
+        Swal.fire('Erro', 'Produto não encontrado!', 'error');
+        return;
+      }
+      
+      const quantidadeStr = prompt(`Quantidade a adicionar ao ${item.produto} (atual: ${item.quantidade}):`);
+      const quantidade = parseInt(quantidadeStr);
+      
+      if (isNaN(quantidade) || quantidade <= 0) {
+        Swal.fire('Erro', 'Quantidade inválida!', 'error');
+        return;
+      }
+      
+      item.quantidade += quantidade;
+      salvarDados();
+      carregarEstoque();
+      Swal.fire('Sucesso!', `${quantidade} unidades adicionadas ao ${item.produto}!`, 'success');
+    }
+
+    function calcularStatusEstoque(item) {
+      const porcentagem = (item.quantidade / item.minimo) * 100;
+      
+      if (porcentagem <= configuracaoAtual.negocio.alertaBaixoPercentual) {
+        return { classe: 'badge-estoque-baixo', texto: 'BAIXO', linha: 'table-danger' };
+      } else if (porcentagem <= configuracaoAtual.negocio.alertaAtencaoPercentual) {
+        return { classe: 'badge-estoque-medio', texto: 'ATENÇÃO', linha: 'table-warning' };
+      } else {
+        return { classe: 'badge-estoque-ok', texto: 'OK', linha: '' };
+      }
+    }
+
+    function carregarEstoque() {
+      const tbody = $('#listaEstoque');
+      
+      if (estoque.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center py-4">
+              <i class="bi bi-box display-4 text-muted mb-3 d-block"></i>
+              <p class="text-muted">Nenhum item no estoque</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = estoque.map(item => {
+        const status = calcularStatusEstoque(item);
+        
+        return `
+          <tr class="${status.linha}">
+            <td>${item.produto}</td>
+            <td>${item.quantidade}</td>
+            <td>${item.minimo}</td>
+            <td>${item.fornecedor || '-'}</td>
+            <td>${formatarMoeda(item.valorUnitario)}</td>
+            <td><span class="badge ${status.classe}">${status.texto}</span></td>
+            <td class="no-print">
+              <button class="btn btn-sm btn-outline-danger" onclick="excluirItemEstoque('${item.id}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function excluirItemEstoque(id) {
+      Swal.fire({
+        title: 'Excluir Item',
+        text: "Tem certeza que deseja excluir este item do estoque?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          estoque = estoque.filter(e => e.id !== id);
+          salvarDados();
+          carregarEstoque();
+          Swal.fire('Excluído!', 'Item removido do estoque.', 'success');
+        }
+      });
+    }
+
+    // ==================== FUNÇÕES FINANCEIRAS ====================
+    function carregarFinanceiro() {
+      carregarContasReceber();
+      carregarContasPagar();
+      atualizarSaldo();
+    }
+
+    function carregarContasReceber() {
+      const tbody = $('#listaReceber');
+      
+      if (receber.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="text-center text-muted">Nenhuma conta a receber</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = receber.map((conta, index) => `
+        <tr>
+          <td>${conta.descricao}</td>
+          <td>${formatarMoeda(conta.valor)}</td>
+          <td class="no-print">
+            <button class="btn btn-sm btn-outline-danger" onclick="removerContaReceber(${index})">
+              <i class="bi bi-x-circle"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function carregarContasPagar() {
+      const tbody = $('#listaPagar');
+      
+      if (pagar.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="text-center text-muted">Nenhuma conta a pagar</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = pagar.map((conta, index) => `
+        <tr>
+          <td>${conta.descricao}</td>
+          <td>${formatarMoeda(conta.valor)}</td>
+          <td class="no-print">
+            <button class="btn btn-sm btn-outline-danger" onclick="removerContaPagar(${index})">
+              <i class="bi bi-x-circle"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Formulário de contas a receber
+    $('#formReceber').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const descricao = $('#descReceber').value.trim();
+      const valor = parseFloat($('#valorReceber').value);
+      
+      if (!descricao || isNaN(valor)) {
+        Swal.fire('Atenção', 'Preencha todos os campos corretamente!', 'warning');
+        return;
+      }
+      
+      const conta = {
+        id: gerarId(),
+        descricao: descricao,
+        valor: valor,
+        data: new Date().toISOString()
+      };
+      
+      receber.push(conta);
+      salvarDados();
+      this.reset();
+      carregarFinanceiro();
+      Swal.fire('Sucesso!', 'Conta a receber adicionada!', 'success');
     });
-    atualizarListaEstoque();
 
-    // ==================== FINANCEIRO ====================
-    let receber = carregar('receber');
-    let pagar = carregar('pagar');
+    // Formulário de contas a pagar
+    $('#formPagar').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const descricao = $('#descPagar').value.trim();
+      const valor = parseFloat($('#valorPagar').value);
+      
+      if (!descricao || isNaN(valor)) {
+        Swal.fire('Atenção', 'Preencha todos os campos corretamente!', 'warning');
+        return;
+      }
+      
+      const conta = {
+        id: gerarId(),
+        descricao: descricao,
+        valor: valor,
+        data: new Date().toISOString()
+      };
+      
+      pagar.push(conta);
+      salvarDados();
+      this.reset();
+      carregarFinanceiro();
+      Swal.fire('Sucesso!', 'Conta a pagar adicionada!', 'success');
+    });
 
-    function calcularSaldo() {
-      const totalReceber = receber.reduce((s, v) => s + parseFloat(v.valor), 0);
-      const totalPagar = pagar.reduce((s, v) => s + parseFloat(v.valor), 0);
+    function removerContaReceber(index) {
+      receber.splice(index, 1);
+      salvarDados();
+      carregarFinanceiro();
+    }
+
+    function removerContaPagar(index) {
+      pagar.splice(index, 1);
+      salvarDados();
+      carregarFinanceiro();
+    }
+
+    function atualizarSaldo() {
+      const totalReceber = receber.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+      const totalPagar = pagar.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
       const saldo = totalReceber - totalPagar;
-      $('#saldoAtual').textContent = saldo.toFixed(2).replace('.', ',');
-      $('#saldoAtual').parentElement.className = 'alert ' + (saldo >= 0 ? 'alert-success' : 'alert-danger');
+      
+      $('#totalReceitas').textContent = formatarMoeda(totalReceber);
+      $('#totalDespesas').textContent = formatarMoeda(totalPagar);
+      $('#saldoAtual').textContent = formatarMoeda(saldo);
+      
+      const alert = $('#saldoAlert');
+      alert.className = `alert ${saldo >= 0 ? 'alert-success' : 'alert-danger'}`;
+      $('#saldoAtual').className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
     }
 
-    function atualizarFinanceiro() {
-      $('#listaReceber').innerHTML = receber.map((r, i) => `<tr><td>${r.desc}</td><td>R$ ${parseFloat(r.valor).toFixed(2)}</td><td><button class="btn btn-danger btn-sm" onclick="removerReceita(${i})">X</button></td></tr>`).join('');
-      $('#listaPagar').innerHTML = pagar.map((p, i) => `<tr><td>${p.desc}</td><td>R$ ${parseFloat(p.valor).toFixed(2)}</td><td><button class="btn btn-danger btn-sm" onclick="removerDespesa(${i})">X</button></td></tr>`).join('');
-      calcularSaldo();
+    // ==================== FUNÇÕES DE PATRIMÔNIO ====================
+    function adicionarPatrimonio() {
+      const item = prompt('Descrição do item:');
+      if (!item) return;
+      
+      const valorStr = prompt('Valor do item (R$):');
+      const valor = parseFloat(valorStr) || 0;
+      
+      const patrimonioItem = {
+        id: gerarId(),
+        nome: item,
+        valor: valor,
+        dataAquisicao: new Date().toISOString(),
+        departamento: 'Geral',
+        estado: 'bom'
+      };
+      
+      patrimonio.push(patrimonioItem);
+      salvarDados();
+      carregarPatrimonio();
+      Swal.fire('Sucesso!', 'Item adicionado ao patrimônio!', 'success');
     }
-    window.removerReceita = i => { receber.splice(i,1); salvar('receber', receber); atualizarFinanceiro(); };
-    window.removerDespesa = i => { pagar.splice(i,1); salvar('pagar', pagar); atualizarFinanceiro(); };
 
-    $('#formReceber').addEventListener('submit', e => { e.preventDefault(); receber.push({desc: e.target[0].value, valor: e.target[1].value}); salvar('receber', receber); e.target.reset(); atualizarFinanceiro(); });
-    $('#formPagar').addEventListener('submit', e => { e.preventDefault(); pagar.push({desc: e.target[0].value, valor: e.target[1].value}); salvar('pagar', pagar); e.target.reset(); atualizarFinanceiro(); });
-    atualizarFinanceiro();
-
-    // ==================== PATRIMÔNIO ====================
-    let patrimonio = carregar('patrimonio');
-    function atualizarPatrimonio() {
+    function carregarPatrimonio() {
       const tbody = $('#listaPatrimonio');
-      tbody.innerHTML = '';
-      patrimonio.forEach((p, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${p.item}</td><td>${p.data}</td><td>R$ ${parseFloat(p.valor||0).toFixed(2)}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="removerPatrimonio(${i})">Excluir</button></td>`;
-        tbody.appendChild(tr);
+      
+      if (patrimonio.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-4">
+              <i class="bi bi-building display-4 text-muted mb-3 d-block"></i>
+              <p class="text-muted">Nenhum item no patrimônio</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = patrimonio.map(item => {
+        let estadoClass = 'bg-success';
+        if (item.estado === 'regular') estadoClass = 'bg-warning';
+        if (item.estado === 'ruim') estadoClass = 'bg-danger';
+        
+        return `
+          <tr>
+            <td>${item.nome}</td>
+            <td>${formatarData(item.dataAquisicao)}</td>
+            <td>${formatarMoeda(item.valor)}</td>
+            <td>${item.departamento}</td>
+            <td><span class="badge ${estadoClass}">${item.estado}</span></td>
+            <td class="no-print">
+              <button class="btn btn-sm btn-outline-danger" onclick="excluirPatrimonio('${item.id}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function excluirPatrimonio(id) {
+      Swal.fire({
+        title: 'Excluir Item',
+        text: "Tem certeza que deseja excluir este item do patrimônio?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          patrimonio = patrimonio.filter(p => p.id !== id);
+          salvarDados();
+          carregarPatrimonio();
+          Swal.fire('Excluído!', 'Item removido do patrimônio.', 'success');
+        }
       });
     }
-    window.removerPatrimonio = i => { patrimonio.splice(i,1); salvar('patrimonio', patrimonio); atualizarPatrimonio(); };
-    $('#formPatrimonio').addEventListener('submit', e => {
-      e.preventDefault();
-      patrimonio.push({
-        item: e.target[0].value,
-        data: e.target[1].value,
-        valor: e.target[2].value
-      });
-      salvar('patrimonio', patrimonio);
-      e.target.reset();
-      atualizarPatrimonio();
-    });
-    atualizarPatrimonio();
 
-    // ==================== CONTRATOS ====================
-    let contratos = carregar('contratos', []);
-    function atualizarContratos() {
-      const div = $('#listaContratos');
-      div.innerHTML = '';
-      contratos.forEach((c, i) => {
-        const card = document.createElement('div');
-        card.className = 'card mb-3';
-        card.innerHTML = `
-          <div class="card-body">
-            <h5 class="card-title">${c.cliente}</h5>
-            <p class="card-text">${c.descricao}</p>
-            <small class="text-muted">Gerado em: ${c.data}</small>
-            <button class="btn btn-danger btn-sm float-end" onclick="removerContrato(${i})">Excluir</button>
-          </div>`;
-        div.appendChild(card);
+    // ==================== FUNÇÕES DE CONTRATOS ====================
+    function adicionarContrato() {
+      if (clientes.length === 0) {
+        Swal.fire('Atenção', 'Cadastre primeiro um cliente!', 'warning');
+        return;
+      }
+      
+      let clientesList = clientes.map((c, i) => `${i + 1}. ${c.nome}`).join('\n');
+      const clienteIndex = prompt(`Clientes disponíveis:\n${clientesList}\n\nDigite o número do cliente:`);
+      const index = parseInt(clienteIndex) - 1;
+      
+      if (isNaN(index) || index < 0 || index >= clientes.length) {
+        Swal.fire('Erro', 'Cliente inválido!', 'error');
+        return;
+      }
+      
+      const cliente = clientes[index];
+      const descricao = prompt('Descrição do contrato:');
+      
+      if (!descricao) return;
+      
+      const contrato = {
+        id: gerarId(),
+        clienteId: cliente.id,
+        clienteNome: cliente.nome,
+        descricao: descricao,
+        data: new Date().toISOString(),
+        status: 'ativo'
+      };
+      
+      contratos.push(contrato);
+      salvarDados();
+      carregarContratos();
+      Swal.fire('Sucesso!', 'Contrato criado com sucesso!', 'success');
+    }
+
+    function carregarContratos() {
+      const container = $('#listaContratos');
+      
+      if (contratos.length === 0) {
+        container.innerHTML = `
+          <div class="col-12">
+            <div class="empty-state">
+              <i class="bi bi-file-earmark-text"></i>
+              <h5>Nenhum contrato</h5>
+              <p>Comece criando seu primeiro contrato</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = contratos.map(contrato => `
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h6 class="card-title">${contrato.clienteNome}</h6>
+              <p class="card-text text-muted small">${contrato.descricao.substring(0, 100)}...</p>
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">${formatarData(contrato.data)}</small>
+                <button class="btn btn-sm btn-outline-danger" onclick="excluirContrato('${contrato.id}')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function excluirContrato(id) {
+      Swal.fire({
+        title: 'Excluir Contrato',
+        text: "Tem certeza que deseja excluir este contrato?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          contratos = contratos.filter(c => c.id !== id);
+          salvarDados();
+          carregarContratos();
+          Swal.fire('Excluído!', 'Contrato removido com sucesso.', 'success');
+        }
       });
     }
-    window.removerContrato = i => { contratos.splice(i,1); salvar('contratos', contratos); atualizarContratos(); };
-    $('#formContrato').addEventListener('submit', e => {
-      e.preventDefault();
-      contratos.push({
-        cliente: e.target[0].value,
-        descricao: e.target[1].value,
-        data: new Date().toLocaleString('pt-BR')
-      });
-      salvar('contratos', contratos);
-      e.target.reset();
-      atualizarContratos();
-    });
-    atualizarContratos();
 
+    // ==================== FUNÇÕES DE IMPRESSÃO ====================
+    function imprimirSecaoAtual() {
+      if (secaoAtual === 'dashboard') {
+        imprimirRelatorioCompleto();
+      } else {
+        window.print();
+      }
+    }
+
+    function imprimirRelatorioCompleto() {
+      const receberTotal = receber.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+      const pagarTotal = pagar.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+      const saldo = receberTotal - pagarTotal;
+      const itensBaixos = estoque.filter(item => calcularStatusEstoque(item).texto === 'BAIXO').length;
+      
+      const html = `
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+          <h2 style="text-align: center; color: ${configuracaoAtual.cores.primaria};">Relatório Completo do Sistema</h2>
+          <h4 style="text-align: center; color: #666;">${configuracaoAtual.nomeSistema} - ${new Date().toLocaleDateString(configuracaoAtual.negocio.locale)}</h4>
+          
+          <hr style="margin: 20px 0; border-color: ${configuracaoAtual.cores.primaria};">
+          
+          <h3 style="color: ${configuracaoAtual.cores.primaria};">1. Resumo Geral</h3>
+          <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Total de Clientes:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${clientes.length}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Orçamentos Pendentes:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${orcamentos.filter(o => o.status === 'pendente').length}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Itens em Estoque:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${estoque.length}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Itens com Estoque Baixo:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right; ${itensBaixos > 0 ? 'color: red;' : ''}">${itensBaixos}</td>
+            </tr>
+          </table>
+          
+          <h3 style="color: ${configuracaoAtual.cores.primaria}; margin-top: 30px;">2. Resumo Financeiro</h3>
+          <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Total de Receitas:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${formatarMoeda(receberTotal)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Total de Despesas:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${formatarMoeda(pagarTotal)}</td>
+            </tr>
+            <tr style="background: #f8f9fa;">
+              <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>SALDO ATUAL:</strong></td>
+              <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right; ${saldo >= 0 ? 'color: green;' : 'color: red;'}">${formatarMoeda(saldo)}</td>
+            </tr>
+          </table>
+          
+          <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <p style="margin: 0; text-align: center;"><strong>Relatório gerado automaticamente pelo sistema ${configuracaoAtual.nomeSistema}</strong></p>
+            <p style="margin: 5px 0 0 0; text-align: center; font-size: 12px; color: #666;">
+              ${configuracaoAtual.nomeEmpresa} - ${configuracaoAtual.cnpj} - ${configuracaoAtual.endereco}
+            </p>
+          </div>
+        </div>
+      `;
+      
+      const janela = window.open('', '_blank');
+      janela.document.write(html);
+      janela.document.close();
+      setTimeout(() => {
+        janela.print();
+        janela.close();
+      }, 500);
+    }
+
+    function imprimirRelatorioFinanceiro() {
+      const receberTotal = receber.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+      const pagarTotal = pagar.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+      const saldo = receberTotal - pagarTotal;
+      
+      const html = `
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+          <h2 style="text-align: center; color: ${configuracaoAtual.cores.primaria};">Relatório Financeiro</h2>
+          <h4 style="text-align: center; color: #666;">${configuracaoAtual.nomeSistema} - ${new Date().toLocaleDateString(configuracaoAtual.negocio.locale)}</h4>
+          
+          <div style="margin: 20px 0;">
+            <h3>Contas a Receber (${receber.length})</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: #f8f9fa;">
+                  <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Descrição</th>
+                  <th style="padding: 10px; text-align: right; border-bottom: 2px solid #ddd;">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${receber.map(conta => `
+                  <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${conta.descricao}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${formatarMoeda(conta.valor)}</td>
+                  </tr>
+                `).join('') || '<tr><td colspan="2" style="padding: 8px; text-align: center;">Nenhuma conta a receber</td></tr>'}
+                <tr style="background: #f8f9fa;">
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>TOTAL:</strong></td>
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;"><strong>${formatarMoeda(receberTotal)}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="margin: 20px 0;">
+            <h3>Contas a Pagar (${pagar.length})</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: #f8f9fa;">
+                  <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Descrição</th>
+                  <th style="padding: 10px; text-align: right; border-bottom: 2px solid #ddd;">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${pagar.map(conta => `
+                  <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${conta.descricao}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${formatarMoeda(conta.valor)}</td>
+                  </tr>
+                `).join('') || '<tr><td colspan="2" style="padding: 8px; text-align: center;">Nenhuma conta a pagar</td></tr>'}
+                <tr style="background: #f8f9fa;">
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>TOTAL:</strong></td>
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;"><strong>${formatarMoeda(pagarTotal)}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div style="margin: 30px 0; padding: 20px; background: ${saldo >= 0 ? '#d4edda' : '#f8d7da'}; border-radius: 5px;">
+            <h3 style="text-align: center; margin: 0; color: ${saldo >= 0 ? '#155724' : '#721c24'}">
+              Saldo Atual: ${formatarMoeda(saldo)}
+            </h3>
+          </div>
+          
+          <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <p style="margin: 0; text-align: center;"><strong>${configuracaoAtual.nomeEmpresa}</strong></p>
+            <p style="margin: 5px 0 0 0; text-align: center; font-size: 12px; color: #666;">
+              CNPJ: ${configuracaoAtual.cnpj} | ${configuracaoAtual.endereco} | Tel: ${configuracaoAtual.telefone}
+            </p>
+          </div>
+        </div>
+      `;
+      
+      const janela = window.open('', '_blank');
+      janela.document.write(html);
+      janela.document.close();
+      setTimeout(() => {
+        janela.print();
+        janela.close();
+      }, 500);
+    }
+
+    function imprimirRelatorioEstoque() {
+      const itensBaixos = estoque.filter(item => calcularStatusEstoque(item).texto === 'BAIXO').length;
+      const valorTotal = estoque.reduce((s, item) => s + (item.quantidade * (item.valorUnitario || 0)), 0);
+      
+      const html = `
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+          <h2 style="text-align: center; color: ${configuracaoAtual.cores.primaria};">Relatório de Estoque</h2>
+          <h4 style="text-align: center; color: #666;">${configuracaoAtual.nomeSistema} - ${new Date().toLocaleDateString(configuracaoAtual.negocio.locale)}</h4>
+          
+          <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <p><strong>Total de Itens:</strong> ${estoque.length}</p>
+            <p><strong>Itens com Estoque Baixo:</strong> <span style="${itensBaixos > 0 ? 'color: red;' : ''}">${itensBaixos}</span></p>
+            <p><strong>Valor Total em Estoque:</strong> ${formatarMoeda(valorTotal)}</p>
+          </div>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+              <tr style="background: #f8f9fa;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Produto</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd;">Quantidade</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd;">Mínimo</th>
+                <th style="padding: 10px; text-align: center; border-bottom: 2px solid #ddd;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${estoque.map(item => {
+                const status = calcularStatusEstoque(item);
+                const rowStyle = status.texto === 'BAIXO' ? 'background: #f8d7da;' : status.texto === 'ATENÇÃO' ? 'background: #fff3cd;' : '';
+                return `
+                  <tr style="${rowStyle}">
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.produto}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantidade}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.minimo}</td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">
+                      <span style="display: inline-block; padding: 3px 8px; border-radius: 3px; 
+                        background: ${status.texto === 'BAIXO' ? '#dc3545' : status.texto === 'ATENÇÃO' ? '#ffc107' : '#28a745'}; 
+                        color: ${status.texto === 'ATENÇÃO' ? '#000' : '#fff'};">
+                        ${status.texto}
+                      </span>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+          
+          ${itensBaixos > 0 ? `
+            <div style="margin: 20px 0; padding: 15px; background: #fff3cd; border-radius: 5px;">
+              <p style="margin: 0;"><strong>Atenção:</strong> ${itensBaixos} ${itensBaixos === 1 ? 'item necessita' : 'itens necessitam'} de reposição urgente.</p>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      
+      const janela = window.open('', '_blank');
+      janela.document.write(html);
+      janela.document.close();
+      setTimeout(() => {
+        janela.print();
+        janela.close();
+      }, 500);
+    }
+
+    function imprimirRelatorioClientes() {
+      const html = `
+        <div style="padding: 20px; font-family: Arial, sans-serif;">
+          <h2 style="text-align: center; color: ${configuracaoAtual.cores.primaria};">Relatório de Clientes</h2>
+          <h4 style="text-align: center; color: #666;">${configuracaoAtual.nomeSistema} - ${new Date().toLocaleDateString(configuracaoAtual.negocio.locale)}</h4>
+          
+          <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <p><strong>Total de Clientes:</strong> ${clientes.length}</p>
+          </div>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+              <tr style="background: #f8f9fa;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Nome</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Telefone</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">E-mail</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Data Cadastro</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${clientes.map(cliente => `
+                <tr>
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd;">${cliente.nome}</td>
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd;">${cliente.telefone || '-'}</td>
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd;">${cliente.email || '-'}</td>
+                  <td style="padding: 8px; border-bottom: 1px solid #ddd;">${formatarData(cliente.dataCadastro)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      
+      const janela = window.open('', '_blank');
+      janela.document.write(html);
+      janela.document.close();
+      setTimeout(() => {
+        janela.print();
+        janela.close();
+      }, 500);
+    }
+
+    // ==================== FUNÇÕES DE EXPORTAÇÃO ====================
+    function exportarDados() {
+      const dados = {
+        clientes: clientes,
+        fornecedores: fornecedores,
+        orcamentos: orcamentos,
+        estoque: estoque,
+        receber: receber,
+        pagar: pagar,
+        patrimonio: patrimonio,
+        contratos: contratos,
+        configuracoes: configuracaoAtual,
+        dataExportacao: new Date().toISOString(),
+        versao: "1.0.0"
+      };
+      
+      const json = JSON.stringify(dados, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backup-completo-${configuracaoAtual.nomeSistema}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      Swal.fire('Sucesso!', 'Dados exportados com sucesso!', 'success');
+    }
+
+    // ==================== FUNÇÕES DE ESTATÍSTICAS ====================
+    function atualizarEstatisticas() {
+      // Atualiza contadores
+      $('#totalClientes').textContent = clientes.length;
+      $('#totalOrcamentos').textContent = orcamentos.length;
+      $('#estoqueBaixo').textContent = estoque.filter(item => calcularStatusEstoque(item).texto === 'BAIXO').length;
+      
+      // Atualiza saldo
+      const receberTotal = receber.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+      const pagarTotal = pagar.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+      const saldo = receberTotal - pagarTotal;
+      $('#saldoResumo').textContent = formatarMoeda(saldo);
+      
+      // Atualiza cor do saldo
+      const elementoSaldo = $('#saldoResumo');
+      elementoSaldo.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
+    }
+
+    // ==================== FUNÇÕES DE MANUTENÇÃO ====================
+    function limparTodosDados() {
+      Swal.fire({
+        title: 'Tem certeza absoluta?',
+        text: "Isso apagará TODOS os dados do sistema, incluindo clientes, estoque, finanças e configurações!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, limpar tudo!',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.clear();
+          location.reload();
+        }
+      });
+    }
+
+    // ==================== INICIALIZAÇÃO ====================
+    function inicializar() {
+      // Carrega configurações
+      carregarConfiguracoes();
+      
+      // Mostra o dashboard inicialmente
+      mostrarDashboard();
+      
+      // Inicializa dados de exemplo se necessário
+      if (clientes.length === 0) {
+        clientes = [
+          {
+            id: gerarId(),
+            nome: 'João Silva',
+            telefone: '(11) 99999-8888',
+            email: 'joao@exemplo.com',
+            endereco: 'Rua das Flores, 123',
+            dataCadastro: new Date().toISOString()
+          }
+        ];
+      }
+      
+      if (estoque.length === 0) {
+        estoque = [
+          {
+            id: gerarId(),
+            produto: 'MDF 15mm',
+            quantidade: 10,
+            minimo: configuracaoAtual.negocio.estoqueMinimoPadrao,
+            fornecedor: 'Madeireira Central',
+            valorUnitario: 89.90,
+            dataCadastro: new Date().toISOString()
+          }
+        ];
+      }
+      
+      if (receber.length === 0) {
+        receber = [
+          {
+            id: gerarId(),
+            descricao: 'Mesa de Jantar',
+            valor: 1200.00,
+            data: new Date().toISOString()
+          }
+        ];
+      }
+      
+      if (pagar.length === 0) {
+        pagar = [
+          {
+            id: gerarId(),
+            descricao: 'Compra de Madeira',
+            valor: 850.00,
+            data: new Date().toISOString()
+          }
+        ];
+      }
+      
+      // Salva os dados iniciais
+      salvarDados();
+      
+      // Atualiza as estatísticas
+      atualizarEstatisticas();
+      
+      // Configura auto-save se habilitado
+      if (configuracaoAtual.usuario.autoSave) {
+        setInterval(salvarDados, configuracaoAtual.usuario.intervaloAutoSave);
+      }
+    }
+
+    // Inicia o sistema quando a página carrega
+    document.addEventListener('DOMContentLoaded', inicializar);
   </script>
 </body>
 </html>
