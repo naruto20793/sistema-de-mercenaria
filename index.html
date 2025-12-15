@@ -139,7 +139,7 @@
       border-radius: var(--card-border-radius) var(--card-border-radius) 0 0 !important;
     }
     
-    /* ==================== TABELAS ==================== */
+    /* ==================== TABELAS EDITÁVEIS ==================== */
     .table {
       margin-bottom: 0;
     }
@@ -148,6 +148,83 @@
       font-weight: 600;
       border-top: none;
       background: #f8f9fa;
+    }
+    
+    /* Células editáveis */
+    .editable-cell {
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.2s;
+    }
+    
+    .editable-cell:hover {
+      background-color: #f8f9fa !important;
+    }
+    
+    .editable-cell.editing {
+      background-color: #e3f2fd !important;
+      padding: 0 !important;
+    }
+    
+    .cell-input {
+      width: 100%;
+      height: 100%;
+      border: 2px solid var(--cor-secundaria);
+      padding: 4px 8px;
+      font-size: inherit;
+      font-family: inherit;
+      border-radius: var(--border-radius-padrao);
+      background: white;
+      box-sizing: border-box;
+    }
+    
+    .cell-select {
+      width: 100%;
+      height: 100%;
+      border: 2px solid var(--cor-secundaria);
+      padding: 4px 8px;
+      font-size: inherit;
+      font-family: inherit;
+      border-radius: var(--border-radius-padrao);
+      background: white;
+      box-sizing: border-box;
+    }
+    
+    .cell-textarea {
+      width: 100%;
+      height: 100%;
+      border: 2px solid var(--cor-secundaria);
+      padding: 4px 8px;
+      font-size: inherit;
+      font-family: inherit;
+      border-radius: var(--border-radius-padrao);
+      background: white;
+      box-sizing: border-box;
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    /* Indicador de célula editável */
+    .editable-cell::after {
+      content: "✎";
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      color: var(--cor-secundaria);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .editable-cell:hover::after {
+      opacity: 1;
+    }
+    
+    /* Colunas não editáveis */
+    .non-editable-cell {
+      cursor: default;
+      background-color: #f8f9fa;
     }
     
     /* ==================== BADGES ==================== */
@@ -202,6 +279,10 @@
       
       .content {
         padding: 0;
+      }
+      
+      .editable-cell::after {
+        display: none !important;
       }
     }
     
@@ -271,6 +352,10 @@
       
       .navbar-brand span {
         font-size: 1.2rem;
+      }
+      
+      .editable-cell::after {
+        display: none;
       }
     }
   </style>
@@ -470,6 +555,9 @@
             <button class="btn btn-primary btn-sm" onclick="adicionarCliente()">
               <i class="bi bi-plus-circle me-2"></i>Novo Cliente
             </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('clientes')">
+              <i class="bi bi-pencil-square me-2"></i>Editar Tudo
+            </button>
           </div>
         </div>
         <div class="card-body">
@@ -479,6 +567,9 @@
                 <span class="input-group-text"><i class="bi bi-search"></i></span>
                 <input type="text" class="form-control" id="buscarCliente" placeholder="Buscar cliente..." onkeyup="filtrarClientes()">
               </div>
+            </div>
+            <div class="col-md-6 text-end">
+              <small class="text-muted">Clique duas vezes em uma célula para editar</small>
             </div>
           </div>
           <div class="table-responsive">
@@ -510,6 +601,9 @@
           <div>
             <button class="btn btn-success btn-sm" onclick="adicionarFornecedor()">
               <i class="bi bi-plus-circle me-2"></i>Novo Fornecedor
+            </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('fornecedores')">
+              <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
           </div>
         </div>
@@ -543,6 +637,9 @@
             <button class="btn btn-primary btn-sm" onclick="adicionarOrcamento()">
               <i class="bi bi-plus-circle me-2"></i>Novo Orçamento
             </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('orcamentos')">
+              <i class="bi bi-pencil-square me-2"></i>Editar Tudo
+            </button>
           </div>
         </div>
         <div class="card-body">
@@ -555,16 +652,19 @@
                 <option value="recusado">Recusados</option>
               </select>
             </div>
+            <div class="col-md-8 text-end">
+              <small class="text-muted">Clique duas vezes para editar. Status pode ser alterado.</small>
+            </div>
           </div>
           <div class="table-responsive">
             <table class="table table-hover">
               <thead class="table-light">
                 <tr>
-                  <th>Nº</th>
+                  <th class="non-editable-cell">Nº</th>
                   <th>Cliente</th>
                   <th>Descrição</th>
                   <th>Valor</th>
-                  <th>Data</th>
+                  <th class="non-editable-cell">Data</th>
                   <th>Status</th>
                   <th class="no-print">Ações</th>
                 </tr>
@@ -587,12 +687,15 @@
             <button class="btn btn-warning btn-sm" onclick="adicionarItemEstoque()">
               <i class="bi bi-plus-circle me-2"></i>Novo Item
             </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('estoque')">
+              <i class="bi bi-pencil-square me-2"></i>Editar Tudo
+            </button>
           </div>
         </div>
         <div class="card-body">
           <div class="alert alert-warning d-flex align-items-center no-print" role="alert">
             <i class="bi bi-exclamation-triangle me-3"></i>
-            <div>Itens com estoque baixo são marcados em vermelho</div>
+            <div>Itens com estoque baixo são marcados em vermelho. Clique duas vezes para editar valores.</div>
           </div>
           <div class="table-responsive">
             <table class="table table-hover">
@@ -603,7 +706,7 @@
                   <th>Mínimo</th>
                   <th>Fornecedor</th>
                   <th>Valor Unitário</th>
-                  <th>Status</th>
+                  <th class="non-editable-cell">Status</th>
                   <th class="no-print">Ações</th>
                 </tr>
               </thead>
@@ -625,36 +728,29 @@
             <button class="btn btn-outline-secondary btn-sm" onclick="imprimirRelatorioFinanceiro()">
               <i class="bi bi-printer me-2"></i>Imprimir Relatório
             </button>
+            <button class="btn btn-outline-primary btn-sm ms-2" onclick="ativarEdicaoTodos('financeiro')">
+              <i class="bi bi-pencil-square me-2"></i>Editar Valores
+            </button>
           </div>
         </div>
         <div class="card-body">
           <div class="row">
             <div class="col-md-6">
               <div class="card mb-3">
-                <div class="card-header bg-success text-white">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                   <h6 class="mb-0">Contas a Receber</h6>
+                  <button class="btn btn-light btn-sm" onclick="adicionarContaReceber()">
+                    <i class="bi bi-plus"></i> Nova
+                  </button>
                 </div>
                 <div class="card-body">
-                  <form id="formReceber" class="mb-3">
-                    <div class="row g-2">
-                      <div class="col-md-7">
-                        <input type="text" class="form-control" placeholder="Descrição" id="descReceber" required>
-                      </div>
-                      <div class="col-md-3">
-                        <input type="number" class="form-control" placeholder="Valor R$" id="valorReceber" step="0.01" required>
-                      </div>
-                      <div class="col-md-2">
-                        <button type="submit" class="btn btn-success w-100">+</button>
-                      </div>
-                    </div>
-                  </form>
                   <div class="table-responsive">
                     <table class="table table-sm">
                       <thead>
                         <tr>
                           <th>Descrição</th>
                           <th>Valor</th>
-                          <th class="no-print"></th>
+                          <th class="no-print">Ações</th>
                         </tr>
                       </thead>
                       <tbody id="listaReceber">
@@ -667,30 +763,20 @@
             </div>
             <div class="col-md-6">
               <div class="card mb-3">
-                <div class="card-header bg-danger text-white">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
                   <h6 class="mb-0">Contas a Pagar</h6>
+                  <button class="btn btn-light btn-sm" onclick="adicionarContaPagar()">
+                    <i class="bi bi-plus"></i> Nova
+                  </button>
                 </div>
                 <div class="card-body">
-                  <form id="formPagar" class="mb-3">
-                    <div class="row g-2">
-                      <div class="col-md-7">
-                        <input type="text" class="form-control" placeholder="Descrição" id="descPagar" required>
-                      </div>
-                      <div class="col-md-3">
-                        <input type="number" class="form-control" placeholder="Valor R$" id="valorPagar" step="0.01" required>
-                      </div>
-                      <div class="col-md-2">
-                        <button type="submit" class="btn btn-danger w-100">+</button>
-                      </div>
-                    </div>
-                  </form>
                   <div class="table-responsive">
                     <table class="table table-sm">
                       <thead>
                         <tr>
                           <th>Descrição</th>
                           <th>Valor</th>
-                          <th class="no-print"></th>
+                          <th class="no-print">Ações</th>
                         </tr>
                       </thead>
                       <tbody id="listaPagar">
@@ -731,6 +817,9 @@
             <button class="btn btn-info btn-sm text-white" onclick="adicionarPatrimonio()">
               <i class="bi bi-plus-circle me-2"></i>Novo Item
             </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('patrimonio')">
+              <i class="bi bi-pencil-square me-2"></i>Editar Tudo
+            </button>
           </div>
         </div>
         <div class="card-body">
@@ -739,7 +828,7 @@
               <thead class="table-light">
                 <tr>
                   <th>Item</th>
-                  <th>Data Aquisição</th>
+                  <th class="non-editable-cell">Data Aquisição</th>
                   <th>Valor</th>
                   <th>Departamento</th>
                   <th>Estado</th>
@@ -763,6 +852,9 @@
           <div>
             <button class="btn btn-primary btn-sm" onclick="adicionarContrato()">
               <i class="bi bi-plus-circle me-2"></i>Novo Contrato
+            </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('contratos')">
+              <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
           </div>
         </div>
@@ -832,148 +924,17 @@
           </div>
         </div>
         <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-              <!-- Configurações da Empresa -->
-              <div class="config-group">
-                <h6>Informações da Empresa</h6>
-                <div class="mb-3">
-                  <label class="form-label">Nome do Sistema</label>
-                  <input type="text" class="form-control" id="configNomeSistema" value="MarcenariaPro">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Nome da Empresa</label>
-                  <input type="text" class="form-control" id="configNomeEmpresa" value="Marcenaria Express">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">CNPJ</label>
-                  <input type="text" class="form-control" id="configCNPJ" value="12.345.678/0001-99">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Endereço</label>
-                  <input type="text" class="form-control" id="configEndereco" value="Rua das Madeiras, 123">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Telefone</label>
-                  <input type="text" class="form-control" id="configTelefone" value="(11) 3333-4444">
-                </div>
-              </div>
-
-              <!-- Configurações de Estoque -->
-              <div class="config-group">
-                <h6>Configurações de Estoque</h6>
-                <div class="mb-3">
-                  <label class="form-label">Estoque Mínimo Padrão</label>
-                  <input type="number" class="form-control" id="configEstoqueMinimo" value="5" min="1">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Nível de Alerta Baixo (%)</label>
-                  <input type="number" class="form-control" id="configAlertaBaixo" value="30" min="1" max="100">
-                  <small class="text-muted">Percentual em relação ao estoque mínimo para alerta vermelho</small>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Nível de Atenção (%)</label>
-                  <input type="number" class="form-control" id="configAlertaAtencao" value="60" min="1" max="100">
-                  <small class="text-muted">Percentual para alerta amarelo</small>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <!-- Configurações de Cores -->
-              <div class="config-group">
-                <h6>Cores do Sistema</h6>
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Cor Primária</label>
-                    <div class="input-group">
-                      <span class="color-preview" id="previewPrimaria" style="background: #2c3e50;"></span>
-                      <input type="color" class="form-control" id="configCorPrimaria" value="#2c3e50">
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Cor Secundária</label>
-                    <div class="input-group">
-                      <span class="color-preview" id="previewSecundaria" style="background: #3498db;"></span>
-                      <input type="color" class="form-control" id="configCorSecundaria" value="#3498db">
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Cor de Sucesso</label>
-                    <div class="input-group">
-                      <span class="color-preview" id="previewSucesso" style="background: #27ae60;"></span>
-                      <input type="color" class="form-control" id="configCorSucesso" value="#27ae60">
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Cor de Aviso</label>
-                    <div class="input-group">
-                      <span class="color-preview" id="previewAviso" style="background: #f39c12;"></span>
-                      <input type="color" class="form-control" id="configCorAviso" value="#f39c12">
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Cor de Perigo</label>
-                    <div class="input-group">
-                      <span class="color-preview" id="previewPerigo" style="background: #e74c3c;"></span>
-                      <input type="color" class="form-control" id="configCorPerigo" value="#e74c3c">
-                    </div>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Cor de Informação</label>
-                    <div class="input-group">
-                      <span class="color-preview" id="previewInfo" style="background: #17a2b8;"></span>
-                      <input type="color" class="form-control" id="configCorInfo" value="#17a2b8">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Configurações de Sistema -->
-              <div class="config-group">
-                <h6>Configurações do Sistema</h6>
-                <div class="mb-3">
-                  <label class="form-label">Tamanho da Fonte Base</label>
-                  <input type="number" class="form-control" id="configTamanhoFonte" value="16" min="12" max="20" step="1">
-                  <small class="text-muted">em pixels</small>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Arredondamento de Bordas</label>
-                  <input type="number" class="form-control" id="configBorderRadius" value="6" min="0" max="20" step="1">
-                  <small class="text-muted">em pixels</small>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Velocidade de Transição</label>
-                  <input type="number" class="form-control" id="configTransitionSpeed" value="0.3" min="0.1" max="2" step="0.1">
-                  <small class="text-muted">em segundos</small>
-                </div>
-                <div class="form-check mb-3">
-                  <input class="form-check-input" type="checkbox" id="configAnimacoes" checked>
-                  <label class="form-check-label" for="configAnimacoes">
-                    Ativar animações
-                  </label>
-                </div>
-              </div>
-
-              <!-- Ações do Sistema -->
-              <div class="config-group">
-                <h6>Ações do Sistema</h6>
-                <div class="d-grid gap-2">
-                  <button class="btn btn-success" onclick="exportarConfiguracoes()">
-                    <i class="bi bi-download me-2"></i>Exportar Configurações
-                  </button>
-                  <button class="btn btn-primary" onclick="importarConfiguracoes()">
-                    <i class="bi bi-upload me-2"></i>Importar Configurações
-                  </button>
-                  <button class="btn btn-warning" onclick="restaurarPadroes()">
-                    <i class="bi bi-arrow-clockwise me-2"></i>Restaurar Padrões
-                  </button>
-                  <button class="btn btn-danger" onclick="limparTodosDados()">
-                    <i class="bi bi-trash me-2"></i>Limpar Todos os Dados
-                  </button>
-                </div>
-              </div>
-            </div>
+          <!-- Configurações removidas para simplificação -->
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Instruções de Edição:</strong>
+            <ul class="mb-0 mt-2">
+              <li>Clique <strong>duas vezes</strong> em qualquer célula da tabela para editá-la</li>
+              <li>Pressione <strong>Enter</strong> para salvar as alterações</li>
+              <li>Pressione <strong>Escape</strong> para cancelar a edição</li>
+              <li>Use o botão <strong>"Editar Tudo"</strong> para habilitar edição em todas as células</li>
+              <li>Colunas com fundo cinza não podem ser editadas (geradas automaticamente)</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -981,236 +942,20 @@
 
   </div>
 
-  <!-- Modal para Adicionar Cliente -->
-  <div class="modal fade" id="modalCliente">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Novo Cliente</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="formClienteModal">
-            <div class="mb-3">
-              <label class="form-label">Nome Completo *</label>
-              <input type="text" class="form-control" id="nomeCliente" required>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Telefone</label>
-                <input type="text" class="form-control" id="telefoneCliente" placeholder="(11) 99999-9999">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">E-mail</label>
-                <input type="email" class="form-control" id="emailCliente">
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Endereço</label>
-              <input type="text" class="form-control" id="enderecoCliente">
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" onclick="salvarCliente()">Salvar Cliente</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal para Adicionar Orçamento -->
-  <div class="modal fade" id="modalOrcamento">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Novo Orçamento</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="formOrcamentoModal">
-            <div class="mb-3">
-              <label class="form-label">Cliente *</label>
-              <select class="form-select" id="clienteOrcamento" required>
-                <option value="">Selecione um cliente</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Descrição *</label>
-              <textarea class="form-control" id="descricaoOrcamento" rows="3" required></textarea>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Valor (R$) *</label>
-              <input type="number" class="form-control" id="valorOrcamento" step="0.01" required>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" onclick="salvarOrcamento()">Salvar Orçamento</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <script>
-    // ==================== CONFIGURAÇÕES DO SISTEMA ====================
-    // TODAS AS VARIÁVEIS SÃO CONFIGURÁVEIS AQUI
-
-    const CONFIGURACOES_DEFAULT = {
-      // Informações da Empresa
-      nomeSistema: "MarcenariaPro",
-      nomeEmpresa: "Marcenaria Express",
-      cnpj: "12.345.678/0001-99",
-      endereco: "Rua das Madeiras, 123",
-      telefone: "(11) 3333-4444",
-      
-      // Cores do Sistema
-      cores: {
-        primaria: "#2c3e50",
-        secundaria: "#3498db",
-        sucesso: "#27ae60",
-        aviso: "#f39c12",
-        perigo: "#e74c3c",
-        info: "#17a2b8",
-        clara: "#f5f7fa",
-        escura: "#343a40"
-      },
-      
-      // Layout
-      layout: {
-        navbarAltura: "80px",
-        navbarAlturaMobile: "70px",
-        sidebarLargura: "260px",
-        sidebarLarguraMobile: "70px",
-        cardBorderRadius: "12px",
-        cardBorderSize: "4px",
-        borderRadiusPadrao: "6px",
-        borderRadiusGrande: "12px"
-      },
-      
-      // Tipografia
-      tipografia: {
-        fontePrincipal: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        tamanhoBase: "16px",
-        tamanhoPequeno: "0.9rem",
-        tamanhoGrande: "1.2rem"
-      },
-      
-      // Efeitos
-      efeitos: {
-        transitionSpeed: "0.3s",
-        sombraLeve: "0 2px 5px rgba(0,0,0,0.05)",
-        sombraMedia: "0 2px 10px rgba(0,0,0,0.1)",
-        sombraForte: "0 2px 15px rgba(0,0,0,0.08)",
-        animacoes: true
-      },
-      
-      // Configurações de Negócio
-      negocio: {
-        estoqueMinimoPadrao: 5,
-        alertaBaixoPercentual: 30,  // Percentual para estoque baixo
-        alertaAtencaoPercentual: 60, // Percentual para atenção
-        moeda: "BRL",
-        locale: "pt-BR"
-      },
-      
-      // Textos do Sistema (PODE ALTERAR TODOS)
-      textos: {
-        dashboard: {
-          titulo: "Dashboard",
-          subtitulo: "Visão geral do sistema",
-          totalClientes: "Total Clientes",
-          totalOrcamentos: "Orçamentos",
-          estoqueBaixo: "Estoque Baixo",
-          saldo: "Saldo",
-          acoesRapidas: "Ações Rápidas"
-        },
-        clientes: {
-          titulo: "Clientes",
-          subtitulo: "Gerencie seus clientes",
-          buscarPlaceholder: "Buscar cliente...",
-          colunas: ["Nome", "Telefone", "E-mail", "Endereço", "Cadastro", "Ações"]
-        },
-        fornecedores: {
-          titulo: "Fornecedores",
-          subtitulo: "Gerencie seus fornecedores",
-          colunas: ["Razão Social", "CNPJ", "Telefone", "E-mail", "Ações"]
-        },
-        orcamentos: {
-          titulo: "Orçamentos",
-          subtitulo: "Gerencie seus orçamentos",
-          colunas: ["Nº", "Cliente", "Descrição", "Valor", "Data", "Status", "Ações"],
-          status: {
-            todos: "Todos os Status",
-            pendente: "Pendentes",
-            aprovado: "Aprovados",
-            recusado: "Recusados"
-          }
-        },
-        estoque: {
-          titulo: "Estoque",
-          subtitulo: "Gerencie seu estoque",
-          colunas: ["Produto", "Quantidade", "Mínimo", "Fornecedor", "Valor Unitário", "Status", "Ações"],
-          alertaEstoque: "Itens com estoque baixo são marcados em vermelho"
-        },
-        financeiro: {
-          titulo: "Financeiro",
-          subtitulo: "Gerencie suas finanças",
-          receber: "Contas a Receber",
-          pagar: "Contas a Pagar",
-          saldoAtual: "Saldo Atual:",
-          receitas: "Receitas:",
-          despesas: "Despesas:"
-        },
-        patrimonio: {
-          titulo: "Patrimônio",
-          subtitulo: "Gerencie seu patrimônio",
-          colunas: ["Item", "Data Aquisição", "Valor", "Departamento", "Estado", "Ações"]
-        },
-        contratos: {
-          titulo: "Contratos",
-          subtitulo: "Gerencie seus contratos"
-        },
-        relatorios: {
-          titulo: "Relatórios",
-          subtitulo: "Gerencie seus relatórios"
-        },
-        configuracoes: {
-          titulo: "Configurações",
-          subtitulo: "Configure o sistema"
-        },
-        mensagens: {
-          sucesso: "Operação realizada com sucesso!",
-          erro: "Ocorreu um erro!",
-          confirmacao: "Tem certeza?",
-          carregando: "Carregando..."
-        }
-      },
-      
-      // Preferências do Usuário
-      usuario: {
-        tema: "claro",
-        notificacoes: true,
-        autoSave: true,
-        intervaloAutoSave: 30000 // 30 segundos
-      }
-    };
-
     // ==================== VARIÁVEIS GLOBAIS ====================
     const $ = (s) => document.querySelector(s);
     const $$ = (s) => document.querySelectorAll(s);
-    const modalCliente = new bootstrap.Modal($('#modalCliente'));
-    const modalOrcamento = new bootstrap.Modal($('#modalOrcamento'));
     
     let secaoAtual = 'dashboard';
     let editandoClienteId = null;
     let editandoOrcamentoId = null;
-    let configuracaoAtual = { ...CONFIGURACOES_DEFAULT };
+    let celulaEditando = null;
+    let modoEdicaoTodos = false;
 
     // Dados do sistema
     let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
@@ -1222,221 +967,258 @@
     let patrimonio = JSON.parse(localStorage.getItem('patrimonio') || '[]');
     let contratos = JSON.parse(localStorage.getItem('contratos') || '[]');
 
-    // ==================== FUNÇÕES DE CONFIGURAÇÃO ====================
-    function carregarConfiguracoes() {
-      const configSalva = localStorage.getItem('configuracoesSistema');
-      if (configSalva) {
-        configuracaoAtual = { ...CONFIGURACOES_DEFAULT, ...JSON.parse(configSalva) };
+    // ==================== SISTEMA DE EDIÇÃO DE CÉLULAS ====================
+    
+    function ativarEdicaoTodos(secao) {
+      modoEdicaoTodos = !modoEdicaoTodos;
+      const botao = $(`#${secao} .btn-outline-secondary`);
+      
+      if (modoEdicaoTodos) {
+        botao.classList.remove('btn-outline-secondary');
+        botao.classList.add('btn-success');
+        botao.innerHTML = '<i class="bi bi-check-square me-2"></i>Salvar Tudo';
+        
+        // Adiciona a classe editable-cell a todas as células editáveis
+        $$(`#${secao} .editable-cell`).forEach(cell => {
+          cell.classList.add('editing-todos');
+        });
+        
+        Swal.fire({
+          title: 'Modo Edição Ativado',
+          text: 'Todas as células estão editáveis. Clique para editar.',
+          icon: 'info',
+          timer: 2000
+        });
       } else {
-        configuracaoAtual = { ...CONFIGURACOES_DEFAULT };
+        botao.classList.remove('btn-success');
+        botao.classList.add('btn-outline-secondary');
+        botao.innerHTML = '<i class="bi bi-pencil-square me-2"></i>Editar Tudo';
+        
+        // Remove a classe e salva todas as alterações
+        $$(`#${secao} .editing-todos`).forEach(cell => {
+          cell.classList.remove('editing-todos');
+        });
+        
+        salvarAlteracoesEmMassa(secao);
       }
-      aplicarConfiguracoes();
-      preencherFormularioConfiguracoes();
     }
 
-    function salvarConfiguracoes() {
-      // Atualiza configurações do formulário
-      configuracaoAtual.nomeSistema = $('#configNomeSistema').value;
-      configuracaoAtual.nomeEmpresa = $('#configNomeEmpresa').value;
-      configuracaoAtual.cnpj = $('#configCNPJ').value;
-      configuracaoAtual.endereco = $('#configEndereco').value;
-      configuracaoAtual.telefone = $('#configTelefone').value;
+    function tornarCelulaEditavel(cell, itemId, campo, tipo = 'text') {
+      cell.classList.add('editable-cell');
       
-      configuracaoAtual.cores.primaria = $('#configCorPrimaria').value;
-      configuracaoAtual.cores.secundaria = $('#configCorSecundaria').value;
-      configuracaoAtual.cores.sucesso = $('#configCorSucesso').value;
-      configuracaoAtual.cores.aviso = $('#configCorAviso').value;
-      configuracaoAtual.cores.perigo = $('#configCorPerigo').value;
-      configuracaoAtual.cores.info = $('#configCorInfo').value;
+      cell.addEventListener('dblclick', function(e) {
+        e.stopPropagation();
+        iniciarEdicaoCelula(this, itemId, campo, tipo);
+      });
       
-      configuracaoAtual.negocio.estoqueMinimoPadrao = parseInt($('#configEstoqueMinimo').value);
-      configuracaoAtual.negocio.alertaBaixoPercentual = parseInt($('#configAlertaBaixo').value);
-      configuracaoAtual.negocio.alertaAtencaoPercentual = parseInt($('#configAlertaAtencao').value);
-      
-      configuracaoAtual.layout.borderRadiusPadrao = $('#configBorderRadius').value + 'px';
-      configuracaoAtual.efeitos.transitionSpeed = $('#configTransitionSpeed').value + 's';
-      configuracaoAtual.efeitos.animacoes = $('#configAnimacoes').checked;
-      configuracaoAtual.tipografia.tamanhoBase = $('#configTamanhoFonte').value + 'px';
-      
-      localStorage.setItem('configuracoesSistema', JSON.stringify(configuracaoAtual));
-      aplicarConfiguracoes();
-      
-      Swal.fire({
-        title: 'Sucesso!',
-        text: 'Configurações salvas com sucesso!',
-        icon: 'success',
-        timer: 2000
+      // Também permite clique único se estiver no modo edição todos
+      cell.addEventListener('click', function(e) {
+        if (modoEdicaoTodos && this.classList.contains('editing-todos')) {
+          e.stopPropagation();
+          iniciarEdicaoCelula(this, itemId, campo, tipo);
+        }
       });
     }
 
-    function aplicarConfiguracoes() {
-      // Aplica cores
-      const root = document.documentElement;
+    function iniciarEdicaoCelula(cell, itemId, campo, tipo) {
+      if (celulaEditando) return;
       
-      // Cores
-      root.style.setProperty('--cor-primaria', configuracaoAtual.cores.primaria);
-      root.style.setProperty('--cor-secundaria', configuracaoAtual.cores.secundaria);
-      root.style.setProperty('--cor-sucesso', configuracaoAtual.cores.sucesso);
-      root.style.setProperty('--cor-aviso', configuracaoAtual.cores.aviso);
-      root.style.setProperty('--cor-perigo', configuracaoAtual.cores.perigo);
-      root.style.setProperty('--cor-info', configuracaoAtual.cores.info);
-      root.style.setProperty('--cor-clara', configuracaoAtual.cores.clara);
-      root.style.setProperty('--cor-escura', configuracaoAtual.cores.escura);
+      celulaEditando = { cell, itemId, campo, tipo, valorOriginal: cell.textContent };
       
-      // Layout
-      root.style.setProperty('--navbar-altura', configuracaoAtual.layout.navbarAltura);
-      root.style.setProperty('--navbar-altura-mobile', configuracaoAtual.layout.navbarAlturaMobile);
-      root.style.setProperty('--card-border-radius', configuracaoAtual.layout.cardBorderRadius + 'px');
-      root.style.setProperty('--card-border-size', configuracaoAtual.layout.cardBorderSize + 'px');
-      root.style.setProperty('--border-radius-padrao', configuracaoAtual.layout.borderRadiusPadrao);
-      root.style.setProperty('--border-radius-grande', configuracaoAtual.layout.borderRadiusGrande);
+      // Salva o valor atual
+      const valorAtual = cell.textContent.trim();
       
-      // Tipografia
-      root.style.setProperty('--fonte-principal', configuracaoAtual.tipografia.fontePrincipal);
-      root.style.setProperty('--fonte-tamanho-base', configuracaoAtual.tipografia.tamanhoBase);
-      root.style.setProperty('--fonte-tamanho-pequeno', configuracaoAtual.tipografia.tamanhoPequeno);
-      root.style.setProperty('--fonte-tamanho-grande', configuracaoAtual.tipografia.tamanhoGrande);
+      // Limpa a célula
+      cell.textContent = '';
+      cell.classList.add('editing');
       
-      // Efeitos
-      root.style.setProperty('--transition-speed', configuracaoAtual.efeitos.transitionSpeed);
-      root.style.setProperty('--sombra-leve', configuracaoAtual.efeitos.sombraLeve);
-      root.style.setProperty('--sombra-media', configuracaoAtual.efeitos.sombraMedia);
-      root.style.setProperty('--sombra-forte', configuracaoAtual.efeitos.sombraForte);
+      let input;
       
-      // Atualiza previews de cores
-      atualizarPreviewsCores();
+      // Cria o input apropriado baseado no tipo
+      if (tipo === 'select-status') {
+        input = document.createElement('select');
+        input.className = 'cell-select';
+        input.innerHTML = `
+          <option value="pendente" ${valorAtual === 'pendente' ? 'selected' : ''}>Pendente</option>
+          <option value="aprovado" ${valorAtual === 'aprovado' ? 'selected' : ''}>Aprovado</option>
+          <option value="recusado" ${valorAtual === 'recusado' ? 'selected' : ''}>Recusado</option>
+        `;
+      } else if (tipo === 'select-estado') {
+        input = document.createElement('select');
+        input.className = 'cell-select';
+        input.innerHTML = `
+          <option value="bom" ${valorAtual === 'bom' ? 'selected' : ''}>Bom</option>
+          <option value="regular" ${valorAtual === 'regular' ? 'selected' : ''}>Regular</option>
+          <option value="ruim" ${valorAtual === 'ruim' ? 'selected' : ''}>Ruim</option>
+        `;
+      } else if (tipo === 'textarea') {
+        input = document.createElement('textarea');
+        input.className = 'cell-textarea';
+        input.value = valorAtual;
+        input.rows = 3;
+      } else if (tipo === 'number' || tipo === 'currency') {
+        input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'cell-input';
+        input.step = tipo === 'currency' ? '0.01' : '1';
+        input.value = valorAtual.replace('R$ ', '').replace('.', '').replace(',', '.');
+      } else if (tipo === 'email') {
+        input = document.createElement('input');
+        input.type = 'email';
+        input.className = 'cell-input';
+        input.value = valorAtual;
+      } else if (tipo === 'tel') {
+        input = document.createElement('input');
+        input.type = 'tel';
+        input.className = 'cell-input';
+        input.value = valorAtual;
+      } else {
+        input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'cell-input';
+        input.value = valorAtual;
+      }
       
-      // Atualiza textos do sistema
-      atualizarTextosSistema();
-    }
-
-    function preencherFormularioConfiguracoes() {
-      // Informações da empresa
-      $('#configNomeSistema').value = configuracaoAtual.nomeSistema;
-      $('#configNomeEmpresa').value = configuracaoAtual.nomeEmpresa;
-      $('#configCNPJ').value = configuracaoAtual.cnpj;
-      $('#configEndereco').value = configuracaoAtual.endereco;
-      $('#configTelefone').value = configuracaoAtual.telefone;
+      // Adiciona o input à célula
+      cell.appendChild(input);
+      input.focus();
       
-      // Cores
-      $('#configCorPrimaria').value = configuracaoAtual.cores.primaria;
-      $('#configCorSecundaria').value = configuracaoAtual.cores.secundaria;
-      $('#configCorSucesso').value = configuracaoAtual.cores.sucesso;
-      $('#configCorAviso').value = configuracaoAtual.cores.aviso;
-      $('#configCorPerigo').value = configuracaoAtual.cores.perigo;
-      $('#configCorInfo').value = configuracaoAtual.cores.info;
+      // Seleciona todo o texto se for input de texto
+      if (input.type === 'text' || input.type === 'email' || input.type === 'tel') {
+        input.select();
+      }
       
-      // Configurações de estoque
-      $('#configEstoqueMinimo').value = configuracaoAtual.negocio.estoqueMinimoPadrao;
-      $('#configAlertaBaixo').value = configuracaoAtual.negocio.alertaBaixoPercentual;
-      $('#configAlertaAtencao').value = configuracaoAtual.negocio.alertaAtencaoPercentual;
-      
-      // Configurações de sistema
-      $('#configBorderRadius').value = parseInt(configuracaoAtual.layout.borderRadiusPadrao);
-      $('#configTransitionSpeed').value = parseFloat(configuracaoAtual.efeitos.transitionSpeed);
-      $('#configAnimacoes').checked = configuracaoAtual.efeitos.animacoes;
-      $('#configTamanhoFonte').value = parseInt(configuracaoAtual.tipografia.tamanhoBase);
-      
-      atualizarPreviewsCores();
-    }
-
-    function atualizarPreviewsCores() {
-      $('#previewPrimaria').style.background = configuracaoAtual.cores.primaria;
-      $('#previewSecundaria').style.background = configuracaoAtual.cores.secundaria;
-      $('#previewSucesso').style.background = configuracaoAtual.cores.sucesso;
-      $('#previewAviso').style.background = configuracaoAtual.cores.aviso;
-      $('#previewPerigo').style.background = configuracaoAtual.cores.perigo;
-      $('#previewInfo').style.background = configuracaoAtual.cores.info;
-    }
-
-    function atualizarTextosSistema() {
-      // Atualiza nome do sistema na navbar
-      $('#nomeSistema').textContent = configuracaoAtual.nomeSistema;
-      
-      // Atualiza textos do dashboard
-      $('#tituloDashboard').textContent = configuracaoAtual.textos.dashboard.titulo;
-      $('#subtituloDashboard').textContent = configuracaoAtual.textos.dashboard.subtitulo;
-    }
-
-    function exportarConfiguracoes() {
-      const configExport = {
-        ...configuracaoAtual,
-        dataExportacao: new Date().toISOString(),
-        versao: "1.0.0"
-      };
-      
-      const json = JSON.stringify(configExport, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `config-marcenaria-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      Swal.fire('Sucesso!', 'Configurações exportadas com sucesso!', 'success');
-    }
-
-    function importarConfiguracoes() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
-      
-      input.onchange = e => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        
-        reader.onload = function(event) {
-          try {
-            const configImportada = JSON.parse(event.target.result);
-            
-            Swal.fire({
-              title: 'Importar Configurações?',
-              text: 'Isso substituirá todas as configurações atuais.',
-              icon: 'warning',
-              showCancelButton: true,
-              confirmButtonText: 'Sim, importar',
-              cancelButtonText: 'Cancelar'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                configuracaoAtual = { ...CONFIGURACOES_DEFAULT, ...configImportada };
-                localStorage.setItem('configuracoesSistema', JSON.stringify(configuracaoAtual));
-                aplicarConfiguracoes();
-                preencherFormularioConfiguracoes();
-                Swal.fire('Sucesso!', 'Configurações importadas com sucesso!', 'success');
-              }
-            });
-          } catch (error) {
-            Swal.fire('Erro!', 'Arquivo de configuração inválido!', 'error');
-          }
-        };
-        
-        reader.readAsText(file);
-      };
-      
-      input.click();
-    }
-
-    function restaurarPadroes() {
-      Swal.fire({
-        title: 'Restaurar Padrões?',
-        text: 'Isso redefinirá todas as configurações para os valores padrão.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sim, restaurar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          configuracaoAtual = { ...CONFIGURACOES_DEFAULT };
-          localStorage.removeItem('configuracoesSistema');
-          aplicarConfiguracoes();
-          preencherFormularioConfiguracoes();
-          Swal.fire('Sucesso!', 'Configurações restauradas para os padrões!', 'success');
+      // Eventos do input
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          finalizarEdicaoCelula(true);
+        } else if (e.key === 'Escape') {
+          finalizarEdicaoCelula(false);
         }
+      });
+      
+      input.addEventListener('blur', function() {
+        setTimeout(() => {
+          if (celulaEditando && document.activeElement !== input) {
+            finalizarEdicaoCelula(true);
+          }
+        }, 100);
+      });
+    }
+
+    function finalizarEdicaoCelula(salvar) {
+      if (!celulaEditando) return;
+      
+      const { cell, itemId, campo, tipo, valorOriginal } = celulaEditando;
+      const input = cell.querySelector('input, select, textarea');
+      
+      let novoValor = salvar && input ? input.value.trim() : valorOriginal;
+      
+      // Limpa a célula
+      cell.textContent = '';
+      cell.classList.remove('editing');
+      
+      // Formata o valor se necessário
+      if (salvar && input) {
+        if (tipo === 'currency') {
+          novoValor = formatarMoeda(parseFloat(novoValor) || 0);
+        } else if (tipo === 'number') {
+          novoValor = parseInt(novoValor) || 0;
+        }
+        
+        // Atualiza o valor na célula
+        cell.textContent = novoValor;
+        
+        // Atualiza o dado no array correspondente
+        atualizarDado(itemId, campo, novoValor);
+      } else {
+        // Restaura o valor original
+        cell.textContent = valorOriginal;
+      }
+      
+      celulaEditando = null;
+    }
+
+    function atualizarDado(itemId, campo, valor) {
+      // Determina em qual array está o item baseado no prefixo do ID
+      let array, tipo;
+      
+      if (itemId.startsWith('cli_')) {
+        array = clientes;
+        tipo = 'cliente';
+        itemId = itemId.replace('cli_', '');
+      } else if (itemId.startsWith('for_')) {
+        array = fornecedores;
+        tipo = 'fornecedor';
+        itemId = itemId.replace('for_', '');
+      } else if (itemId.startsWith('orc_')) {
+        array = orcamentos;
+        tipo = 'orcamento';
+        itemId = itemId.replace('orc_', '');
+      } else if (itemId.startsWith('est_')) {
+        array = estoque;
+        tipo = 'estoque';
+        itemId = itemId.replace('est_', '');
+      } else if (itemId.startsWith('rec_')) {
+        array = receber;
+        tipo = 'receber';
+        itemId = itemId.replace('rec_', '');
+      } else if (itemId.startsWith('pag_')) {
+        array = pagar;
+        tipo = 'pagar';
+        itemId = itemId.replace('pag_', '');
+      } else if (itemId.startsWith('pat_')) {
+        array = patrimonio;
+        tipo = 'patrimonio';
+        itemId = itemId.replace('pat_', '');
+      } else if (itemId.startsWith('con_')) {
+        array = contratos;
+        tipo = 'contrato';
+        itemId = itemId.replace('con_', '');
+      }
+      
+      // Encontra o item e atualiza o campo
+      const item = array.find(item => item.id === itemId);
+      if (item) {
+        item[campo] = valor;
+        
+        // Se for estoque, recalcula o status
+        if (tipo === 'estoque' && (campo === 'quantidade' || campo === 'minimo')) {
+          item.status = calcularStatusEstoque(item).texto;
+        }
+        
+        // Se for orçamento e alterou o valor, recalcula formatação
+        if (tipo === 'orcamento' && campo === 'valor') {
+          valor = formatarMoeda(valor);
+        }
+        
+        salvarDados();
+        
+        // Atualiza estatísticas se necessário
+        if (tipo === 'estoque' || tipo === 'orcamento' || tipo === 'receber' || tipo === 'pagar') {
+          atualizarEstatisticas();
+        }
+        
+        // Mostra confirmação
+        Swal.fire({
+          title: 'Atualizado!',
+          text: 'Campo atualizado com sucesso.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    }
+
+    function salvarAlteracoesEmMassa(secao) {
+      // Aqui você poderia implementar uma lógica para salvar múltiplas alterações
+      // Por enquanto, apenas mostra uma mensagem
+      Swal.fire({
+        title: 'Alterações salvas!',
+        text: 'Todas as alterações foram salvas automaticamente.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
       });
     }
 
@@ -1479,9 +1261,6 @@
           break;
         case 'contratos':
           carregarContratos();
-          break;
-        case 'configuracoes':
-          preencherFormularioConfiguracoes();
           break;
         case 'relatorios':
           atualizarEstatisticas();
@@ -1531,13 +1310,13 @@
     function formatarData(data) {
       if (!data) return '-';
       const date = new Date(data);
-      return date.toLocaleDateString(configuracaoAtual.negocio.locale);
+      return date.toLocaleDateString('pt-BR');
     }
 
     function formatarMoeda(valor) {
-      return parseFloat(valor || 0).toLocaleString(configuracaoAtual.negocio.locale, {
+      return parseFloat(valor || 0).toLocaleString('pt-BR', {
         style: 'currency',
-        currency: configuracaoAtual.negocio.moeda
+        currency: 'BRL'
       });
     }
 
@@ -1559,13 +1338,6 @@
 
     // ==================== FUNÇÕES DE CLIENTES ====================
     function adicionarCliente() {
-      editandoClienteId = null;
-      $('#formClienteModal').reset();
-      $('#nomeCliente').focus();
-      modalCliente.show();
-    }
-
-    function adicionarClienteRapido() {
       const nome = prompt('Nome do cliente:');
       if (nome) {
         const cliente = {
@@ -1583,48 +1355,21 @@
       }
     }
 
-    function salvarCliente() {
-      const nome = $('#nomeCliente').value.trim();
-      if (!nome) {
-        Swal.fire('Atenção', 'O nome é obrigatório!', 'warning');
-        return;
-      }
-
-      const cliente = {
-        id: editandoClienteId || gerarId(),
-        nome: nome,
-        telefone: $('#telefoneCliente').value.trim(),
-        email: $('#emailCliente').value.trim(),
-        endereco: $('#enderecoCliente').value.trim(),
-        dataCadastro: editandoClienteId ? 
-          clientes.find(c => c.id === editandoClienteId)?.dataCadastro || new Date().toISOString() : 
-          new Date().toISOString()
-      };
-
-      if (editandoClienteId) {
-        const index = clientes.findIndex(c => c.id === editandoClienteId);
-        if (index !== -1) {
-          clientes[index] = cliente;
-        }
-      } else {
+    function adicionarClienteRapido() {
+      const nome = prompt('Nome do cliente:');
+      if (nome) {
+        const cliente = {
+          id: gerarId(),
+          nome: nome,
+          telefone: '',
+          email: '',
+          endereco: '',
+          dataCadastro: new Date().toISOString()
+        };
         clientes.push(cliente);
-      }
-
-      salvarDados();
-      modalCliente.hide();
-      carregarClientes();
-      Swal.fire('Sucesso!', 'Cliente salvo com sucesso!', 'success');
-    }
-
-    function editarCliente(id) {
-      const cliente = clientes.find(c => c.id === id);
-      if (cliente) {
-        editandoClienteId = id;
-        $('#nomeCliente').value = cliente.nome;
-        $('#telefoneCliente').value = cliente.telefone;
-        $('#emailCliente').value = cliente.email;
-        $('#enderecoCliente').value = cliente.endereco;
-        modalCliente.show();
+        salvarDados();
+        carregarClientes();
+        Swal.fire('Sucesso!', 'Cliente adicionado com sucesso!', 'success');
       }
     }
 
@@ -1679,32 +1424,40 @@
 
       tbody.innerHTML = clientesFiltrados.map(cliente => `
         <tr>
-          <td>${cliente.nome}</td>
-          <td>${cliente.telefone || '-'}</td>
-          <td>${cliente.email || '-'}</td>
-          <td>${cliente.endereco || '-'}</td>
-          <td>${formatarData(cliente.dataCadastro)}</td>
+          <td class="editable-cell" data-id="cli_${cliente.id}" data-field="nome">${cliente.nome}</td>
+          <td class="editable-cell" data-id="cli_${cliente.id}" data-field="telefone">${cliente.telefone || ''}</td>
+          <td class="editable-cell" data-id="cli_${cliente.id}" data-field="email">${cliente.email || ''}</td>
+          <td class="editable-cell" data-id="cli_${cliente.id}" data-field="endereco">${cliente.endereco || ''}</td>
+          <td class="non-editable-cell">${formatarData(cliente.dataCadastro)}</td>
           <td class="no-print">
-            <button class="btn btn-sm btn-outline-primary me-1" onclick="editarCliente('${cliente.id}')">
-              <i class="bi bi-pencil"></i>
-            </button>
             <button class="btn btn-sm btn-outline-danger" onclick="excluirCliente('${cliente.id}')">
               <i class="bi bi-trash"></i>
             </button>
           </td>
         </tr>
       `).join('');
+      
+      // Torna as células editáveis
+      $$('#listaClientes .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        let tipo = 'text';
+        
+        if (campo === 'email') tipo = 'email';
+        if (campo === 'telefone') tipo = 'tel';
+        
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+      });
     }
 
     // ==================== FUNÇÕES DE FORNECEDORES ====================
     function adicionarFornecedor() {
       const nome = prompt('Razão Social do fornecedor:');
       if (nome) {
-        const cnpj = prompt('CNPJ (opcional):');
         const fornecedor = {
           id: gerarId(),
           nome: nome,
-          cnpj: cnpj || '',
+          cnpj: '',
           telefone: '',
           email: '',
           dataCadastro: new Date().toISOString()
@@ -1733,10 +1486,10 @@
 
       tbody.innerHTML = fornecedores.map(fornecedor => `
         <tr>
-          <td>${fornecedor.nome}</td>
-          <td>${fornecedor.cnpj || '-'}</td>
-          <td>${fornecedor.telefone || '-'}</td>
-          <td>${fornecedor.email || '-'}</td>
+          <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="nome">${fornecedor.nome}</td>
+          <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="cnpj">${fornecedor.cnpj || ''}</td>
+          <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="telefone">${fornecedor.telefone || ''}</td>
+          <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="email">${fornecedor.email || ''}</td>
           <td class="no-print">
             <button class="btn btn-sm btn-outline-danger" onclick="excluirFornecedor('${fornecedor.id}')">
               <i class="bi bi-trash"></i>
@@ -1744,6 +1497,19 @@
           </td>
         </tr>
       `).join('');
+      
+      // Torna as células editáveis
+      $$('#listaFornecedores .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        let tipo = 'text';
+        
+        if (campo === 'email') tipo = 'email';
+        if (campo === 'telefone') tipo = 'tel';
+        if (campo === 'cnpj') tipo = 'text';
+        
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+      });
     }
 
     function excluirFornecedor(id) {
@@ -1766,40 +1532,27 @@
 
     // ==================== FUNÇÕES DE ORÇAMENTOS ====================
     function adicionarOrcamento() {
-      editandoOrcamentoId = null;
-      $('#formOrcamentoModal').reset();
-      
-      // Preenche o select de clientes
-      const select = $('#clienteOrcamento');
-      select.innerHTML = '<option value="">Selecione um cliente</option>' +
-        clientes.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-      
-      modalOrcamento.show();
-    }
-
-    function adicionarOrcamentoRapido() {
       if (clientes.length === 0) {
         Swal.fire('Atenção', 'Cadastre primeiro um cliente!', 'warning');
         return;
       }
       
-      const clienteId = prompt('ID do cliente (deixe em branco para usar o primeiro):');
-      let cliente = clientes[0];
+      let clientesList = clientes.map((c, i) => `${i + 1}. ${c.nome}`).join('\n');
+      const clienteIndex = prompt(`Clientes disponíveis:\n${clientesList}\n\nDigite o número do cliente:`);
+      const index = parseInt(clienteIndex) - 1;
       
-      if (clienteId) {
-        cliente = clientes.find(c => c.id === clienteId) || clientes[0];
+      if (isNaN(index) || index < 0 || index >= clientes.length) {
+        Swal.fire('Erro', 'Cliente inválido!', 'error');
+        return;
       }
       
+      const cliente = clientes[index];
       const descricao = prompt('Descrição do orçamento:');
+      
       if (!descricao) return;
       
       const valorStr = prompt('Valor do orçamento (R$):');
-      const valor = parseFloat(valorStr);
-      
-      if (isNaN(valor)) {
-        Swal.fire('Erro', 'Valor inválido!', 'error');
-        return;
-      }
+      const valor = parseFloat(valorStr) || 0;
       
       const orcamento = {
         id: gerarId(),
@@ -1817,49 +1570,33 @@
       Swal.fire('Sucesso!', 'Orçamento criado com sucesso!', 'success');
     }
 
-    function salvarOrcamento() {
-      const clienteId = $('#clienteOrcamento').value;
-      const descricao = $('#descricaoOrcamento').value.trim();
-      const valor = parseFloat($('#valorOrcamento').value);
-      
-      if (!clienteId || !descricao || isNaN(valor)) {
-        Swal.fire('Atenção', 'Preencha todos os campos corretamente!', 'warning');
+    function adicionarOrcamentoRapido() {
+      if (clientes.length === 0) {
+        Swal.fire('Atenção', 'Cadastre primeiro um cliente!', 'warning');
         return;
       }
       
-      const cliente = clientes.find(c => c.id === clienteId);
-      if (!cliente) {
-        Swal.fire('Erro', 'Cliente não encontrado!', 'error');
-        return;
-      }
+      const cliente = clientes[0];
+      const descricao = prompt('Descrição do orçamento:');
+      if (!descricao) return;
+      
+      const valorStr = prompt('Valor do orçamento (R$):');
+      const valor = parseFloat(valorStr) || 0;
       
       const orcamento = {
-        id: editandoOrcamentoId || gerarId(),
+        id: gerarId(),
         clienteId: cliente.id,
         clienteNome: cliente.nome,
         descricao: descricao,
         valor: valor,
-        status: editandoOrcamentoId ? 
-          orcamentos.find(o => o.id === editandoOrcamentoId)?.status || 'pendente' : 
-          'pendente',
-        data: editandoOrcamentoId ? 
-          orcamentos.find(o => o.id === editandoOrcamentoId)?.data || new Date().toISOString() : 
-          new Date().toISOString()
+        status: 'pendente',
+        data: new Date().toISOString()
       };
       
-      if (editandoOrcamentoId) {
-        const index = orcamentos.findIndex(o => o.id === editandoOrcamentoId);
-        if (index !== -1) {
-          orcamentos[index] = orcamento;
-        }
-      } else {
-        orcamentos.push(orcamento);
-      }
-      
+      orcamentos.push(orcamento);
       salvarDados();
-      modalOrcamento.hide();
       carregarOrcamentos();
-      Swal.fire('Sucesso!', 'Orçamento salvo com sucesso!', 'success');
+      Swal.fire('Sucesso!', 'Orçamento criado com sucesso!', 'success');
     }
 
     function filtrarOrcamentos() {
@@ -1895,16 +1632,15 @@
         
         return `
           <tr>
-            <td>${index + 1}</td>
-            <td>${orcamento.clienteNome}</td>
-            <td>${orcamento.descricao}</td>
-            <td>${formatarMoeda(orcamento.valor)}</td>
-            <td>${formatarData(orcamento.data)}</td>
-            <td><span class="badge ${statusClass}">${orcamento.status}</span></td>
+            <td class="non-editable-cell">${index + 1}</td>
+            <td class="editable-cell" data-id="orc_${orcamento.id}" data-field="clienteNome">${orcamento.clienteNome}</td>
+            <td class="editable-cell" data-id="orc_${orcamento.id}" data-field="descricao" data-type="textarea">${orcamento.descricao}</td>
+            <td class="editable-cell" data-id="orc_${orcamento.id}" data-field="valor" data-type="currency">${formatarMoeda(orcamento.valor)}</td>
+            <td class="non-editable-cell">${formatarData(orcamento.data)}</td>
+            <td class="editable-cell" data-id="orc_${orcamento.id}" data-field="status" data-type="select-status">
+              <span class="badge ${statusClass}">${orcamento.status}</span>
+            </td>
             <td class="no-print">
-              <button class="btn btn-sm btn-outline-success me-1" onclick="alterarStatusOrcamento('${orcamento.id}', 'aprovado')">
-                <i class="bi bi-check"></i>
-              </button>
               <button class="btn btn-sm btn-outline-danger" onclick="excluirOrcamento('${orcamento.id}')">
                 <i class="bi bi-trash"></i>
               </button>
@@ -1912,16 +1648,15 @@
           </tr>
         `;
       }).join('');
-    }
-
-    function alterarStatusOrcamento(id, status) {
-      const orcamento = orcamentos.find(o => o.id === id);
-      if (orcamento) {
-        orcamento.status = status;
-        salvarDados();
-        carregarOrcamentos();
-        Swal.fire('Sucesso!', `Orçamento marcado como ${status}!`, 'success');
-      }
+      
+      // Torna as células editáveis
+      $$('#listaOrcamentos .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        const tipo = cell.getAttribute('data-type') || 'text';
+        
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+      });
     }
 
     function excluirOrcamento(id) {
@@ -1948,15 +1683,10 @@
       if (!produto) return;
       
       const quantidadeStr = prompt('Quantidade:');
-      const quantidade = parseInt(quantidadeStr);
+      const quantidade = parseInt(quantidadeStr) || 0;
       
-      if (isNaN(quantidade)) {
-        Swal.fire('Erro', 'Quantidade inválida!', 'error');
-        return;
-      }
-      
-      const minimoStr = prompt(`Estoque mínimo (padrão: ${configuracaoAtual.negocio.estoqueMinimoPadrao}):`) || configuracaoAtual.negocio.estoqueMinimoPadrao;
-      const minimo = parseInt(minimoStr);
+      const minimoStr = prompt('Estoque mínimo:');
+      const minimo = parseInt(minimoStr) || 5;
       
       const item = {
         id: gerarId(),
@@ -1965,6 +1695,7 @@
         minimo: minimo,
         fornecedor: '',
         valorUnitario: 0,
+        status: calcularStatusEstoque({quantidade, minimo}).texto,
         dataCadastro: new Date().toISOString()
       };
       
@@ -1980,26 +1711,12 @@
         return;
       }
       
-      let produtos = estoque.map(e => `${e.produto} (${e.quantidade} unidades)`).join('\n');
-      const produto = prompt(`Itens disponíveis:\n${produtos}\n\nDigite o nome do produto para adicionar:`);
-      
-      if (!produto) return;
-      
-      const item = estoque.find(e => e.produto.toLowerCase().includes(produto.toLowerCase()));
-      if (!item) {
-        Swal.fire('Erro', 'Produto não encontrado!', 'error');
-        return;
-      }
-      
+      const item = estoque[0];
       const quantidadeStr = prompt(`Quantidade a adicionar ao ${item.produto} (atual: ${item.quantidade}):`);
-      const quantidade = parseInt(quantidadeStr);
-      
-      if (isNaN(quantidade) || quantidade <= 0) {
-        Swal.fire('Erro', 'Quantidade inválida!', 'error');
-        return;
-      }
+      const quantidade = parseInt(quantidadeStr) || 0;
       
       item.quantidade += quantidade;
+      item.status = calcularStatusEstoque(item).texto;
       salvarDados();
       carregarEstoque();
       Swal.fire('Sucesso!', `${quantidade} unidades adicionadas ao ${item.produto}!`, 'success');
@@ -2008,9 +1725,9 @@
     function calcularStatusEstoque(item) {
       const porcentagem = (item.quantidade / item.minimo) * 100;
       
-      if (porcentagem <= configuracaoAtual.negocio.alertaBaixoPercentual) {
+      if (porcentagem <= 30) {
         return { classe: 'badge-estoque-baixo', texto: 'BAIXO', linha: 'table-danger' };
-      } else if (porcentagem <= configuracaoAtual.negocio.alertaAtencaoPercentual) {
+      } else if (porcentagem <= 60) {
         return { classe: 'badge-estoque-medio', texto: 'ATENÇÃO', linha: 'table-warning' };
       } else {
         return { classe: 'badge-estoque-ok', texto: 'OK', linha: '' };
@@ -2037,12 +1754,14 @@
         
         return `
           <tr class="${status.linha}">
-            <td>${item.produto}</td>
-            <td>${item.quantidade}</td>
-            <td>${item.minimo}</td>
-            <td>${item.fornecedor || '-'}</td>
-            <td>${formatarMoeda(item.valorUnitario)}</td>
-            <td><span class="badge ${status.classe}">${status.texto}</span></td>
+            <td class="editable-cell" data-id="est_${item.id}" data-field="produto">${item.produto}</td>
+            <td class="editable-cell" data-id="est_${item.id}" data-field="quantidade" data-type="number">${item.quantidade}</td>
+            <td class="editable-cell" data-id="est_${item.id}" data-field="minimo" data-type="number">${item.minimo}</td>
+            <td class="editable-cell" data-id="est_${item.id}" data-field="fornecedor">${item.fornecedor || ''}</td>
+            <td class="editable-cell" data-id="est_${item.id}" data-field="valorUnitario" data-type="currency">${formatarMoeda(item.valorUnitario)}</td>
+            <td class="non-editable-cell">
+              <span class="badge ${status.classe}">${status.texto}</span>
+            </td>
             <td class="no-print">
               <button class="btn btn-sm btn-outline-danger" onclick="excluirItemEstoque('${item.id}')">
                 <i class="bi bi-trash"></i>
@@ -2051,6 +1770,15 @@
           </tr>
         `;
       }).join('');
+      
+      // Torna as células editáveis
+      $$('#listaEstoque .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        const tipo = cell.getAttribute('data-type') || 'text';
+        
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+      });
     }
 
     function excluirItemEstoque(id) {
@@ -2072,6 +1800,46 @@
     }
 
     // ==================== FUNÇÕES FINANCEIRAS ====================
+    function adicionarContaReceber() {
+      const descricao = prompt('Descrição da conta a receber:');
+      if (!descricao) return;
+      
+      const valorStr = prompt('Valor (R$):');
+      const valor = parseFloat(valorStr) || 0;
+      
+      const conta = {
+        id: gerarId(),
+        descricao: descricao,
+        valor: valor,
+        data: new Date().toISOString()
+      };
+      
+      receber.push(conta);
+      salvarDados();
+      carregarFinanceiro();
+      Swal.fire('Sucesso!', 'Conta a receber adicionada!', 'success');
+    }
+
+    function adicionarContaPagar() {
+      const descricao = prompt('Descrição da conta a pagar:');
+      if (!descricao) return;
+      
+      const valorStr = prompt('Valor (R$):');
+      const valor = parseFloat(valorStr) || 0;
+      
+      const conta = {
+        id: gerarId(),
+        descricao: descricao,
+        valor: valor,
+        data: new Date().toISOString()
+      };
+      
+      pagar.push(conta);
+      salvarDados();
+      carregarFinanceiro();
+      Swal.fire('Sucesso!', 'Conta a pagar adicionada!', 'success');
+    }
+
     function carregarFinanceiro() {
       carregarContasReceber();
       carregarContasPagar();
@@ -2092,15 +1860,24 @@
       
       tbody.innerHTML = receber.map((conta, index) => `
         <tr>
-          <td>${conta.descricao}</td>
-          <td>${formatarMoeda(conta.valor)}</td>
+          <td class="editable-cell" data-id="rec_${conta.id}" data-field="descricao">${conta.descricao}</td>
+          <td class="editable-cell" data-id="rec_${conta.id}" data-field="valor" data-type="currency">${formatarMoeda(conta.valor)}</td>
           <td class="no-print">
-            <button class="btn btn-sm btn-outline-danger" onclick="removerContaReceber(${index})">
-              <i class="bi bi-x-circle"></i>
+            <button class="btn btn-sm btn-outline-danger" onclick="removerContaReceber('${conta.id}')">
+              <i class="bi bi-trash"></i>
             </button>
           </td>
         </tr>
       `).join('');
+      
+      // Torna as células editáveis
+      $$('#listaReceber .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        const tipo = cell.getAttribute('data-type') || 'text';
+        
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+      });
     }
 
     function carregarContasPagar() {
@@ -2117,79 +1894,38 @@
       
       tbody.innerHTML = pagar.map((conta, index) => `
         <tr>
-          <td>${conta.descricao}</td>
-          <td>${formatarMoeda(conta.valor)}</td>
+          <td class="editable-cell" data-id="pag_${conta.id}" data-field="descricao">${conta.descricao}</td>
+          <td class="editable-cell" data-id="pag_${conta.id}" data-field="valor" data-type="currency">${formatarMoeda(conta.valor)}</td>
           <td class="no-print">
-            <button class="btn btn-sm btn-outline-danger" onclick="removerContaPagar(${index})">
-              <i class="bi bi-x-circle"></i>
+            <button class="btn btn-sm btn-outline-danger" onclick="removerContaPagar('${conta.id}')">
+              <i class="bi bi-trash"></i>
             </button>
           </td>
         </tr>
       `).join('');
+      
+      // Torna as células editáveis
+      $$('#listaPagar .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        const tipo = cell.getAttribute('data-type') || 'text';
+        
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+      });
     }
 
-    // Formulário de contas a receber
-    $('#formReceber').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const descricao = $('#descReceber').value.trim();
-      const valor = parseFloat($('#valorReceber').value);
-      
-      if (!descricao || isNaN(valor)) {
-        Swal.fire('Atenção', 'Preencha todos os campos corretamente!', 'warning');
-        return;
-      }
-      
-      const conta = {
-        id: gerarId(),
-        descricao: descricao,
-        valor: valor,
-        data: new Date().toISOString()
-      };
-      
-      receber.push(conta);
-      salvarDados();
-      this.reset();
-      carregarFinanceiro();
-      Swal.fire('Sucesso!', 'Conta a receber adicionada!', 'success');
-    });
-
-    // Formulário de contas a pagar
-    $('#formPagar').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const descricao = $('#descPagar').value.trim();
-      const valor = parseFloat($('#valorPagar').value);
-      
-      if (!descricao || isNaN(valor)) {
-        Swal.fire('Atenção', 'Preencha todos os campos corretamente!', 'warning');
-        return;
-      }
-      
-      const conta = {
-        id: gerarId(),
-        descricao: descricao,
-        valor: valor,
-        data: new Date().toISOString()
-      };
-      
-      pagar.push(conta);
-      salvarDados();
-      this.reset();
-      carregarFinanceiro();
-      Swal.fire('Sucesso!', 'Conta a pagar adicionada!', 'success');
-    });
-
-    function removerContaReceber(index) {
-      receber.splice(index, 1);
+    function removerContaReceber(id) {
+      receber = receber.filter(c => c.id !== id);
       salvarDados();
       carregarFinanceiro();
+      Swal.fire('Removido!', 'Conta a receber removida.', 'success');
     }
 
-    function removerContaPagar(index) {
-      pagar.splice(index, 1);
+    function removerContaPagar(id) {
+      pagar = pagar.filter(c => c.id !== id);
       salvarDados();
       carregarFinanceiro();
+      Swal.fire('Removido!', 'Contra a pagar removida.', 'success');
     }
 
     function atualizarSaldo() {
@@ -2251,11 +1987,13 @@
         
         return `
           <tr>
-            <td>${item.nome}</td>
-            <td>${formatarData(item.dataAquisicao)}</td>
-            <td>${formatarMoeda(item.valor)}</td>
-            <td>${item.departamento}</td>
-            <td><span class="badge ${estadoClass}">${item.estado}</span></td>
+            <td class="editable-cell" data-id="pat_${item.id}" data-field="nome">${item.nome}</td>
+            <td class="non-editable-cell">${formatarData(item.dataAquisicao)}</td>
+            <td class="editable-cell" data-id="pat_${item.id}" data-field="valor" data-type="currency">${formatarMoeda(item.valor)}</td>
+            <td class="editable-cell" data-id="pat_${item.id}" data-field="departamento">${item.departamento}</td>
+            <td class="editable-cell" data-id="pat_${item.id}" data-field="estado" data-type="select-estado">
+              <span class="badge ${estadoClass}">${item.estado}</span>
+            </td>
             <td class="no-print">
               <button class="btn btn-sm btn-outline-danger" onclick="excluirPatrimonio('${item.id}')">
                 <i class="bi bi-trash"></i>
@@ -2264,6 +2002,15 @@
           </tr>
         `;
       }).join('');
+      
+      // Torna as células editáveis
+      $$('#listaPatrimonio .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        const tipo = cell.getAttribute('data-type') || 'text';
+        
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+      });
     }
 
     function excluirPatrimonio(id) {
@@ -2291,16 +2038,7 @@
         return;
       }
       
-      let clientesList = clientes.map((c, i) => `${i + 1}. ${c.nome}`).join('\n');
-      const clienteIndex = prompt(`Clientes disponíveis:\n${clientesList}\n\nDigite o número do cliente:`);
-      const index = parseInt(clienteIndex) - 1;
-      
-      if (isNaN(index) || index < 0 || index >= clientes.length) {
-        Swal.fire('Erro', 'Cliente inválido!', 'error');
-        return;
-      }
-      
-      const cliente = clientes[index];
+      const cliente = clientes[0];
       const descricao = prompt('Descrição do contrato:');
       
       if (!descricao) return;
@@ -2340,10 +2078,10 @@
         <div class="col-md-6 mb-3">
           <div class="card h-100">
             <div class="card-body">
-              <h6 class="card-title">${contrato.clienteNome}</h6>
-              <p class="card-text text-muted small">${contrato.descricao.substring(0, 100)}...</p>
+              <h6 class="card-title editable-cell" data-id="con_${contrato.id}" data-field="clienteNome">${contrato.clienteNome}</h6>
+              <p class="card-text text-muted small editable-cell" data-id="con_${contrato.id}" data-field="descricao" data-type="textarea">${contrato.descricao.substring(0, 100)}...</p>
               <div class="d-flex justify-content-between align-items-center mt-3">
-                <small class="text-muted">${formatarData(contrato.data)}</small>
+                <small class="text-muted non-editable-cell">${formatarData(contrato.data)}</small>
                 <button class="btn btn-sm btn-outline-danger" onclick="excluirContrato('${contrato.id}')">
                   <i class="bi bi-trash"></i>
                 </button>
@@ -2352,6 +2090,15 @@
           </div>
         </div>
       `).join('');
+      
+      // Torna as células editáveis nos contratos
+      $$('#listaContratos .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        const tipo = cell.getAttribute('data-type') || 'text';
+        
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+      });
     }
 
     function excluirContrato(id) {
@@ -2389,12 +2136,12 @@
       
       const html = `
         <div style="padding: 20px; font-family: Arial, sans-serif;">
-          <h2 style="text-align: center; color: ${configuracaoAtual.cores.primaria};">Relatório Completo do Sistema</h2>
-          <h4 style="text-align: center; color: #666;">${configuracaoAtual.nomeSistema} - ${new Date().toLocaleDateString(configuracaoAtual.negocio.locale)}</h4>
+          <h2 style="text-align: center; color: #2c3e50;">Relatório Completo do Sistema</h2>
+          <h4 style="text-align: center; color: #666;">MarcenariaPro - ${new Date().toLocaleDateString('pt-BR')}</h4>
           
-          <hr style="margin: 20px 0; border-color: ${configuracaoAtual.cores.primaria};">
+          <hr style="margin: 20px 0; border-color: #2c3e50;">
           
-          <h3 style="color: ${configuracaoAtual.cores.primaria};">1. Resumo Geral</h3>
+          <h3 style="color: #2c3e50;">1. Resumo Geral</h3>
           <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
             <tr>
               <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Total de Clientes:</strong></td>
@@ -2414,7 +2161,7 @@
             </tr>
           </table>
           
-          <h3 style="color: ${configuracaoAtual.cores.primaria}; margin-top: 30px;">2. Resumo Financeiro</h3>
+          <h3 style="color: #2c3e50; margin-top: 30px;">2. Resumo Financeiro</h3>
           <table style="width: 100%; border-collapse: collapse; margin: 10px 0;">
             <tr>
               <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Total de Receitas:</strong></td>
@@ -2431,10 +2178,7 @@
           </table>
           
           <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-            <p style="margin: 0; text-align: center;"><strong>Relatório gerado automaticamente pelo sistema ${configuracaoAtual.nomeSistema}</strong></p>
-            <p style="margin: 5px 0 0 0; text-align: center; font-size: 12px; color: #666;">
-              ${configuracaoAtual.nomeEmpresa} - ${configuracaoAtual.cnpj} - ${configuracaoAtual.endereco}
-            </p>
+            <p style="margin: 0; text-align: center;"><strong>Relatório gerado automaticamente pelo sistema MarcenariaPro</strong></p>
           </div>
         </div>
       `;
@@ -2455,8 +2199,8 @@
       
       const html = `
         <div style="padding: 20px; font-family: Arial, sans-serif;">
-          <h2 style="text-align: center; color: ${configuracaoAtual.cores.primaria};">Relatório Financeiro</h2>
-          <h4 style="text-align: center; color: #666;">${configuracaoAtual.nomeSistema} - ${new Date().toLocaleDateString(configuracaoAtual.negocio.locale)}</h4>
+          <h2 style="text-align: center; color: #2c3e50;">Relatório Financeiro</h2>
+          <h4 style="text-align: center; color: #666;">MarcenariaPro - ${new Date().toLocaleDateString('pt-BR')}</h4>
           
           <div style="margin: 20px 0;">
             <h3>Contas a Receber (${receber.length})</h3>
@@ -2511,13 +2255,6 @@
               Saldo Atual: ${formatarMoeda(saldo)}
             </h3>
           </div>
-          
-          <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-            <p style="margin: 0; text-align: center;"><strong>${configuracaoAtual.nomeEmpresa}</strong></p>
-            <p style="margin: 5px 0 0 0; text-align: center; font-size: 12px; color: #666;">
-              CNPJ: ${configuracaoAtual.cnpj} | ${configuracaoAtual.endereco} | Tel: ${configuracaoAtual.telefone}
-            </p>
-          </div>
         </div>
       `;
       
@@ -2536,8 +2273,8 @@
       
       const html = `
         <div style="padding: 20px; font-family: Arial, sans-serif;">
-          <h2 style="text-align: center; color: ${configuracaoAtual.cores.primaria};">Relatório de Estoque</h2>
-          <h4 style="text-align: center; color: #666;">${configuracaoAtual.nomeSistema} - ${new Date().toLocaleDateString(configuracaoAtual.negocio.locale)}</h4>
+          <h2 style="text-align: center; color: #2c3e50;">Relatório de Estoque</h2>
+          <h4 style="text-align: center; color: #666;">MarcenariaPro - ${new Date().toLocaleDateString('pt-BR')}</h4>
           
           <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
             <p><strong>Total de Itens:</strong> ${estoque.length}</p>
@@ -2596,8 +2333,8 @@
     function imprimirRelatorioClientes() {
       const html = `
         <div style="padding: 20px; font-family: Arial, sans-serif;">
-          <h2 style="text-align: center; color: ${configuracaoAtual.cores.primaria};">Relatório de Clientes</h2>
-          <h4 style="text-align: center; color: #666;">${configuracaoAtual.nomeSistema} - ${new Date().toLocaleDateString(configuracaoAtual.negocio.locale)}</h4>
+          <h2 style="text-align: center; color: #2c3e50;">Relatório de Clientes</h2>
+          <h4 style="text-align: center; color: #666;">MarcenariaPro - ${new Date().toLocaleDateString('pt-BR')}</h4>
           
           <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
             <p><strong>Total de Clientes:</strong> ${clientes.length}</p>
@@ -2646,9 +2383,7 @@
         pagar: pagar,
         patrimonio: patrimonio,
         contratos: contratos,
-        configuracoes: configuracaoAtual,
-        dataExportacao: new Date().toISOString(),
-        versao: "1.0.0"
+        dataExportacao: new Date().toISOString()
       };
       
       const json = JSON.stringify(dados, null, 2);
@@ -2656,7 +2391,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `backup-completo-${configuracaoAtual.nomeSistema}-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `backup-marcenaria-${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -2683,30 +2418,8 @@
       elementoSaldo.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
     }
 
-    // ==================== FUNÇÕES DE MANUTENÇÃO ====================
-    function limparTodosDados() {
-      Swal.fire({
-        title: 'Tem certeza absoluta?',
-        text: "Isso apagará TODOS os dados do sistema, incluindo clientes, estoque, finanças e configurações!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sim, limpar tudo!',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          localStorage.clear();
-          location.reload();
-        }
-      });
-    }
-
     // ==================== INICIALIZAÇÃO ====================
     function inicializar() {
-      // Carrega configurações
-      carregarConfiguracoes();
-      
       // Mostra o dashboard inicialmente
       mostrarDashboard();
       
@@ -2730,9 +2443,10 @@
             id: gerarId(),
             produto: 'MDF 15mm',
             quantidade: 10,
-            minimo: configuracaoAtual.negocio.estoqueMinimoPadrao,
+            minimo: 20,
             fornecedor: 'Madeireira Central',
             valorUnitario: 89.90,
+            status: 'ATENÇÃO',
             dataCadastro: new Date().toISOString()
           }
         ];
@@ -2765,15 +2479,17 @@
       
       // Atualiza as estatísticas
       atualizarEstatisticas();
-      
-      // Configura auto-save se habilitado
-      if (configuracaoAtual.usuario.autoSave) {
-        setInterval(salvarDados, configuracaoAtual.usuario.intervaloAutoSave);
-      }
     }
 
     // Inicia o sistema quando a página carrega
     document.addEventListener('DOMContentLoaded', inicializar);
+    
+    // Adiciona listener para teclas globais
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && celulaEditando) {
+        finalizarEdicaoCelula(false);
+      }
+    });
   </script>
 </body>
 </html>
