@@ -273,3 +273,11 @@ body {
   .navbar-brand span { font-size: 1.2rem; }
   .editable-cell::after { display: none; }
 }
+
+.form-label .text-danger {
+  font-size: 0.9em;
+}
+input:invalid:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25);
+}

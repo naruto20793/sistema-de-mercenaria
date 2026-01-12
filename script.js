@@ -368,27 +368,46 @@ function salvarDados() {
 }
 
 // ==================== FUNÇÕES DE CLIENTES ====================
+// ==================== FUNÇÕES DE CADASTRO COM MODAL ====================
 function adicionarCliente() {
-  const nome = prompt('Nome do cliente:');
-  if (nome) {
-    const cliente = {
-      id: gerarId(),
-      nome: nome,
-      telefone: '',
-      email: '',
-      endereco: '',
-      dataCadastro: new Date().toISOString()
-    };
-    clientes.push(cliente);
-    salvarDados();
-    carregarClientes();
-    Swal.fire('Sucesso!', 'Cliente adicionado com sucesso!', 'success');
-  }
+  const modalEl = document.getElementById('modalNovoCliente');
+  const form = document.getElementById('formNovoCliente');
+  form.reset();
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
 }
 
-function adicionarClienteRapido() {
-  adicionarCliente();
-}
+document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () => {
+  const nome = document.getElementById('novoClienteNome').value.trim();
+  
+  if (!nome) {
+    Swal.fire('Atenção', 'O nome do cliente é obrigatório!', 'warning');
+    return;
+  }
+
+  const cliente = {
+    id: gerarId(),
+    nome,
+    telefone: document.getElementById('novoClienteTelefone').value.trim(),
+    email: document.getElementById('novoClienteEmail').value.trim(),
+    endereco: document.getElementById('novoClienteEndereco').value.trim(),
+    dataCadastro: new Date().toISOString()
+  };
+
+  clientes.push(cliente);
+  salvarDados();
+  carregarClientes();
+
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoCliente')).hide();
+  
+  Swal.fire({
+    title: 'Sucesso!',
+    text: 'Cliente cadastrado com sucesso!',
+    icon: 'success',
+    timer: 1800,
+    showConfirmButton: false
+  });
+});
 
 function excluirCliente(id) {
   Swal.fire({
@@ -541,35 +560,47 @@ function excluirFornecedor(id) {
 }
 
 // ==================== FUNÇÕES DE ORÇAMENTOS ====================
+// Novo Orçamento - com select de clientes
 function adicionarOrcamento() {
   if (clientes.length === 0) {
-    Swal.fire('Atenção', 'Cadastre primeiro um cliente!', 'warning');
+    Swal.fire('Atenção', 'Cadastre pelo menos um cliente primeiro!', 'warning');
     return;
   }
 
-  let clientesList = clientes.map((c, i) => `${i + 1}. ${c.nome}`).join('\n');
-  const clienteIndex = prompt(`Clientes disponíveis:\n${clientesList}\n\nDigite o número do cliente:`);
-  const index = parseInt(clienteIndex) - 1;
+  const select = document.getElementById('novoOrcamentoCliente');
+  select.innerHTML = '<option value="">Selecione um cliente...</option>';
+  
+  clientes.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.nome;
+    select.appendChild(opt);
+  });
 
-  if (isNaN(index) || index < 0 || index >= clientes.length) {
-    Swal.fire('Erro', 'Cliente inválido!', 'error');
+  const modal = new bootstrap.Modal(document.getElementById('modalNovoOrcamento'));
+  document.getElementById('formNovoOrcamento').reset();
+  modal.show();
+}
+
+document.getElementById('btnSalvarNovoOrcamento')?.addEventListener('click', () => {
+  const clienteId = document.getElementById('novoOrcamentoCliente').value;
+  const descricao = document.getElementById('novoOrcamentoDescricao').value.trim();
+  const valorStr = document.getElementById('novoOrcamentoValor').value.replace('R$', '').replace('.', '').replace(',', '.').trim();
+
+  if (!clienteId || !descricao || !valorStr) {
+    Swal.fire('Atenção', 'Preencha todos os campos obrigatórios!', 'warning');
     return;
   }
 
-  const cliente = clientes[index];
-  const descricao = prompt('Descrição do orçamento:');
-
-  if (!descricao) return;
-
-  const valorStr = prompt('Valor do orçamento (R$):');
-  const valor = parseFloat(valorStr) || 0;
+  const cliente = clientes.find(c => c.id === clienteId);
+  if (!cliente) return;
 
   const orcamento = {
     id: gerarId(),
-    clienteId: cliente.id,
+    clienteId,
     clienteNome: cliente.nome,
-    descricao: descricao,
-    valor: valor,
+    descricao,
+    valor: parseFloat(valorStr) || 0,
     status: 'pendente',
     data: new Date().toISOString()
   };
@@ -577,37 +608,11 @@ function adicionarOrcamento() {
   orcamentos.push(orcamento);
   salvarDados();
   carregarOrcamentos();
+
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoOrcamento')).hide();
+  
   Swal.fire('Sucesso!', 'Orçamento criado com sucesso!', 'success');
-}
-
-function adicionarOrcamentoRapido() {
-  if (clientes.length === 0) {
-    Swal.fire('Atenção', 'Cadastre primeiro um cliente!', 'warning');
-    return;
-  }
-
-  const cliente = clientes[0];
-  const descricao = prompt('Descrição do orçamento:');
-  if (!descricao) return;
-
-  const valorStr = prompt('Valor do orçamento (R$):');
-  const valor = parseFloat(valorStr) || 0;
-
-  const orcamento = {
-    id: gerarId(),
-    clienteId: cliente.id,
-    clienteNome: cliente.nome,
-    descricao: descricao,
-    valor: valor,
-    status: 'pendente',
-    data: new Date().toISOString()
-  };
-
-  orcamentos.push(orcamento);
-  salvarDados();
-  carregarOrcamentos();
-  Swal.fire('Sucesso!', 'Orçamento criado com sucesso!', 'success');
-}
+});
 
 function filtrarOrcamentos() {
   const status = $('#filtroStatus').value;
@@ -686,23 +691,34 @@ function excluirOrcamento(id) {
 }
 
 // ==================== FUNÇÕES DE ESTOQUE ====================
+// Item de Estoque
 function adicionarItemEstoque() {
-  const produto = prompt('Nome do produto:');
-  if (!produto) return;
+  const modal = new bootstrap.Modal(document.getElementById('modalNovoItemEstoque'));
+  document.getElementById('formNovoItemEstoque').reset();
+  modal.show();
+}
 
-  const quantidadeStr = prompt('Quantidade:');
-  const quantidade = parseInt(quantidadeStr) || 0;
+document.getElementById('btnSalvarNovoEstoque')?.addEventListener('click', () => {
+  const produto = document.getElementById('novoEstoqueProduto').value.trim();
+  
+  if (!produto) {
+    Swal.fire('Atenção', 'O nome do produto é obrigatório!', 'warning');
+    return;
+  }
 
-  const minimoStr = prompt('Estoque mínimo:');
-  const minimo = parseInt(minimoStr) || 5;
+  const quantidade = parseInt(document.getElementById('novoEstoqueQuantidade').value) || 0;
+  const minimo = parseInt(document.getElementById('novoEstoqueMinimo').value) || 5;
+  const valorUnitarioStr = document.getElementById('novoEstoqueValorUnitario').value
+    .replace('R$', '').replace('.', '').replace(',', '.').trim();
+  const valorUnitario = parseFloat(valorUnitarioStr) || 0;
 
   const item = {
     id: gerarId(),
-    produto: produto,
-    quantidade: quantidade,
-    minimo: minimo,
-    fornecedor: '',
-    valorUnitario: 0,
+    produto,
+    quantidade,
+    minimo,
+    fornecedor: document.getElementById('novoEstoqueFornecedor').value.trim(),
+    valorUnitario,
     status: calcularStatusEstoque({quantidade, minimo}).texto,
     dataCadastro: new Date().toISOString()
   };
@@ -710,25 +726,11 @@ function adicionarItemEstoque() {
   estoque.push(item);
   salvarDados();
   carregarEstoque();
+
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoItemEstoque')).hide();
+  
   Swal.fire('Sucesso!', 'Item adicionado ao estoque!', 'success');
-}
-
-function adicionarEstoqueRapido() {
-  if (estoque.length === 0) {
-    Swal.fire('Atenção', 'Primeiro cadastre um item no estoque!', 'warning');
-    return;
-  }
-
-  const item = estoque[0];
-  const quantidadeStr = prompt(`Quantidade a adicionar ao ${item.produto} (atual: ${item.quantidade}):`);
-  const quantidade = parseInt(quantidadeStr) || 0;
-
-  item.quantidade += quantidade;
-  item.status = calcularStatusEstoque(item).texto;
-  salvarDados();
-  carregarEstoque();
-  Swal.fire('Sucesso!', `${quantidade} unidades adicionadas ao ${item.produto}!`, 'success');
-}
+});
 
 function calcularStatusEstoque(item) {
   const porcentagem = (item.quantidade / item.minimo) * 100;
@@ -1454,3 +1456,29 @@ document.addEventListener('keydown', function(e) {
     finalizarEdicaoCelula(false);
   }
 });
+
+// Máscara básica telefone
+document.getElementById('novoClienteTelefone')?.addEventListener('input', function(e) {
+  let v = e.target.value.replace(/\D/g, '');
+  if (v.length <= 10) {
+    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+    v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  } else {
+    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+    v = v.replace(/(\d{5})(\d)/, '$1-$2');
+  }
+  e.target.value = v;
+});
+
+// Máscara monetária simples
+function aplicarMascaraMoeda(input) {
+  input.addEventListener('input', function(e) {
+    let valor = e.target.value.replace(/\D/g, '');
+    valor = (valor / 100).toFixed(2).replace('.', ',');
+    valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    e.target.value = valor ? 'R$ ' + valor : '';
+  });
+}
+
+aplicarMascaraMoeda(document.getElementById('novoOrcamentoValor'));
+aplicarMascaraMoeda(document.getElementById('novoEstoqueValorUnitario'));

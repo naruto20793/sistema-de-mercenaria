@@ -591,6 +591,128 @@
       </div>
     </div>
 
+      <!-- Modal Novo Cliente -->
+<div class="modal fade" id="modalNovoCliente" tabindex="-1" aria-labelledby="modalNovoClienteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalNovoClienteLabel"><i class="bi bi-person-plus me-2"></i>Novo Cliente</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoCliente">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Nome completo <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoClienteNome" required autofocus placeholder="Ex: João Silva">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Telefone</label>
+              <input type="tel" class="form-control" id="novoClienteTelefone" placeholder="(00) 00000-0000">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">E-mail</label>
+              <input type="email" class="form-control" id="novoClienteEmail" placeholder="exemplo@dominio.com">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Endereço completo</label>
+              <textarea class="form-control" id="novoClienteEndereco" rows="2" placeholder="Rua, número, bairro, cidade - UF"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnSalvarNovoCliente">
+          <i class="bi bi-check-lg me-2"></i>Salvar Cliente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Novo Orçamento (exemplo mais completo) -->
+<div class="modal fade" id="modalNovoOrcamento" tabindex="-1" aria-labelledby="modalNovoOrcamentoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modalNovoOrcamentoLabel"><i class="bi bi-calculator me-2"></i>Novo Orçamento</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoOrcamento">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoOrcamentoCliente" required>
+                <option value="">Selecione um cliente...</option>
+                <!-- Preenchido dinamicamente -->
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Valor Total (R$) <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoOrcamentoValor" required placeholder="R$ 0,00">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Descrição / Itens <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="novoOrcamentoDescricao" rows="4" required placeholder="Descreva os serviços/produtos, medidas, materiais..."></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" id="btnSalvarNovoOrcamento">
+          <i class="bi bi-check-lg me-2"></i>Criar Orçamento
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Novo Item de Estoque -->
+<div class="modal fade" id="modalNovoItemEstoque" tabindex="-1" aria-labelledby="modalNovoItemEstoqueLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="modalNovoItemEstoqueLabel"><i class="bi bi-box-seam me-2"></i>Novo Item de Estoque</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoItemEstoque">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Nome do Produto <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoEstoqueProduto" required autofocus>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Quantidade Inicial</label>
+              <input type="number" class="form-control" id="novoEstoqueQuantidade" min="0" value="0">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Estoque Mínimo</label>
+              <input type="number" class="form-control" id="novoEstoqueMinimo" min="1" value="5">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Valor Unitário (R$)</label>
+              <input type="text" class="form-control" id="novoEstoqueValorUnitario" placeholder="R$ 0,00">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Fornecedor Principal</label>
+              <input type="text" class="form-control" id="novoEstoqueFornecedor" placeholder="Nome do fornecedor">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-warning text-dark" id="btnSalvarNovoEstoque">
+          <i class="bi bi-check-lg me-2"></i>Adicionar ao Estoque
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 
   <!-- Scripts -->
