@@ -1,0 +1,275 @@
+/* ==================== VARIÁVEIS CSS ==================== */
+:root {
+  --cor-primaria: #2c3e50;
+  --cor-secundaria: #3498db;
+  --cor-sucesso: #27ae60;
+  --cor-aviso: #f39c12;
+  --cor-perigo: #e74c3c;
+  --cor-info: #17a2b8;
+  --cor-clara: #f5f7fa;
+  --cor-escura: #343a40;
+  
+  --navbar-altura: 80px;
+  --navbar-altura-mobile: 70px;
+  --sidebar-largura: 260px;
+  --sidebar-largura-mobile: 70px;
+  --card-border-radius: 12px;
+  --card-border-size: 4px;
+  --transition-speed: 0.3s;
+  
+  --fonte-principal: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --fonte-tamanho-base: 16px;
+  --fonte-tamanho-pequeno: 0.9rem;
+  --fonte-tamanho-grande: 1.2rem;
+  
+  --sombra-leve: 0 2px 5px rgba(0,0,0,0.05);
+  --sombra-media: 0 2px 10px rgba(0,0,0,0.1);
+  --sombra-forte: 0 2px 15px rgba(0,0,0,0.08);
+  
+  --border-radius-padrao: 6px;
+  --border-radius-grande: 12px;
+  --border-color: #dee2e6;
+}
+
+/* ==================== ESTILOS BASE ==================== */
+body {
+  background: var(--cor-clara);
+  font-family: var(--fonte-principal);
+  font-size: var(--fonte-tamanho-base);
+  padding-top: var(--navbar-altura);
+}
+
+/* ==================== NAVBAR ==================== */
+.navbar-superior {
+  background: var(--cor-primaria);
+  box-shadow: var(--sombra-media);
+  padding: 10px 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  height: var(--navbar-altura);
+}
+
+.navbar-brand {
+  font-weight: 600;
+  font-size: var(--fonte-tamanho-grande);
+  color: white;
+}
+
+.navbar-brand i {
+  margin-right: 10px;
+}
+
+.nav-link-top {
+  color: rgba(255,255,255,0.9) !important;
+  padding: 10px 15px !important;
+  margin: 0 5px;
+  border-radius: var(--border-radius-padrao);
+  transition: all var(--transition-speed);
+  cursor: pointer;
+}
+
+.nav-link-top:hover, .nav-link-top.active {
+  background: rgba(255,255,255,0.1);
+  color: white !important;
+}
+
+.nav-link-top i {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+.navbar-actions .btn {
+  margin-left: 5px;
+}
+
+.btn-impressao {
+  background: var(--cor-sucesso);
+  border: none;
+  color: white;
+}
+
+.btn-impressao:hover {
+  background: #219653;
+  color: white;
+}
+
+/* ==================== CONTEÚDO PRINCIPAL ==================== */
+.content {
+  padding: 20px;
+  animation: fadeIn var(--transition-speed);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== CARDS ==================== */
+.card {
+  border: none;
+  box-shadow: var(--sombra-forte);
+  border-radius: var(--card-border-radius);
+  margin-bottom: 20px;
+  border-top: var(--card-border-size) solid var(--cor-secundaria);
+}
+
+.card-header {
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  padding: 15px 20px;
+  border-radius: var(--card-border-radius) var(--card-border-radius) 0 0 !important;
+}
+
+/* ==================== TABELAS EDITÁVEIS ==================== */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  font-weight: 600;
+  border-top: none;
+  background: #f8f9fa;
+}
+
+.editable-cell {
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.editable-cell:hover {
+  background-color: #f8f9fa !important;
+}
+
+.editable-cell.editing {
+  background-color: #e3f2fd !important;
+  padding: 0 !important;
+}
+
+.cell-input, .cell-select, .cell-textarea {
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--cor-secundaria);
+  padding: 4px 8px;
+  font-size: inherit;
+  font-family: inherit;
+  border-radius: var(--border-radius-padrao);
+  background: white;
+  box-sizing: border-box;
+}
+
+.cell-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.editable-cell::after {
+  content: "✎";
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: var(--cor-secundaria);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.editable-cell:hover::after {
+  opacity: 1;
+}
+
+.non-editable-cell {
+  cursor: default;
+  background-color: #f8f9fa;
+}
+
+/* ==================== BADGES ==================== */
+.badge-estoque-baixo { background: var(--cor-perigo); }
+.badge-estoque-ok { background: var(--cor-sucesso); }
+.badge-estoque-medio { background: var(--cor-aviso); }
+
+/* ==================== FORMULÁRIOS ==================== */
+.form-control:focus {
+  border-color: var(--cor-secundaria);
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* ==================== ESTATÍSTICAS ==================== */
+.stats-card {
+  border-left: var(--card-border-size) solid var(--cor-secundaria);
+  padding: 20px;
+  margin-bottom: 20px;
+  background: white;
+  border-radius: var(--border-radius-padrao);
+  box-shadow: var(--sombra-leve);
+}
+
+.stats-card h3 {
+  margin: 0;
+  font-weight: bold;
+}
+
+/* ==================== IMPRESSÃO ==================== */
+@media print {
+  .no-print { display: none !important; }
+  body { padding-top: 0; background: white; }
+  .card { box-shadow: none; border: 1px solid var(--border-color); }
+  .content { padding: 0; }
+  .editable-cell::after { display: none !important; }
+}
+
+/* ==================== ESTADOS VAZIOS ==================== */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: #dee2e6;
+}
+
+/* ==================== SALDO FINANCEIRO ==================== */
+.saldo-positivo { color: var(--cor-sucesso); font-weight: bold; }
+.saldo-negativo { color: var(--cor-perigo); font-weight: bold; }
+
+/* ==================== MODAL DE CONFIGURAÇÃO ==================== */
+.config-group {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-padrao);
+  background: #f8f9fa;
+}
+
+.config-group h6 {
+  margin-bottom: 15px;
+  color: var(--cor-primaria);
+  border-bottom: 2px solid var(--cor-secundaria);
+  padding-bottom: 5px;
+}
+
+.color-preview {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--border-radius-padrao);
+  display: inline-block;
+  margin-right: 10px;
+  border: 1px solid var(--border-color);
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 768px) {
+  body { padding-top: var(--navbar-altura-mobile); }
+  .nav-link-top span { display: none; }
+  .nav-link-top i { margin-right: 0; font-size: 1.3rem; }
+  .navbar-brand span { font-size: 1.2rem; }
+  .editable-cell::after { display: none; }
+}
