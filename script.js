@@ -485,21 +485,8 @@ function carregarClientes(filtro = '') {
 
 // ==================== FUNÇÕES DE FORNECEDORES ====================
 function adicionarFornecedor() {
-  const nome = prompt('Razão Social do fornecedor:');
-  if (nome) {
-    const fornecedor = {
-      id: gerarId(),
-      nome: nome,
-      cnpj: '',
-      telefone: '',
-      email: '',
-      dataCadastro: new Date().toISOString()
-    };
-    fornecedores.push(fornecedor);
-    salvarDados();
-    carregarFornecedores();
-    Swal.fire('Sucesso!', 'Fornecedor adicionado com sucesso!', 'success');
-  }
+  document.getElementById('formNovoFornecedor').reset();
+  new bootstrap.Modal(document.getElementById('modalNovoFornecedor')).show();
 }
 
 function carregarFornecedores() {
@@ -809,43 +796,13 @@ function excluirItemEstoque(id) {
 
 // ==================== FUNÇÕES FINANCEIRAS ====================
 function adicionarContaReceber() {
-  const descricao = prompt('Descrição da conta a receber:');
-  if (!descricao) return;
-
-  const valorStr = prompt('Valor (R$):');
-  const valor = parseFloat(valorStr) || 0;
-
-  const conta = {
-    id: gerarId(),
-    descricao: descricao,
-    valor: valor,
-    data: new Date().toISOString()
-  };
-
-  receber.push(conta);
-  salvarDados();
-  carregarFinanceiro();
-  Swal.fire('Sucesso!', 'Conta a receber adicionada!', 'success');
+  document.getElementById('formNovoReceber').reset();
+  new bootstrap.Modal(document.getElementById('modalNovoReceber')).show();
 }
 
 function adicionarContaPagar() {
-  const descricao = prompt('Descrição da conta a pagar:');
-  if (!descricao) return;
-
-  const valorStr = prompt('Valor (R$):');
-  const valor = parseFloat(valorStr) || 0;
-
-  const conta = {
-    id: gerarId(),
-    descricao: descricao,
-    valor: valor,
-    data: new Date().toISOString()
-  };
-
-  pagar.push(conta);
-  salvarDados();
-  carregarFinanceiro();
-  Swal.fire('Sucesso!', 'Conta a pagar adicionada!', 'success');
+  document.getElementById('formNovoPagar').reset();
+  new bootstrap.Modal(document.getElementById('modalNovoPagar')).show();
 }
 
 function carregarFinanceiro() {
@@ -948,25 +905,9 @@ function atualizarSaldo() {
 
 // ==================== FUNÇÕES DE PATRIMÔNIO ====================
 function adicionarPatrimonio() {
-  const item = prompt('Descrição do item:');
-  if (!item) return;
-
-  const valorStr = prompt('Valor do item (R$):');
-  const valor = parseFloat(valorStr) || 0;
-
-  const patrimonioItem = {
-    id: gerarId(),
-    nome: item,
-    valor: valor,
-    dataAquisicao: new Date().toISOString(),
-    departamento: 'Geral',
-    estado: 'bom'
-  };
-
-  patrimonio.push(patrimonioItem);
-  salvarDados();
-  carregarPatrimonio();
-  Swal.fire('Sucesso!', 'Item adicionado ao patrimônio!', 'success');
+  document.getElementById('formNovoPatrimonio').reset();
+  document.getElementById('novoPatrimonioData').value = new Date().toISOString().split('T')[0];
+  new bootstrap.Modal(document.getElementById('modalNovoPatrimonio')).show();
 }
 
 function carregarPatrimonio() {
@@ -1040,24 +981,15 @@ function adicionarContrato() {
     return;
   }
 
-  const cliente = clientes[0];
-  const descricao = prompt('Descrição do contrato:');
-
-  if (!descricao) return;
-
-  const contrato = {
-    id: gerarId(),
-    clienteId: cliente.id,
-    clienteNome: cliente.nome,
-    descricao: descricao,
-    data: new Date().toISOString(),
-    status: 'ativo'
-  };
-
-  contratos.push(contrato);
-  salvarDados();
-  carregarContratos();
-  Swal.fire('Sucesso!', 'Contrato criado com sucesso!', 'success');
+  const select = document.getElementById('novoContratoCliente');
+  select.innerHTML = '<option value="">Selecione um cliente...</option>';
+  clientes.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id; opt.textContent = c.nome;
+    select.appendChild(opt);
+  });
+  document.getElementById('formNovoContrato').reset();
+  new bootstrap.Modal(document.getElementById('modalNovoContrato')).show();
 }
 
 function carregarContratos() {
@@ -1470,6 +1402,19 @@ document.getElementById('novoClienteTelefone')?.addEventListener('input', functi
   e.target.value = v;
 });
 
+// Máscara telefone fornecedor
+document.getElementById('novoFornecedorTelefone')?.addEventListener('input', function(e) {
+  let v = e.target.value.replace(/\D/g, '');
+  if (v.length <= 10) {
+    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+    v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  } else {
+    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+    v = v.replace(/(\d{5})(\d)/, '$1-$2');
+  }
+  e.target.value = v;
+});
+
 // Máscara monetária simples
 function aplicarMascaraMoeda(input) {
   input.addEventListener('input', function(e) {
@@ -1482,3 +1427,82 @@ function aplicarMascaraMoeda(input) {
 
 aplicarMascaraMoeda(document.getElementById('novoOrcamentoValor'));
 aplicarMascaraMoeda(document.getElementById('novoEstoqueValorUnitario'));
+aplicarMascaraMoeda(document.getElementById('novoPatrimonioValor'));
+aplicarMascaraMoeda(document.getElementById('novoReceberValor'));
+aplicarMascaraMoeda(document.getElementById('novoPagarValor'));
+
+document.getElementById('btnSalvarNovoFornecedor')?.addEventListener('click', () => {
+  const razao = document.getElementById('novoFornecedorRazao').value.trim();
+  if (!razao) return Swal.fire('Atenção', 'Razão social obrigatória!', 'warning');
+  fornecedores.push({
+    id: gerarId(),
+    nome: razao,
+    cnpj: document.getElementById('novoFornecedorCnpj').value.trim(),
+    telefone: document.getElementById('novoFornecedorTelefone').value.trim(),
+    email: document.getElementById('novoFornecedorEmail').value.trim(),
+    dataCadastro: new Date().toISOString()
+  });
+  salvarDados(); carregarFornecedores();
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoFornecedor')).hide();
+  Swal.fire('Sucesso!', 'Fornecedor cadastrado!', 'success');
+});
+
+document.getElementById('btnSalvarNovoPatrimonio')?.addEventListener('click', () => {
+  const nome = document.getElementById('novoPatrimonioNome').value.trim();
+  const valorStr = document.getElementById('novoPatrimonioValor').value.replace(/[^\d,]/g, '').replace(',','.');
+  if (!nome || !valorStr) return Swal.fire('Atenção', 'Nome e valor obrigatórios!', 'warning');
+  patrimonio.push({
+    id: gerarId(),
+    nome,
+    valor: parseFloat(valorStr),
+    dataAquisicao: document.getElementById('novoPatrimonioData').value || new Date().toISOString(),
+    departamento: document.getElementById('novoPatrimonioDepartamento').value.trim() || 'Geral',
+    estado: document.getElementById('novoPatrimonioEstado').value
+  });
+  salvarDados(); carregarPatrimonio();
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoPatrimonio')).hide();
+  Swal.fire('Sucesso!', 'Item adicionado ao patrimônio!', 'success');
+});
+
+document.getElementById('btnSalvarNovoContrato')?.addEventListener('click', () => {
+  const clienteId = document.getElementById('novoContratoCliente').value;
+  const descricao = document.getElementById('novoContratoDescricao').value.trim();
+  if (!clienteId || !descricao) return Swal.fire('Atenção', 'Cliente e descrição obrigatórios!', 'warning');
+  const cliente = clientes.find(c => c.id === clienteId);
+  contratos.push({
+    id: gerarId(),
+    clienteId,
+    clienteNome: cliente.nome,
+    descricao,
+    data: new Date().toISOString(),
+    status: document.getElementById('novoContratoStatus').value
+  });
+  salvarDados(); carregarContratos();
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoContrato')).hide();
+  Swal.fire('Sucesso!', 'Contrato criado!', 'success');
+});
+
+document.getElementById('btnSalvarNovoReceber')?.addEventListener('click', () => {
+  const descricao = document.getElementById('novoReceberDescricao').value.trim();
+  const valorStr = document.getElementById('novoReceberValor').value.replace(/[^\d,]/g, '').replace(',','.');
+  if (!descricao || !valorStr) return Swal.fire('Atenção', 'Descrição e valor obrigatórios!', 'warning');
+  receber.push({ id: gerarId(), descricao, valor: parseFloat(valorStr), data: new Date().toISOString() });
+  salvarDados(); carregarFinanceiro();
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoReceber')).hide();
+  Swal.fire('Sucesso!', 'Conta a receber adicionada!', 'success');
+});
+
+document.getElementById('btnSalvarNovoPagar')?.addEventListener('click', () => {
+  const descricao = document.getElementById('novoPagarDescricao').value.trim();
+  const valorStr = document.getElementById('novoPagarValor').value.replace(/[^\d,]/g, '').replace(',','.');
+  if (!descricao || !valorStr) return Swal.fire('Atenção', 'Descrição e valor obrigatórios!', 'warning');
+  pagar.push({ id: gerarId(), descricao, valor: parseFloat(valorStr), data: new Date().toISOString() });
+  salvarDados(); carregarFinanceiro();
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoPagar')).hide();
+  Swal.fire('Sucesso!', 'Conta a pagar adicionada!', 'success');
+});
+
+// Funções rápidas para atalhos
+function adicionarClienteRapido() { adicionarCliente(); }
+function adicionarOrcamentoRapido() { adicionarOrcamento(); }
+function adicionarEstoqueRapido() { adicionarItemEstoque(); }
