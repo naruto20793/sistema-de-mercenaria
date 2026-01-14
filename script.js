@@ -167,6 +167,27 @@ function carregarConfiguracoes() {
   // aplicar nome do sistema na navbar
   const elNome = document.getElementById('nomeSistema');
   if (elNome) elNome.textContent = configuracoes.nomeSistema;
+  
+  // aplicar tema
+  aplicarTema(configuracoes.tema);
+}
+
+function aplicarTema(temaSelecionado) {
+  const html = document.documentElement;
+  const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  let temaFinal = temaSelecionado;
+  
+  if (temaSelecionado === 'auto') {
+    temaFinal = isDarkMode ? 'dark' : 'light';
+  }
+  
+  if (temaFinal === 'dark') {
+    document.body.classList.add('dark-theme');
+    html.setAttribute('data-bs-theme', 'dark');
+  } else {
+    document.body.classList.remove('dark-theme');
+    html.removeAttribute('data-bs-theme');
+  }
 }
 
 function salvarConfiguracoes() {
@@ -178,6 +199,7 @@ function salvarConfiguracoes() {
   configuracoes.autoCreateFinancial = !!document.getElementById('cfgAutoCreateFinancial')?.checked;
   localStorage.setItem('configuracoes', JSON.stringify(configuracoes));
   carregarConfiguracoes();
+  aplicarTema(configuracoes.tema);
   mostrarNotificacao('Configurações salvas com sucesso.', 'sucesso');
 }
 
@@ -1000,8 +1022,10 @@ document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () =>
   const email        = document.getElementById('novoClienteEmail').value.trim();
   const telefone     = document.getElementById('novoClienteTelefone').value.trim();
   const profissao    = document.getElementById('novoClienteProfissao')?.value.trim() || '';
-  const endereco     = document.getElementById('novoClienteEndereco')?.value.trim() || '';
-  const bairro       = document.getElementById('novoClienteBairro')?.value.trim() || '';
+  const rua          = document.getElementById('novoClienteRua')?.value.trim() || '';
+  const numero       = document.getElementById('novoClienteNumero')?.value.trim() || '';
+  const complemento  = document.getElementById('novoClienteComplemento')?.value.trim() || '';
+  const localizacao  = document.getElementById('novoClienteLocalizacao')?.value.trim() || '';
   const cidade       = document.getElementById('novoClienteCidade')?.value.trim() || '';
   const estado       = document.getElementById('novoClienteEstado')?.value || '';
 
@@ -1029,8 +1053,10 @@ document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () =>
     email,
     telefone,
     profissao,
-    endereco,
-    bairro,
+    rua,
+    numero,
+    complemento,
+    localizacao,
     cidade,
     estado,
     dataCadastro: new Date().toISOString()
@@ -1084,7 +1110,7 @@ function carregarClientes(filtro = '') {
   if (clientesFiltrados.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="10" class="text-center py-4">
+        <td colspan="12" class="text-center py-4">
           <i class="bi bi-people display-4 text-muted mb-3 d-block"></i>
           <p class="text-muted">${filtro ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</p>
         </td>
@@ -1099,8 +1125,10 @@ function carregarClientes(filtro = '') {
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="email">${cliente.email || '-'}</td>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="telefone">${cliente.telefone || '-'}</td>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="profissao">${cliente.profissao || '-'}</td>
-    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="endereco">${cliente.endereco || '-'}</td>
-    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="bairro">${cliente.bairro || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="rua">${cliente.rua || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="numero">${cliente.numero || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="complemento">${cliente.complemento || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="localizacao">${cliente.localizacao || '-'}</td>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="cidade">${cliente.cidade || '-'}</td>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="estado">${cliente.estado || '-'}</td>
     <td class="no-print">
@@ -1146,7 +1174,7 @@ function carregarFornecedores(filtro = '') {
     if (fornecedoresFiltrados.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="11" class="text-center py-4">
+                <td colspan="13" class="text-center py-4">
                     <i class="bi bi-truck display-4 text-muted mb-3 d-block"></i>
                     <p class="text-muted">${filtro ? 'Nenhum fornecedor encontrado' : 'Nenhum fornecedor cadastrado ainda'}</p>
                 </td>
@@ -1162,8 +1190,10 @@ function carregarFornecedores(filtro = '') {
             <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="email">${fornecedor.email || '-'}</td>
             <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="telefone">${fornecedor.telefone || '-'}</td>
             <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="fornecimento">${fornecedor.fornecimento || '-'}</td>
-            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="endereco">${fornecedor.endereco || '-'}</td>
-            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="bairro">${fornecedor.bairro || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="rua">${fornecedor.rua || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="numero">${fornecedor.numero || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="complemento">${fornecedor.complemento || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="localizacao">${fornecedor.localizacao || '-'}</td>
             <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="cidade">${fornecedor.cidade || '-'}</td>
             <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="estado">${fornecedor.estado || '-'}</td>
             <td class="non-editable-cell">${formatarData(fornecedor.dataCadastro)}</td>
@@ -2386,21 +2416,20 @@ function gerarGraficoEstoqueDoughnut() {
   const ctx = document.getElementById('chartDoughnutEstoque');
   if (!ctx) return;
 
-  const otimo = estoque.filter(i => calcularStatusEstoque(i).texto === 'ÓTIMO').length;
-  const bom = estoque.filter(i => calcularStatusEstoque(i).texto === 'BOM').length;
+  const ok = estoque.filter(i => calcularStatusEstoque(i).texto === 'OK').length;
+  const atencao = estoque.filter(i => calcularStatusEstoque(i).texto === 'ATENÇÃO').length;
   const baixo = estoque.filter(i => calcularStatusEstoque(i).texto === 'BAIXO').length;
-  const critico = estoque.filter(i => calcularStatusEstoque(i).texto === 'CRÍTICO').length;
 
   if (chartsInstances.doughnutEstoque) chartsInstances.doughnutEstoque.destroy();
 
   chartsInstances.doughnutEstoque = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Ótimo', 'Bom', 'Baixo', 'Crítico'],
+      labels: ['OK', 'Atenção', 'Baixo'],
       datasets: [{
-        data: [otimo, bom, baixo, critico],
-        backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545'],
-        borderColor: ['#20c997', '#0dcaf0', '#fd7e14', '#fd7e14'],
+        data: [ok, atencao, baixo],
+        backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+        borderColor: ['#20c997', '#fd7e14', '#fd7e14'],
         borderWidth: 2
       }]
     },
@@ -2615,8 +2644,63 @@ function atualizarEstatisticas() {
   }
 }
 
+// ==================== MIGRAÇÃO DE DADOS ====================
+function migrarEnderecos() {
+  // Migrar clientes do formato antigo (endereco + bairro) para novo (rua + numero + complemento + localizacao)
+  clientes = clientes.map(cliente => {
+    if (cliente.endereco && !cliente.rua) {
+      // Tentar fazer split do endereço antigo
+      const partes = cliente.endereco.split(',').map(p => p.trim());
+      return {
+        ...cliente,
+        rua: partes[0] || cliente.endereco,
+        numero: partes[1] || '',
+        complemento: partes[2] || '',
+        localizacao: cliente.bairro || '',
+        // Manter endereco para compatibilidade
+        endereco: cliente.endereco,
+        bairro: cliente.bairro
+      };
+    }
+    return cliente;
+  });
+
+  // Migrar fornecedores do formato antigo (endereco + bairro) para novo (rua + numero + complemento + localizacao)
+  fornecedores = fornecedores.map(fornecedor => {
+    if (fornecedor.endereco && !fornecedor.rua) {
+      // Tentar fazer split do endereço antigo
+      const partes = fornecedor.endereco.split(',').map(p => p.trim());
+      return {
+        ...fornecedor,
+        rua: partes[0] || fornecedor.endereco,
+        numero: partes[1] || '',
+        complemento: partes[2] || '',
+        localizacao: fornecedor.bairro || '',
+        // Manter endereco para compatibilidade
+        endereco: fornecedor.endereco,
+        bairro: fornecedor.bairro
+      };
+    }
+    return fornecedor;
+  });
+
+  salvarDados();
+}
+
 // ==================== INICIALIZAÇÃO ====================
 function inicializar() {
+  // Migração de dados antigos
+  migrarEnderecos();
+  
+  // Handler para logo - limpar estados ao clicar
+  const logo = document.querySelector('.navbar-brand');
+  if (logo) {
+    logo.addEventListener('click', function() {
+      // Remover classes residuais e resetar cor
+      this.style.color = 'white';
+    });
+  }
+
   mostrarDashboard();
 
   if (clientes.length === 0) {
@@ -2626,7 +2710,12 @@ function inicializar() {
         nome: 'João Silva',
         telefone: '(11) 99999-8888',
         email: 'joao@exemplo.com',
-        endereco: 'Rua das Flores, 123',
+        rua: 'Rua das Flores',
+        numero: '123',
+        complemento: '',
+        localizacao: 'Centro',
+        cidade: '',
+        estado: '',
         dataCadastro: new Date().toISOString()
       }
     ];
@@ -2671,8 +2760,7 @@ function inicializar() {
 
   salvarDados();
   atualizarEstatisticas();
-  // Adiciona botões de reload em cada tabela/ seção após inicializar dados
-  if (typeof adicionarBotoesReload === 'function') adicionarBotoesReload();
+  // Botões de reload foram removidos
 }
 
 // ==================== SISTEMA DE ALERTAS AUTOMÁTICOS ====================
@@ -2793,52 +2881,15 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnLimparLixeira')?.addEventListener('click', limparLixeira);
   document.getElementById('btnLimparDados')?.addEventListener('click', limparTodosDados);
   document.getElementById('btnSalvarConfiguracoes')?.addEventListener('click', salvarConfiguracoes);
+  
+  // Event listener para mudar tema em tempo real
+  document.getElementById('cfgTema')?.addEventListener('change', function() {
+    aplicarTema(this.value);
+  });
 });
 
 // ==================== BOTÕES DE RELOAD POR TABELA ====================
-function adicionarBotoesReload() {
-  // Para cada seção principal, adiciona um botão de reload no header
-  $$('.secao').forEach(sec => {
-    const id = sec.id;
-    if (!id) return;
-    const header = sec.querySelector('.card-header');
-    if (!header) return;
-    // evita inserir múltiplas vezes: verifica se já existe botão de reload
-    if (header.querySelector('.btn-reload-section') || header.querySelector('.bi-arrow-clockwise')) return;
-
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-light btn-sm ms-2 btn-reload-section';
-    btn.title = 'Recarregar tabela';
-    btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      reloadSecao(id);
-    });
-    // adiciona ao final do header (preserva botões existentes)
-    header.appendChild(btn);
-  });
-
-  // Reload específico para as listas internas do financeiro (receber/pagar)
-  ['listaReceber','listaPagar'].forEach(listaId => {
-    const el = document.getElementById(listaId);
-    if (!el) return;
-    const card = el.closest('.card');
-    if (!card) return;
-    const header = card.querySelector('.card-header');
-    if (!header || header.querySelector('.btn-reload-section') || header.querySelector('.bi-arrow-clockwise')) return;
-
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-light btn-sm ms-2 btn-reload-section';
-    btn.title = 'Recarregar lista';
-    btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      // recarrega a seção financeira inteira
-      reloadSecao('financeiro');
-    });
-    header.appendChild(btn);
-  });
-}
+// Função de reload de seções removida - botões não serão mais adicionados automaticamente
 
 function reloadSecao(secao) {
   switch (secao) {
@@ -2906,6 +2957,28 @@ document.addEventListener('click', function(e) {
 
   if (!tipo || !id) return;
 
+  // Verificar se confirmação é necessária
+  if (configuracoes.confirmDelete) {
+    Swal.fire({
+      title: 'Tem certeza?',
+      text: 'Você não poderá recuperar este item depois de excluído!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sim, excluir!',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        executarExclusao(tipo, id);
+      }
+    });
+  } else {
+    executarExclusao(tipo, id);
+  }
+});
+
+function executarExclusao(tipo, id) {
   switch (tipo) {
     case 'cliente':
       excluirCliente(id);
@@ -2932,7 +3005,7 @@ document.addEventListener('click', function(e) {
       removerContaPagar(id);
       break;
   }
-});
+}
 
 // Listener genérico para botões de salvar: após o handler original rodar fechamos modal e recarregamos seção
 document.addEventListener('click', function(e) {
@@ -3063,8 +3136,10 @@ document.getElementById('btnSalvarNovoFornecedor')?.addEventListener('click', ()
     telefone,
     email,
     fornecimento,
-    endereco:   document.getElementById('novoFornecedorEndereco').value.trim()   || '',
-    bairro:     document.getElementById('novoFornecedorBairro').value.trim()     || '',
+    rua:        document.getElementById('novoFornecedorRua').value.trim()       || '',
+    numero:     document.getElementById('novoFornecedorNumero').value.trim()    || '',
+    complemento: document.getElementById('novoFornecedorComplemento').value.trim() || '',
+    localizacao: document.getElementById('novoFornecedorLocalizacao').value.trim() || '',
     cidade:     document.getElementById('novoFornecedorCidade').value.trim()     || '',
     estado:     document.getElementById('novoFornecedorEstado').value            || '',
     dataCadastro: new Date().toISOString()

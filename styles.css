@@ -55,11 +55,19 @@ body {
 .navbar-brand {
   font-weight: 600;
   font-size: var(--fonte-tamanho-grande);
-  color: white;
+  color: white !important;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.navbar-brand:hover {
+  color: #000 !important;
+  text-decoration: none;
 }
 
 .navbar-brand i {
   margin-right: 10px;
+  color: inherit !important;
 }
 
 .nav-link-top {
@@ -69,6 +77,10 @@ body {
   border-radius: var(--border-radius-padrao);
   transition: all var(--transition-speed);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .nav-link-top:hover, .nav-link-top.active {
@@ -77,8 +89,9 @@ body {
 }
 
 .nav-link-top i {
-  margin-right: 8px;
+  margin-right: 0;
   font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .navbar-actions .btn {
@@ -468,4 +481,131 @@ input:invalid:focus {
   color: #2c3e50;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+/* ==================== TEMA ESCURO ==================== */
+body.dark-theme {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+body.dark-theme .navbar-superior {
+  background: #0d0d0d;
+  border-bottom: 1px solid #333;
+}
+
+body.dark-theme .card {
+  background: #2d2d2d;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-theme .card-header {
+  background: #252525 !important;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-theme .form-control,
+body.dark-theme .form-select {
+  background: #3a3a3a;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+body.dark-theme .form-control:focus,
+body.dark-theme .form-select:focus {
+  background: #4a4a4a;
+  color: #e0e0e0;
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+body.dark-theme .table {
+  color: #e0e0e0;
+}
+
+body.dark-theme .table thead th {
+  background: #252525;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+body.dark-theme .table-hover tbody tr:hover {
+  background: #3a3a3a !important;
+}
+
+body.dark-theme .btn-outline-secondary {
+  color: #aaa;
+  border-color: #555;
+}
+
+body.dark-theme .btn-outline-secondary:hover {
+  background: #555;
+  color: #fff;
+  border-color: #666;
+}
+
+body.dark-theme .modal-content {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+body.dark-theme .modal-header {
+  background: #252525;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-theme .modal-body {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+body.dark-theme .alert {
+  background: #3a3a3a;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+body.dark-theme .badge {
+  background: #3a3a3a;
+  color: #e0e0e0;
+}
+
+body.dark-theme .nav-link {
+  color: #aaa;
+}
+
+body.dark-theme .nav-link:hover,
+body.dark-theme .nav-link.active {
+  color: #fff;
+}
+
+body.dark-theme .text-muted {
+  color: #999 !important;
+}
+
+body.dark-theme input::placeholder,
+body.dark-theme textarea::placeholder {
+  color: #666;
+}
+
+body.dark-theme .dropdown-menu {
+  background: #2d2d2d;
+  border-color: #444;
+}
+
+body.dark-theme .dropdown-item {
+  color: #e0e0e0;
+}
+
+body.dark-theme .dropdown-item:hover,
+body.dark-theme .dropdown-item:focus {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+body.dark-theme .dropdown-divider {
+  border-color: #444;
 }

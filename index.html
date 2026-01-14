@@ -241,9 +241,7 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('clientes')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
-            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('clientes')">
-              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
-            </button>
+
           </div>
         </div>
         <div class="card-body">
@@ -267,8 +265,10 @@
     <th>E-mail</th>
     <th>Telefone</th>
     <th>Profissão</th>
-    <th>Endereço</th>
-    <th>Bairro</th>
+    <th>Rua</th>
+    <th>Número</th>
+    <th>Complemento</th>
+    <th>Localização</th>
     <th>Cidade</th>
     <th>Estado</th>
     <th class="no-print">Ações</th>
@@ -295,9 +295,7 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('fornecedores')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
-            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('fornecedores')">
-              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
-            </button>
+
           </div>
         </div>
         <div class="card-body">
@@ -319,7 +317,9 @@
                   <th>E-mail</th>
                   <th>Telefone</th>
                   <th>Fornecimento</th>
-                  <th>Endereço</th>
+                  <th>Rua</th>
+                  <th>Número</th>
+                  <th>Complemento</th>
                   <th>Bairro</th>
                   <th>Cidade</th>
                   <th>UF</th>
@@ -345,9 +345,7 @@
             <button class="btn btn-primary btn-sm" onclick="adicionarEventoAgenda()">
               <i class="bi bi-plus-circle me-2"></i>Novo Evento
             </button>
-            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('agenda')">
-              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
-            </button>
+
           </div>
         </div>
         <div class="card-body">
@@ -379,9 +377,7 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('orcamentos')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
-            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('orcamentos')">
-              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
-            </button>
+
           </div>
         </div>
         <div class="card-body">
@@ -432,9 +428,7 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('estoque')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
-            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('estoque')">
-              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
-            </button>
+
           </div>
         </div>
         <div class="card-body">
@@ -476,9 +470,7 @@
             <button class="btn btn-outline-primary btn-sm ms-2" data-edit-toggle="financeiro" onclick="ativarEdicaoTodos('financeiro')">
               <i class="bi bi-pencil-square me-2"></i>Editar Valores
             </button>
-            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('financeiro')">
-              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
-            </button>
+
           </div>
         </div>
         <div class="card-body" data-save-section="financeiro" data-modal-id="modalNovoReceber">
@@ -493,11 +485,16 @@
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
-                    <table class="table table-sm">
+                    <table class="table table-sm table-hover">
                       <thead>
                         <tr>
                           <th>Descrição</th>
                           <th>Valor</th>
+                          <th>Vencimento</th>
+                          <th>Cliente</th>
+                          <th>Forma</th>
+                          <th>Categoria</th>
+                          <th>Status</th>
                           <th class="no-print">Ações</th>
                         </tr>
                       </thead>
@@ -519,11 +516,16 @@
                 </div>
                 <div class="card-body">
                   <div class="table-responsive">
-                    <table class="table table-sm">
+                    <table class="table table-sm table-hover">
                       <thead>
                         <tr>
                           <th>Descrição</th>
                           <th>Valor</th>
+                          <th>Vencimento</th>
+                          <th>Fornecedor</th>
+                          <th>Forma</th>
+                          <th>Categoria</th>
+                          <th>Status</th>
                           <th class="no-print">Ações</th>
                         </tr>
                       </thead>
@@ -568,9 +570,7 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('patrimonio')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
-            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('patrimonio')">
-              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
-            </button>
+
           </div>
         </div>
         <div class="card-body">
@@ -610,9 +610,7 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('contratos')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
-            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('contratos')">
-              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
-            </button>
+
           </div>
         </div>
         <div class="card-body">
@@ -903,14 +901,22 @@
                   <input type="tel" class="form-control" id="novoClienteTelefone" required placeholder="(00) 00000-0000">
                 </div>
 
-                <div class="col-12">
-                  <label class="form-label fw-bold">Endereço</label>
-                  <input type="text" class="form-control" id="novoClienteEndereco" placeholder="Rua, número, complemento">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Rua</label>
+                  <input type="text" class="form-control" id="novoClienteRua" placeholder="Ex: Rua das Flores">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Número</label>
+                  <input type="text" class="form-control" id="novoClienteNumero" placeholder="123">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Complemento</label>
+                  <input type="text" class="form-control" id="novoClienteComplemento" placeholder="Apto 4B">
                 </div>
 
                 <div class="col-md-4">
-                  <label class="form-label fw-bold">Bairro</label>
-                  <input type="text" class="form-control" id="novoClienteBairro" placeholder="Centro">
+                  <label class="form-label fw-bold">Localização</label>
+                  <input type="text" class="form-control" id="novoClienteLocalizacao" placeholder="Bairro/Zona">
                 </div>
                 <div class="col-md-5">
                   <label class="form-label fw-bold">Cidade</label>
@@ -1168,15 +1174,23 @@
             </div>
 
             <!-- Endereço -->
-            <div class="col-12">
-              <label class="form-label">Endereço completo</label>
-              <input type="text" class="form-control" id="novoFornecedorEndereco" placeholder="Rua das Indústrias, 456 - Sala 02">
+            <div class="col-md-6">
+              <label class="form-label">Rua</label>
+              <input type="text" class="form-control" id="novoFornecedorRua" placeholder="Ex: Rua das Indústrias">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Número</label>
+              <input type="text" class="form-control" id="novoFornecedorNumero" placeholder="456">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Complemento</label>
+              <input type="text" class="form-control" id="novoFornecedorComplemento" placeholder="Sala 02">
             </div>
 
-            <!-- Linha 4 - Bairro, Cidade, Estado -->
+            <!-- Localização, Cidade, Estado -->
             <div class="col-md-4">
-              <label class="form-label">Bairro</label>
-              <input type="text" class="form-control" id="novoFornecedorBairro" placeholder="Industrial">
+              <label class="form-label">Localização</label>
+              <input type="text" class="form-control" id="novoFornecedorLocalizacao" placeholder="Industrial">
             </div>
             <div class="col-md-5">
               <label class="form-label">Cidade</label>
