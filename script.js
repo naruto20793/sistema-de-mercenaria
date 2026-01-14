@@ -378,33 +378,60 @@ function adicionarCliente() {
 }
 
 document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () => {
-  const nome = document.getElementById('novoClienteNome').value.trim();
-  
-  if (!nome) {
-    Swal.fire('Atenção', 'O nome do cliente é obrigatório!', 'warning');
+  // Pegando todos os valores
+  const nome         = document.getElementById('novoClienteNome').value.trim();
+  const cnpj         = document.getElementById('novoClienteCnpj').value.trim();
+  const email        = document.getElementById('novoClienteEmail').value.trim();
+  const telefone     = document.getElementById('novoClienteTelefone').value.trim();
+  const fornecimento = document.getElementById('novoClienteFornecimento').value.trim();
+  const endereco     = document.getElementById('novoClienteEndereco').value.trim();
+  const bairro       = document.getElementById('novoClienteBairro').value.trim();
+  const cidade       = document.getElementById('novoClienteCidade').value.trim();
+  const estado       = document.getElementById('novoClienteEstado').value;
+
+  // Validação básica
+  if (!nome || !cnpj || !email || !telefone || !fornecimento || 
+      !endereco || !bairro || !cidade || !estado) {
+    Swal.fire({
+      title: 'Campos obrigatórios!',
+      text: 'Por favor preencha todos os campos marcados com *',
+      icon: 'warning',
+      confirmButtonText: 'Entendi'
+    });
     return;
   }
 
-  const cliente = {
+  // Validação simples de e-mail
+  if (!email.includes('@') || !email.includes('.')) {
+    Swal.fire('Atenção', 'E-mail parece inválido!', 'warning');
+    return;
+  }
+
+  const novoCliente = {
     id: gerarId(),
     nome,
-    telefone: document.getElementById('novoClienteTelefone').value.trim(),
-    email: document.getElementById('novoClienteEmail').value.trim(),
-    endereco: document.getElementById('novoClienteEndereco').value.trim(),
+    cnpj,
+    email,
+    telefone,
+    fornecimento,
+    endereco,
+    bairro,
+    cidade,
+    estado,
     dataCadastro: new Date().toISOString()
   };
 
-  clientes.push(cliente);
+  clientes.push(novoCliente);
   salvarDados();
   carregarClientes();
 
   bootstrap.Modal.getInstance(document.getElementById('modalNovoCliente')).hide();
-  
+
   Swal.fire({
-    title: 'Sucesso!',
-    text: 'Cliente cadastrado com sucesso!',
+    title: 'Cliente cadastrado!',
+    text: `${nome} foi adicionado com sucesso`,
     icon: 'success',
-    timer: 1800,
+    timer: 2000,
     showConfirmButton: false
   });
 });
@@ -449,7 +476,7 @@ function carregarClientes(filtro = '') {
   if (clientesFiltrados.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="text-center py-4">
+        <td colspan="11" class="text-center py-4">
           <i class="bi bi-people display-4 text-muted mb-3 d-block"></i>
           <p class="text-muted">${filtro ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</p>
         </td>
@@ -457,21 +484,25 @@ function carregarClientes(filtro = '') {
     `;
     return;
   }
-
   tbody.innerHTML = clientesFiltrados.map(cliente => `
-    <tr>
-      <td class="editable-cell" data-id="cli_${cliente.id}" data-field="nome">${cliente.nome}</td>
-      <td class="editable-cell" data-id="cli_${cliente.id}" data-field="telefone">${cliente.telefone || ''}</td>
-      <td class="editable-cell" data-id="cli_${cliente.id}" data-field="email">${cliente.email || ''}</td>
-      <td class="editable-cell" data-id="cli_${cliente.id}" data-field="endereco">${cliente.endereco || ''}</td>
-      <td class="non-editable-cell">${formatarData(cliente.dataCadastro)}</td>
-      <td class="no-print">
-        <button class="btn btn-sm btn-outline-danger" onclick="excluirCliente('${cliente.id}')">
-          <i class="bi bi-trash"></i>
-        </button>
-      </td>
-    </tr>
-  `).join('');
+  <tr>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="nome">${cliente.nome}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="cnpj">${cliente.cnpj || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="telefone">${cliente.telefone || ''}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="email">${cliente.email || ''}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="fornecimento">${cliente.fornecimento || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="endereco">${cliente.endereco || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="bairro">${cliente.bairro || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="cidade">${cliente.cidade || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="estado">${cliente.estado || '-'}</td>
+    <td class="non-editable-cell">${formatarData(cliente.dataCadastro)}</td>
+    <td class="no-print">
+      <button class="btn btn-sm btn-outline-danger" onclick="excluirCliente('${cliente.id}')">
+        <i class="bi bi-trash"></i>
+      </button>
+    </td>
+  </tr>
+`).join('');
 
   $$('#listaClientes .editable-cell').forEach(cell => {
     const itemId = cell.getAttribute('data-id');
@@ -1389,16 +1420,24 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// Máscara básica telefone
+// Máscara CNPJ
+document.getElementById('novoClienteCnpj')?.addEventListener('input', function(e) {
+  let v = e.target.value.replace(/\D/g, '');
+  if (v.length <= 14) {
+    v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+    v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+    v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+    v = v.replace(/(\d{4})(\d)/, "$1-$2");
+  }
+  e.target.value = v;
+});
+
+// Máscara Telefone (já existe, mas reforçando)
 document.getElementById('novoClienteTelefone')?.addEventListener('input', function(e) {
   let v = e.target.value.replace(/\D/g, '');
-  if (v.length <= 10) {
-    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
-    v = v.replace(/(\d{4})(\d)/, '$1-$2');
-  } else {
-    v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
-    v = v.replace(/(\d{5})(\d)/, '$1-$2');
-  }
+  v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+  v = v.replace(/(\d)(\d{4})$/,"$1-$2");
+  if (v.length > 14) v = v.substring(0,14);
   e.target.value = v;
 });
 
