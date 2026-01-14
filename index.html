@@ -478,15 +478,18 @@
           <div class="table-responsive">
             <table class="table table-hover">
               <thead class="table-light">
-                <tr>
-                  <th>Item</th>
-                  <th class="non-editable-cell">Data Aquisição</th>
-                  <th>Valor</th>
-                  <th>Departamento</th>
-                  <th>Estado</th>
-                  <th class="no-print">Ações</th>
-                </tr>
-              </thead>
+  <tr>
+    <th>Código</th>
+    <th>Nome</th>
+    <th>Categoria</th>
+    <th>Data Aquisição</th>
+    <th>Fornecedor</th>
+    <th>Localização</th>
+    <th>Estado</th>
+    <th>Vida Útil (anos)</th>
+    <th class="no-print">Ações</th>
+  </tr>
+</thead>
               <tbody id="listaPatrimonio">
                 <!-- Dados serão carregados aqui -->
               </tbody>
@@ -962,43 +965,94 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-info text-white">
-        <h5 class="modal-title"><i class="bi bi-building me-2"></i>Novo Item de Patrimônio</h5>
+        <h5 class="modal-title" id="modalNovoPatrimonioLabel">
+          <i class="bi bi-building me-2"></i>Novo Item de Patrimônio
+        </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
+      
       <div class="modal-body">
         <form id="formNovoPatrimonio">
           <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label fw-bold">Nome do Item <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="novoPatrimonioNome" required autofocus>
+
+            <!-- Código -->
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Código <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoPatrimonioCodigo" required 
+                     placeholder="Ex: PAT-001, EQ-2025-045" autofocus>
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-bold">Valor (R$) <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="novoPatrimonioValor" required placeholder="R$ 0,00">
+
+            <!-- Nome / Descrição -->
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Nome do bem <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoPatrimonioNome" required 
+                     placeholder="Ex: Serra fita 3HP, Torno CNC 4 eixos">
             </div>
+
+            <!-- Categoria -->
             <div class="col-md-6">
-              <label class="form-label">Data de Aquisição</label>
-              <input type="date" class="form-control" id="novoPatrimonioData">
+              <label class="form-label fw-bold">Categoria <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoPatrimonioCategoria" required>
+                <option value="">Selecione a categoria...</option>
+                <option value="maquinas">Máquinas pesadas</option>
+                <option value="ferramentas">Ferramentas elétricas/manuais</option>
+                <option value="moveis">Móveis de escritório/loja</option>
+                <option value="informatica">Informática e eletrônicos</option>
+                <option value="veiculos">Veículos</option>
+                <option value="outros">Outros</option>
+              </select>
             </div>
+
+            <!-- Data de aquisição -->
             <div class="col-md-6">
-              <label class="form-label">Departamento</label>
-              <input type="text" class="form-control" id="novoPatrimonioDepartamento" placeholder="Ex: Oficina">
+              <label class="form-label fw-bold">Data de aquisição <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="novoPatrimonioDataAquisicao" required>
             </div>
+
+            <!-- Fornecedor -->
             <div class="col-md-6">
-              <label class="form-label">Estado</label>
-              <select class="form-select" id="novoPatrimonioEstado">
+              <label class="form-label fw-bold">Fornecedor</label>
+              <select class="form-select" id="novoPatrimonioFornecedor">
+                <option value="">Selecione um fornecedor...</option>
+                <!-- Será preenchido dinamicamente -->
+              </select>
+            </div>
+
+            <!-- Localização -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Localização <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoPatrimonioLocalizacao" required 
+                     placeholder="Ex: Oficina principal - Setor máquinas pesadas">
+            </div>
+
+            <!-- Estado/Condição -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Estado/Condição <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoPatrimonioEstado" required>
+                <option value="novo">Novo</option>
+                <option value="excelente">Excelente</option>
                 <option value="bom">Bom</option>
                 <option value="regular">Regular</option>
                 <option value="ruim">Ruim</option>
+                <option value="inservivel">Inservível</option>
               </select>
             </div>
+
+            <!-- Vida útil estimada -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Vida útil estimada (anos) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="novoPatrimonioVidaUtil" min="1" required 
+                     placeholder="Ex: 10" value="10">
+            </div>
+
           </div>
         </form>
       </div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-info text-white" id="btnSalvarNovoPatrimonio">
-          <i class="bi bi-check-lg me-2"></i>Adicionar ao Patrimônio
+          <i class="bi bi-check-lg me-2"></i>Salvar Patrimônio
         </button>
       </div>
     </div>
@@ -1051,19 +1105,76 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Nova Conta a Receber</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="modalNovoReceberLabel"><i class="bi bi-arrow-down-circle me-2"></i>Nova Entrada Financeira (Lucro)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="formNovoReceber">
           <div class="row g-3">
+            <!-- Descrição -->
             <div class="col-12">
-              <label class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="novoReceberDescricao" required autofocus>
+              <label class="form-label fw-bold">Descrição da Entrada <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoReceberDescricao" required autofocus placeholder="Ex: Pagamento de orçamento #123 - Mesa de jantar">
             </div>
-            <div class="col-12">
+
+            <!-- Valor e Data de Vencimento -->
+            <div class="col-md-6">
               <label class="form-label fw-bold">Valor (R$) <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="novoReceberValor" required placeholder="R$ 0,00">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Data de Vencimento/Recebimento <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="novoReceberDataVenc" required>
+            </div>
+
+            <!-- Cliente e Forma de Recebimento -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Cliente Relacionado <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoReceberCliente" required>
+                <option value="">Selecione um cliente...</option>
+                <!-- Preenchido dinamicamente -->
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Forma de Recebimento <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoReceberForma" required>
+                <option value="">Selecione...</option>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="cartao">Cartão de Crédito/Débito</option>
+                <option value="boleto">Boleto</option>
+                <option value="pix">PIX</option>
+                <option value="transferencia">Transferência Bancária</option>
+                <option value="cheque">Cheque</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+
+            <!-- Categoria e Status -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Categoria <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoReceberCategoria" required>
+                <option value="">Selecione...</option>
+                <option value="vendas">Vendas de Produtos</option>
+                <option value="servicos">Serviços Prestados</option>
+                <option value="reembolso">Reembolso/Devolução</option>
+                <option value="investimento">Investimento/Empréstimo</option>
+                <option value="outro">Outra</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Status Inicial <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoReceberStatus" required>
+                <option value="pendente">Pendente</option>
+                <option value="pago">Pago</option>
+                <option value="atrasado">Atrasado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+
+            <!-- Observações -->
+            <div class="col-12">
+              <label class="form-label">Observações</label>
+              <textarea class="form-control" id="novoReceberObs" rows="3" placeholder="Detalhes adicionais, como comprovante ou condições..."></textarea>
             </div>
           </div>
         </form>
@@ -1071,7 +1182,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-success" id="btnSalvarNovoReceber">
-          <i class="bi bi-check-lg me-2"></i>Adicionar Conta
+          <i class="bi bi-check-lg me-2"></i>Adicionar Entrada
         </button>
       </div>
     </div>
@@ -1083,27 +1194,85 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Nova Conta a Pagar</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="modalNovoPagarLabel"><i class="bi bi-arrow-up-circle me-2"></i>Nova Saída Financeira (Dívida/Despesa)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="formNovoPagar">
           <div class="row g-3">
+            <!-- Descrição -->
             <div class="col-12">
-              <label class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="novoPagarDescricao" required autofocus>
+              <label class="form-label fw-bold">Descrição da Saída <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoPagarDescricao" required autofocus placeholder="Ex: Compra de MDF - Nota #456">
             </div>
-            <div class="col-12">
+
+            <!-- Valor e Data de Vencimento -->
+            <div class="col-md-6">
               <label class="form-label fw-bold">Valor (R$) <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="novoPagarValor" required placeholder="R$ 0,00">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Data de Vencimento/Pagamento <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" id="novoPagarDataVenc" required>
+            </div>
+
+            <!-- Fornecedor e Forma de Pagamento -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Fornecedor Relacionado <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoPagarFornecedor" required>
+                <option value="">Selecione um fornecedor...</option>
+                <!-- Preenchido dinamicamente -->
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Forma de Pagamento <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoPagarForma" required>
+                <option value="">Selecione...</option>
+                <option value="dinheiro">Dinheiro</option>
+                <option value="cartao">Cartão de Crédito/Débito</option>
+                <option value="boleto">Boleto</option>
+                <option value="pix">PIX</option>
+                <option value="transferencia">Transferência Bancária</option>
+                <option value="cheque">Cheque</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+
+            <!-- Categoria e Status -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Categoria <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoPagarCategoria" required>
+                <option value="">Selecione...</option>
+                <option value="materiais">Compra de Materiais</option>
+                <option value="salarios">Salários/Funcionários</option>
+                <option value="aluguel">Aluguel/Contas Fixas</option>
+                <option value="manutencao">Manutenção/Equipamentos</option>
+                <option value="impostos">Impostos/Taxas</option>
+                <option value="outro">Outra</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Status Inicial <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoPagarStatus" required>
+                <option value="pendente">Pendente</option>
+                <option value="pago">Pago</option>
+                <option value="atrasado">Atrasado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+
+            <!-- Observações -->
+            <div class="col-12">
+              <label class="form-label">Observações</label>
+              <textarea class="form-control" id="novoPagarObs" rows="3" placeholder="Detalhes adicionais, como nota fiscal ou condições..."></textarea>
             </div>
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger text-white" id="btnSalvarNovoPagar">
-          <i class="bi bi-check-lg me-2"></i>Adicionar Conta
+        <button type="button" class="btn btn-danger" id="btnSalvarNovoPagar">
+          <i class="bi bi-check-lg me-2"></i>Adicionar Saída
         </button>
       </div>
     </div>

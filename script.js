@@ -677,7 +677,8 @@ document.getElementById('btnLimparBuscaCliente')?.addEventListener('click', () =
 });
 
 // Máscara de valor (já deve existir, mas reforçando)
-aplicarMascaraMoeda(document.getElementById('novoOrcamentoValor'));
+const _novoOrcamentoValor = document.getElementById('novoOrcamentoValor');
+if (_novoOrcamentoValor) aplicarMascaraMoeda(_novoOrcamentoValor);
 
 // Salvar novo orçamento (atualizado)
 document.getElementById('btnSalvarNovoOrcamento')?.addEventListener('click', () => {
@@ -955,13 +956,128 @@ function carregarFinanceiro() {
   atualizarSaldo();
 }
 
+// Preenche selects para modais financeiros
+function preencherSelectClientes(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  select.innerHTML = '<option value="">Selecione um cliente...</option>';
+  clientes.forEach(cliente => {
+    const opt = document.createElement('option');
+    opt.value = cliente.id;
+    opt.textContent = cliente.nome + (cliente.cpf ? ` (${cliente.cpf})` : '');
+    select.appendChild(opt);
+  });
+}
+
+function preencherSelectFornecedores(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  select.innerHTML = '<option value="">Selecione um fornecedor...</option>';
+  fornecedores.forEach(fornecedor => {
+    const opt = document.createElement('option');
+    opt.value = fornecedor.id;
+    opt.textContent = fornecedor.nome + (fornecedor.cnpj ? ` (${fornecedor.cnpj})` : '');
+    select.appendChild(opt);
+  });
+}
+
+// Ao abrir os modais, popular selects e ajustar datas
+document.getElementById('modalNovoReceber')?.addEventListener('show.bs.modal', () => {
+  preencherSelectClientes('novoReceberCliente');
+  const inputData = document.getElementById('novoReceberDataVenc');
+  if (inputData) inputData.value = new Date().toISOString().split('T')[0];
+});
+
+document.getElementById('modalNovoPagar')?.addEventListener('show.bs.modal', () => {
+  preencherSelectFornecedores('novoPagarFornecedor');
+  const inputData = document.getElementById('novoPagarDataVenc');
+  if (inputData) inputData.value = new Date().toISOString().split('T')[0];
+});
+
+// Salvar novo receber (entrada)
+document.getElementById('btnSalvarNovoReceber')?.addEventListener('click', () => {
+  const descricao = document.getElementById('novoReceberDescricao')?.value.trim();
+  const valor = parseFloat((document.getElementById('novoReceberValor')?.value || '').replace(/[^\d,]/g, '').replace(',', '.') || 0);
+  const dataVenc = document.getElementById('novoReceberDataVenc')?.value;
+  const clienteId = document.getElementById('novoReceberCliente')?.value;
+  const forma = document.getElementById('novoReceberForma')?.value;
+  const categoria = document.getElementById('novoReceberCategoria')?.value;
+  const status = document.getElementById('novoReceberStatus')?.value;
+  const obs = document.getElementById('novoReceberObs')?.value.trim() || '';
+
+  if (!descricao || !valor || !dataVenc || !clienteId || !forma || !categoria || !status) {
+    Swal.fire('Atenção', 'Preencha todos os campos obrigatórios!', 'warning');
+    return;
+  }
+
+  const cliente = clientes.find(c => c.id === clienteId);
+  const entrada = {
+    id: gerarId(),
+    descricao,
+    valor,
+    dataVencimento: dataVenc,
+    clienteId,
+    clienteNome: cliente ? cliente.nome : '',
+    formaRecebimento: forma,
+    categoria,
+    status,
+    observacoes: obs,
+    dataCadastro: new Date().toISOString()
+  };
+
+  receber.push(entrada);
+  salvarDados();
+  carregarFinanceiro();
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoReceber')).hide();
+  Swal.fire('Sucesso!', 'Entrada financeira adicionada.', 'success');
+  atualizarEstatisticas();
+});
+
+// Salvar novo pagar (saída)
+document.getElementById('btnSalvarNovoPagar')?.addEventListener('click', () => {
+  const descricao = document.getElementById('novoPagarDescricao')?.value.trim();
+  const valor = parseFloat((document.getElementById('novoPagarValor')?.value || '').replace(/[^\d,]/g, '').replace(',', '.') || 0);
+  const dataVenc = document.getElementById('novoPagarDataVenc')?.value;
+  const fornecedorId = document.getElementById('novoPagarFornecedor')?.value;
+  const forma = document.getElementById('novoPagarForma')?.value;
+  const categoria = document.getElementById('novoPagarCategoria')?.value;
+  const status = document.getElementById('novoPagarStatus')?.value;
+  const obs = document.getElementById('novoPagarObs')?.value.trim() || '';
+
+  if (!descricao || !valor || !dataVenc || !fornecedorId || !forma || !categoria || !status) {
+    Swal.fire('Atenção', 'Preencha todos os campos obrigatórios!', 'warning');
+    return;
+  }
+
+  const fornecedor = fornecedores.find(f => f.id === fornecedorId);
+  const saida = {
+    id: gerarId(),
+    descricao,
+    valor,
+    dataVencimento: dataVenc,
+    fornecedorId,
+    fornecedorNome: fornecedor ? fornecedor.nome : '',
+    formaPagamento: forma,
+    categoria,
+    status,
+    observacoes: obs,
+    dataCadastro: new Date().toISOString()
+  };
+
+  pagar.push(saida);
+  salvarDados();
+  carregarFinanceiro();
+  bootstrap.Modal.getInstance(document.getElementById('modalNovoPagar')).hide();
+  Swal.fire('Sucesso!', 'Saída financeira adicionada.', 'success');
+  atualizarEstatisticas();
+});
+
 function carregarContasReceber() {
   const tbody = $('#listaReceber');
-
   if (receber.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="3" class="text-center text-muted">Nenhuma conta a receber</td>
+        <td colspan="8" class="text-center text-muted">Nenhuma conta a receber</td>
       </tr>
     `;
     return;
@@ -971,6 +1087,11 @@ function carregarContasReceber() {
     <tr>
       <td class="editable-cell" data-id="rec_${conta.id}" data-field="descricao">${conta.descricao}</td>
       <td class="editable-cell" data-id="rec_${conta.id}" data-field="valor" data-type="currency">${formatarMoeda(conta.valor)}</td>
+      <td>${formatarData(conta.dataVencimento)}</td>
+      <td>${conta.clienteNome || '-'}</td>
+      <td>${conta.formaRecebimento || '-'}</td>
+      <td>${conta.categoria || '-'}</td>
+      <td><span class="badge ${conta.status === 'pago' ? 'bg-success' : conta.status === 'atrasado' ? 'bg-danger' : 'bg-warning'}">${conta.status}</span></td>
       <td class="no-print">
         <button class="btn btn-sm btn-outline-danger" onclick="removerContaReceber('${conta.id}')">
           <i class="bi bi-trash"></i>
@@ -989,11 +1110,10 @@ function carregarContasReceber() {
 
 function carregarContasPagar() {
   const tbody = $('#listaPagar');
-
   if (pagar.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="3" class="text-center text-muted">Nenhuma conta a pagar</td>
+        <td colspan="8" class="text-center text-muted">Nenhuma conta a pagar</td>
       </tr>
     `;
     return;
@@ -1003,6 +1123,11 @@ function carregarContasPagar() {
     <tr>
       <td class="editable-cell" data-id="pag_${conta.id}" data-field="descricao">${conta.descricao}</td>
       <td class="editable-cell" data-id="pag_${conta.id}" data-field="valor" data-type="currency">${formatarMoeda(conta.valor)}</td>
+      <td>${formatarData(conta.dataVencimento)}</td>
+      <td>${conta.fornecedorNome || '-'}</td>
+      <td>${conta.formaPagamento || '-'}</td>
+      <td>${conta.categoria || '-'}</td>
+      <td><span class="badge ${conta.status === 'pago' ? 'bg-success' : conta.status === 'atrasado' ? 'bg-danger' : 'bg-warning'}">${conta.status}</span></td>
       <td class="no-print">
         <button class="btn btn-sm btn-outline-danger" onclick="removerContaPagar('${conta.id}')">
           <i class="bi bi-trash"></i>
@@ -1050,9 +1175,36 @@ function atualizarSaldo() {
 // ==================== FUNÇÕES DE PATRIMÔNIO ====================
 function adicionarPatrimonio() {
   document.getElementById('formNovoPatrimonio').reset();
-  document.getElementById('novoPatrimonioData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('novoPatrimonioDataAquisicao').value = new Date().toISOString().split('T')[0];
   new bootstrap.Modal(document.getElementById('modalNovoPatrimonio')).show();
 }
+
+// Popular select de fornecedores ao abrir modal de patrimônio
+document.getElementById('modalNovoPatrimonio')?.addEventListener('show.bs.modal', function () {
+  preencherSelectFornecedores('novoPatrimonioFornecedor');
+  const input = document.getElementById('novoPatrimonioDataAquisicao');
+  if (input) input.value = new Date().toISOString().split('T')[0];
+});
+
+// Botão de teste rápido - novo patrimônio
+document.querySelector('[onclick="adicionarPatrimonio()"]')?.addEventListener('click', function(e) {
+  e.preventDefault();
+  console.log("Botão Novo Patrimônio clicado!");
+  
+  const modalElement = document.getElementById('modalNovoPatrimonio');
+  if (!modalElement) {
+    alert("Modal de patrimônio não encontrado! Verifique o ID no HTML.");
+    return;
+  }
+  
+  try {
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+  } catch (err) {
+    console.error("Erro ao abrir modal:", err);
+    alert("Erro ao abrir o modal. Veja o console (F12).");
+  }
+});
 
 function carregarPatrimonio() {
   const tbody = $('#listaPatrimonio');
@@ -1589,11 +1741,30 @@ function aplicarMascaraMoeda(input) {
   });
 }
 
-aplicarMascaraMoeda(document.getElementById('novoOrcamentoValor'));
-aplicarMascaraMoeda(document.getElementById('novoEstoqueValorUnitario'));
-aplicarMascaraMoeda(document.getElementById('novoPatrimonioValor'));
-aplicarMascaraMoeda(document.getElementById('novoReceberValor'));
-aplicarMascaraMoeda(document.getElementById('novoPagarValor'));
+// Aplicar máscaras de moeda somente se os inputs existirem
+{
+  const elOrc = document.getElementById('novoOrcamentoValor');
+  const elEst = document.getElementById('novoEstoqueValorUnitario');
+  const elPat = document.getElementById('novoPatrimonioValor');
+  const elRec = document.getElementById('novoReceberValor');
+  const elPag = document.getElementById('novoPagarValor');
+
+  if (elOrc) aplicarMascaraMoeda(elOrc);
+  if (elEst) aplicarMascaraMoeda(elEst);
+  if (elPat) aplicarMascaraMoeda(elPat);
+  if (elRec) aplicarMascaraMoeda(elRec);
+  if (elPag) aplicarMascaraMoeda(elPag);
+}
+
+// Aplicar máscara em qualquer campo com class="moeda" quando aparecer
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.classList && e.target.classList.contains('moeda')) {
+    let valor = e.target.value.replace(/\D/g, '');
+    valor = (valor / 100).toFixed(2).replace('.', ',');
+    valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    e.target.value = valor ? 'R$ ' + valor : '';
+  }
+});
 
 document.getElementById('btnSalvarNovoFornecedor')?.addEventListener('click', () => {
   // Campos obrigatórios
@@ -1649,21 +1820,55 @@ document.getElementById('btnSalvarNovoFornecedor')?.addEventListener('click', ()
   });
 });
 
-document.getElementById('btnSalvarNovoPatrimonio')?.addEventListener('click', () => {
-  const nome = document.getElementById('novoPatrimonioNome').value.trim();
-  const valorStr = document.getElementById('novoPatrimonioValor').value.replace(/[^\d,]/g, '').replace(',','.');
-  if (!nome || !valorStr) return Swal.fire('Atenção', 'Nome e valor obrigatórios!', 'warning');
-  patrimonio.push({
-    id: gerarId(),
-    nome,
-    valor: parseFloat(valorStr),
-    dataAquisicao: document.getElementById('novoPatrimonioData').value || new Date().toISOString(),
-    departamento: document.getElementById('novoPatrimonioDepartamento').value.trim() || 'Geral',
-    estado: document.getElementById('novoPatrimonioEstado').value
-  });
-  salvarDados(); carregarPatrimonio();
-  bootstrap.Modal.getInstance(document.getElementById('modalNovoPatrimonio')).hide();
-  Swal.fire('Sucesso!', 'Item adicionado ao patrimônio!', 'success');
+document.getElementById('btnSalvarNovoPatrimonio')?.addEventListener('click', function() {
+    const codigo       = document.getElementById('novoPatrimonioCodigo')?.value.trim();
+    const nome         = document.getElementById('novoPatrimonioNome')?.value.trim();
+    const categoria    = document.getElementById('novoPatrimonioCategoria')?.value;
+    const dataAquisicao = document.getElementById('novoPatrimonioDataAquisicao')?.value;
+    const fornecedorId = document.getElementById('novoPatrimonioFornecedor')?.value;
+    const localizacao  = document.getElementById('novoPatrimonioLocalizacao')?.value.trim();
+    const estado       = document.getElementById('novoPatrimonioEstado')?.value;
+    const vidaUtil     = parseInt(document.getElementById('novoPatrimonioVidaUtil')?.value) || 0;
+
+    if (!codigo || !nome || !categoria || !dataAquisicao || !localizacao || !estado || vidaUtil <= 0) {
+        Swal.fire({
+            title: 'Atenção!',
+            text: 'Preencha todos os campos obrigatórios corretamente.',
+            icon: 'warning'
+        });
+        return;
+    }
+
+    const novoItem = {
+        id: gerarId(),
+        codigo,
+        nome,
+        categoria,
+        dataAquisicao,
+        fornecedorId: fornecedorId || null,
+        fornecedorNome: fornecedorId ? (fornecedores.find(f => f.id === fornecedorId)?.nome || '') : '',
+        localizacao,
+        estado,
+        vidaUtil,
+        dataCadastro: new Date().toISOString()
+    };
+
+    patrimonio.push(novoItem);
+    salvarDados();
+    carregarPatrimonio();
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalNovoPatrimonio'));
+    modal?.hide();
+
+    Swal.fire({
+        title: 'Sucesso!',
+        text: 'Patrimônio cadastrado com sucesso!',
+        icon: 'success',
+        timer: 1800,
+        showConfirmButton: false
+    });
+
+    console.log('Patrimônio salvo:', novoItem);
 });
 
 document.getElementById('btnSalvarNovoContrato')?.addEventListener('click', () => {
