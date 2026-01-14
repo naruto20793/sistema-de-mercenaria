@@ -11,6 +11,8 @@
 
   <!-- Nosso CSS personalizado -->
   <link rel="stylesheet" href="styles.css">
+  <!-- FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -80,6 +82,12 @@
             </a>
           </li>
           <li class="nav-item">
+            <a class="nav-link-top" onclick="mostrarSecao('agenda')">
+              <i class="bi bi-calendar3"></i>
+              <span>Agenda</span>
+            </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link-top" onclick="mostrarSecao('configuracoes')">
               <i class="bi bi-gear"></i>
               <span>Configurações</span>
@@ -97,84 +105,115 @@
             <i class="bi bi-download"></i>
             <span class="d-none d-md-inline"> Exportar</span>
           </button>
+          <button id="btnRefazer" class="btn btn-outline-light btn-sm ms-2" onclick="refazerUltimaExclusao()" title="Refazer última exclusão" disabled>
+            <i class="bi bi-arrow-counterclockwise"></i>
+            <span class="d-none d-md-inline"> Refazer</span>
+          </button>
         </div>
       </div>
     </div>
   </nav>
 
-  <!-- Modal Novo Orçamento - Versão recomendada 2025 -->
-  <div class="modal fade" id="modalNovoOrcamento" tabindex="-1" aria-labelledby="modalNovoOrcamentoLabel">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header bg-success text-white">
-          <h5 class="modal-title"><i class="bi bi-calculator me-2"></i>Novo Orçamento</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-      
-        <div class="modal-body">
-          <form id="formNovoOrcamento">
-            <div class="row g-3">
+  <!-- (Modal de Orçamento simplificado removido — há uma versão completa mais abaixo) -->
+  <!-- Dashboard / Início -->
+  <div id="dashboard" class="secao" style="display: none;">
+    <!-- Header Boas-vindas -->
+    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="card-body text-white p-5">
+        <h1 class="mb-2"><i class="bi bi-tools me-2"></i>MarcenariaPro</h1>
+        <p class="fs-5 mb-0">Bem-vindo ao seu sistema de gestão. Escolha uma seção no menu ou veja os destaques abaixo.</p>
+      </div>
+    </div>
 
-              <!-- Cliente -->
-              <div class="col-md-7">
-                <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="buscaClienteOrc" 
-                       placeholder="Digite nome ou CPF para buscar..." autocomplete="off" required>
-                <select class="form-select mt-1" id="novoOrcamentoCliente" size="5" style="display:none;" required></select>
-              </div>
-
-              <!-- Valor -->
-              <div class="col-md-5">
-                <label class="form-label fw-bold">Valor Total (R$) <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="novoOrcamentoValor" required placeholder="R$ 0,00">
-              </div>
-
-              <!-- Condições de pagamento -->
-              <div class="col-md-6">
-                <label class="form-label fw-bold">Condições de Pagamento <span class="text-danger">*</span></label>
-                <select class="form-select" id="novoOrcamentoCondPagto" required>
-                  <option value="">Selecione...</option>
-                  <option value="avista">À vista</option>
-                  <option value="30dias">30 dias</option>
-                  <option value="306090">30/60/90 dias</option>
-                  <option value="entrada50">50% entrada + 50% entrega</option>
-                  <option value="3x">Parcelado 3x</option>
-                  <option value="6x">Parcelado 6x</option>
-                  <option value="12x">Parcelado 12x</option>
-                  <option value="outro">Outro (especificar)</option>
-                </select>
-                <textarea class="form-control mt-2" id="novoOrcamentoCondPagtoOutro" 
-                          rows="2" placeholder="Especifique outras condições..." style="display:none;"></textarea>
-              </div>
-
-              <!-- Validade -->
-              <div class="col-md-3">
-                <label class="form-label fw-bold">Validade</label>
-                <input type="date" class="form-control" id="novoOrcamentoValidade">
-              </div>
-
-              <!-- Prazo de entrega (opcional mas muito útil) -->
-              <div class="col-md-3">
-                <label class="form-label fw-bold">Prazo de Entrega</label>
-                <input type="text" class="form-control" id="novoOrcamentoPrazo" placeholder="Ex: 45 dias úteis">
-              </div>
-
-              <!-- Descrição -->
-              <div class="col-12">
-                <label class="form-label fw-bold">Descrição / Itens <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="novoOrcamentoDescricao" rows="7" required 
-                          placeholder="Liste os itens com medidas, materiais, acabamentos, quantidade..."></textarea>
-              </div>
-
+    <!-- Cards de Resumo Executivo -->
+    <div class="row mb-4">
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="mostrarSecao('clientes')" style="transition: transform 0.2s;">
+          <div class="card-body text-center">
+            <div class="mb-3" style="font-size: 2.5rem; color: #667eea;">
+              <i class="bi bi-people-fill"></i>
             </div>
-          </form>
+            <h6 class="text-muted mb-2">Clientes</h6>
+            <div class="fs-3 fw-bold" id="totalClientes">0</div>
+            <small class="text-muted d-block mt-2">Clique para gerenciar</small>
+          </div>
         </div>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="mostrarSecao('orcamentos')" style="transition: transform 0.2s;">
+          <div class="card-body text-center">
+            <div class="mb-3" style="font-size: 2.5rem; color: #f093fb;">
+              <i class="bi bi-calculator-fill"></i>
+            </div>
+            <h6 class="text-muted mb-2">Orçamentos</h6>
+            <div class="fs-3 fw-bold" id="totalOrcamentos">0</div>
+            <small class="text-muted d-block mt-2">Clique para gerenciar</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="mostrarSecao('estoque')" style="transition: transform 0.2s;">
+          <div class="card-body text-center">
+            <div class="mb-3" style="font-size: 2.5rem; color: #fa709a;">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <h6 class="text-muted mb-2">Estoque Baixo</h6>
+            <div class="fs-3 fw-bold" id="estoqueBaixo">0</div>
+            <small class="text-muted d-block mt-2">Itens para reabastecer</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card border-0 shadow-sm h-100 cursor-pointer" onclick="mostrarSecao('financeiro')" style="transition: transform 0.2s;">
+          <div class="card-body text-center">
+            <div class="mb-3" style="font-size: 2.5rem; color: #30b0fe;">
+              <i class="bi bi-cash-coin"></i>
+            </div>
+            <h6 class="text-muted mb-2">Saldo Atual</h6>
+            <div class="fs-3 fw-bold" id="saldoResumo" style="color: #28a745;">R$ 0,00</div>
+            <small class="text-muted d-block mt-2">Clique para financeiro</small>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-success" id="btnSalvarNovoOrcamento">
-            <i class="bi bi-check-lg me-2"></i>Criar Orçamento
-          </button>
+    <!-- Atalhos Rápidos -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-light border-bottom">
+        <h6 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Ações Rápidas</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-md-2">
+            <button class="btn btn-outline-primary w-100 btn-sm" onclick="adicionarCliente()">
+              <i class="bi bi-plus-circle me-1"></i>Novo Cliente
+            </button>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-success w-100 btn-sm" onclick="adicionarContaReceber()">
+              <i class="bi bi-plus-circle me-1"></i>Receber
+            </button>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-danger w-100 btn-sm" onclick="adicionarContaPagar()">
+              <i class="bi bi-plus-circle me-1"></i>Pagar
+            </button>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-warning w-100 btn-sm" onclick="adicionarOrcamento()">
+              <i class="bi bi-plus-circle me-1"></i>Orçamento
+            </button>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-info w-100 btn-sm" onclick="mostrarSecao('agenda')">
+              <i class="bi bi-calendar3 me-1"></i>Agenda
+            </button>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-secondary w-100 btn-sm" onclick="mostrarSecao('configuracoes')">
+              <i class="bi bi-gear me-1"></i>Configurações
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -185,10 +224,14 @@
           <h5 class="mb-0"><i class="bi bi-people me-2"></i>Clientes</h5>
           <div>
             <button class="btn btn-primary btn-sm" onclick="adicionarCliente()">
+          <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
               <i class="bi bi-plus-circle me-2"></i>Novo Cliente
             </button>
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('clientes')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
+            </button>
+            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('clientes')">
+              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
             </button>
           </div>
         </div>
@@ -208,16 +251,15 @@
             <table class="table table-hover">
               <thead class="table-light">
   <tr>
-    <th>Nome/Razão Social</th>
-    <th>CNPJ</th>
-    <th>Telefone</th>
+    <th>Nome</th>
+    <th>CPF</th>
     <th>E-mail</th>
-    <th>Fornecimento</th>
+    <th>Telefone</th>
+    <th>Profissão</th>
     <th>Endereço</th>
     <th>Bairro</th>
     <th>Cidade</th>
-    <th>UF</th>
-    <th>Cadastro</th>
+    <th>Estado</th>
     <th class="no-print">Ações</th>
   </tr>
 </thead>
@@ -241,6 +283,9 @@
             </button>
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('fornecedores')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
+            </button>
+            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('fornecedores')">
+              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
             </button>
           </div>
         </div>
@@ -280,6 +325,37 @@
       </div>
     </div>
 
+    <!-- Agenda / Calendário -->
+    <div id="agenda" class="secao" style="display: none;">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Agenda</h5>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="adicionarEventoAgenda()">
+              <i class="bi bi-plus-circle me-2"></i>Novo Evento
+            </button>
+            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('agenda')">
+              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <input type="date" id="filtroAgendaData" class="form-control" onchange="carregarAgenda()">
+            </div>
+            <div class="col-md-8 text-end">
+              <small class="text-muted">Eventos interligados ao financeiro e ao patrimônio.</small>
+            </div>
+          </div>
+
+          <div id="calendarContainer">
+            <div id="calendarAgenda"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Orçamentos -->
     <div id="orcamentos" class="secao" style="display: none;">
       <div class="card">
@@ -291,6 +367,9 @@
             </button>
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('orcamentos')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
+            </button>
+            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('orcamentos')">
+              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
             </button>
           </div>
         </div>
@@ -342,6 +421,9 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('estoque')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
+            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('estoque')">
+              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
+            </button>
           </div>
         </div>
         <div class="card-body">
@@ -380,12 +462,15 @@
             <button class="btn btn-outline-secondary btn-sm" onclick="imprimirRelatorioFinanceiro()">
               <i class="bi bi-printer me-2"></i>Imprimir Relatório
             </button>
-            <button class="btn btn-outline-primary btn-sm ms-2" onclick="ativarEdicaoTodos('financeiro')">
+            <button class="btn btn-outline-primary btn-sm ms-2" data-edit-toggle="financeiro" onclick="ativarEdicaoTodos('financeiro')">
               <i class="bi bi-pencil-square me-2"></i>Editar Valores
+            </button>
+            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('financeiro')">
+              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
             </button>
           </div>
         </div>
-        <div class="card-body">
+        <div class="card-body" data-save-section="financeiro" data-modal-id="modalNovoReceber">
           <div class="row">
             <div class="col-md-6">
               <div class="card mb-3">
@@ -472,6 +557,9 @@
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('patrimonio')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
             </button>
+            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('patrimonio')">
+              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
+            </button>
           </div>
         </div>
         <div class="card-body">
@@ -510,6 +598,9 @@
             </button>
             <button class="btn btn-outline-secondary btn-sm ms-2" onclick="ativarEdicaoTodos('contratos')">
               <i class="bi bi-pencil-square me-2"></i>Editar Tudo
+            </button>
+            <button class="btn btn-light btn-sm ms-2" onclick="reloadSecao('contratos')">
+              <i class="bi bi-arrow-clockwise me-1"></i>Recarregar
             </button>
           </div>
         </div>
@@ -579,17 +670,58 @@
           </div>
         </div>
         <div class="card-body">
-          <div class="alert alert-info">
-            <i class="bi bi-info-circle me-2"></i>
-            <strong>Instruções de Edição:</strong>
-            <ul class="mb-0 mt-2">
-              <li>Clique <strong>duas vezes</strong> em qualquer célula da tabela para editá-la</li>
-              <li>Pressione <strong>Enter</strong> para salvar as alterações</li>
-              <li>Pressione <strong>Escape</strong> para cancelar a edição</li>
-              <li>Use o botão <strong>"Editar Tudo"</strong> para habilitar edição em todas as células</li>
-              <li>Colunas com fundo cinza não podem ser editadas (geradas automaticamente)</li>
-            </ul>
-          </div>
+          <form id="formConfiguracoes">
+            <div class="row gy-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Nome do Sistema</label>
+                <input type="text" id="cfgNomeSistema" class="form-control" placeholder="MarcenariaPro">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Tema</label>
+                <select id="cfgTema" class="form-select">
+                  <option value="auto">Automático</option>
+                  <option value="light">Claro</option>
+                  <option value="dark">Escuro</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Moeda</label>
+                <select id="cfgMoeda" class="form-select">
+                  <option value="BRL">BRL - R$</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Periodicidade padrão (dias) para manutenção</label>
+                <input type="number" id="cfgPeriodicidadeDefault" class="form-control" min="0" value="0">
+              </div>
+
+              <div class="col-12">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="cfgConfirmDelete">
+                  <label class="form-check-label">Exigir confirmação ao excluir itens</label>
+                </div>
+                <div class="form-check mt-2">
+                  <input class="form-check-input" type="checkbox" id="cfgAutoCreateFinancial">
+                  <label class="form-check-label">Criar automaticamente entrada financeira a partir da Agenda (receber/pagar)</label>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold">Backup e Restauração</label>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-outline-secondary" id="btnExportarBackup">Exportar Backup</button>
+                  <input type="file" id="inputImportBackup" accept="application/json" style="display:none">
+                  <button type="button" class="btn btn-outline-secondary" id="btnImportarBackup">Importar Backup</button>
+                  <button type="button" class="btn btn-outline-danger ms-auto" id="btnLimparDados">Limpar todos os dados</button>
+                </div>
+                <div class="mt-2">
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="btnLimparLixeira">Limpar Lixeira</button>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -607,78 +739,72 @@
           <div class="modal-body">
             <form id="formNovoCliente">
               <div class="row g-3">
-                <!-- Linha 1 -->
-                <div class="col-md-8">
-                  <label class="form-label fw-bold">Nome / Razão Social <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="novoClienteNome" required autofocus placeholder="Ex: João da Silva ou Móveis Planejados Ltda">
+                <div class="col-md-12">
+                  <label class="form-label fw-bold">Nome <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="novoClienteNome" required autofocus placeholder="Ex: João da Silva">
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label fw-bold">CNPJ <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="novoClienteCnpj" required placeholder="00.000.000/0000-00">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">CPF <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="novoClienteCpf" required placeholder="000.000.000-00">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Profissão</label>
+                  <input type="text" class="form-control" id="novoClienteProfissao" placeholder="Ex: Carpinteiro, Arquiteto...">
                 </div>
 
-                <!-- Linha 2 -->
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">E-mail <span class="text-danger">*</span></label>
+                  <input type="email" class="form-control" id="novoClienteEmail" required placeholder="contato@exemplo.com">
+                </div>
                 <div class="col-md-6">
                   <label class="form-label fw-bold">Telefone <span class="text-danger">*</span></label>
                   <input type="tel" class="form-control" id="novoClienteTelefone" required placeholder="(00) 00000-0000">
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-bold">E-mail <span class="text-danger">*</span></label>
-                  <input type="email" class="form-control" id="novoClienteEmail" required placeholder="contato@empresa.com">
-                </div>
 
-                <!-- Linha 3 -->
                 <div class="col-12">
-                  <label class="form-label fw-bold">Fornecimento / Segmento <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="novoClienteFornecimento" required placeholder="Ex: Fornecedor de MDF, Ferragens, Tintas, Marcenaria...">
+                  <label class="form-label fw-bold">Endereço</label>
+                  <input type="text" class="form-control" id="novoClienteEndereco" placeholder="Rua, número, complemento">
                 </div>
 
-                <!-- Endereço -->
-                <div class="col-12">
-                  <label class="form-label fw-bold">Endereço <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="novoClienteEndereco" required placeholder="Rua das Acácias, 456 - Sala 02">
-                </div>
-
-                <!-- Linha 4 -->
                 <div class="col-md-4">
-                  <label class="form-label fw-bold">Bairro <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="novoClienteBairro" required placeholder="Centro">
+                  <label class="form-label fw-bold">Bairro</label>
+                  <input type="text" class="form-control" id="novoClienteBairro" placeholder="Centro">
                 </div>
                 <div class="col-md-5">
-                  <label class="form-label fw-bold">Cidade <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="novoClienteCidade" required placeholder="Florianópolis">
+                  <label class="form-label fw-bold">Cidade</label>
+                  <input type="text" class="form-control" id="novoClienteCidade" placeholder="Cidade">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label fw-bold">Estado (UF) <span class="text-danger">*</span></label>
-                  <select class="form-select" id="novoClienteEstado" required>
+                  <label class="form-label fw-bold">Estado (UF)</label>
+                  <select class="form-select" id="novoClienteEstado">
                     <option value="">Selecione</option>
-                    <option value="AC">AC - Acre</option>
-                    <option value="AL">AL - Alagoas</option>
-                    <option value="AP">AP - Amapá</option>
-                    <option value="AM">AM - Amazonas</option>
-                    <option value="BA">BA - Bahia</option>
-                    <option value="CE">CE - Ceará</option>
-                    <option value="DF">DF - Distrito Federal</option>
-                    <option value="ES">ES - Espírito Santo</option>
-                    <option value="GO">GO - Goiás</option>
-                    <option value="MA">MA - Maranhão</option>
-                    <option value="MT">MT - Mato Grosso</option>
-                    <option value="MS">MS - Mato Grosso do Sul</option>
-                    <option value="MG">MG - Minas Gerais</option>
-                    <option value="PA">PA - Pará</option>
-                    <option value="PB">PB - Paraíba</option>
-                    <option value="PR">PR - Paraná</option>
-                    <option value="PE">PE - Pernambuco</option>
-                    <option value="PI">PI - Piauí</option>
-                    <option value="RJ">RJ - Rio de Janeiro</option>
-                    <option value="RN">RN - Rio Grande do Norte</option>
-                    <option value="RS">RS - Rio Grande do Sul</option>
-                    <option value="RO">RO - Rondônia</option>
-                    <option value="RR">RR - Roraima</option>
-                    <option value="SC" selected>SC - Santa Catarina</option>
-                    <option value="SP">SP - São Paulo</option>
-                    <option value="SE">SE - Sergipe</option>
-                    <option value="TO">TO - Tocantins</option>
+                    <option value="AC">AC</option>
+                    <option value="AL">AL</option>
+                    <option value="AP">AP</option>
+                    <option value="AM">AM</option>
+                    <option value="BA">BA</option>
+                    <option value="CE">CE</option>
+                    <option value="DF">DF</option>
+                    <option value="ES">ES</option>
+                    <option value="GO">GO</option>
+                    <option value="MA">MA</option>
+                    <option value="MT">MT</option>
+                    <option value="MS">MS</option>
+                    <option value="MG">MG</option>
+                    <option value="PA">PA</option>
+                    <option value="PB">PB</option>
+                    <option value="PR">PR</option>
+                    <option value="PE">PE</option>
+                    <option value="PI">PI</option>
+                    <option value="RJ">RJ</option>
+                    <option value="RN">RN</option>
+                    <option value="RS">RS</option>
+                    <option value="RO">RO</option>
+                    <option value="RR">RR</option>
+                    <option value="SC" selected>SC</option>
+                    <option value="SP">SP</option>
+                    <option value="SE">SE</option>
+                    <option value="TO">TO</option>
                   </select>
                 </div>
               </div>
@@ -686,7 +812,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-primary" id="btnSalvarNovoCliente">
+            <button type="button" class="btn btn-primary" id="btnSalvarNovoCliente" data-save-section="clientes" data-modal-id="modalNovoCliente">
               <i class="bi bi-check-lg me-2"></i>Salvar Cliente
             </button>
           </div>
@@ -785,7 +911,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-success" id="btnSalvarNovoOrcamento">
+        <button type="button" class="btn btn-success" id="btnSalvarNovoOrcamento" data-save-section="orcamentos" data-modal-id="modalNovoOrcamento">
           <i class="bi bi-check-lg me-2"></i>Salvar Orçamento
         </button>
       </div>
@@ -849,7 +975,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-warning text-dark" id="btnSalvarNovoEstoque">
+        <button type="button" class="btn btn-warning text-dark" id="btnSalvarNovoEstoque" data-save-section="estoque" data-modal-id="modalNovoItemEstoque">
           <i class="bi bi-check-lg me-2"></i>Adicionar ao Estoque
         </button>
       </div>
@@ -952,7 +1078,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-info text-white" id="btnSalvarNovoFornecedor">
+        <button type="button" class="btn btn-info text-white" id="btnSalvarNovoFornecedor" data-save-section="fornecedores" data-modal-id="modalNovoFornecedor">
           <i class="bi bi-check-lg me-2"></i>Salvar Fornecedor
         </button>
       </div>
@@ -1051,7 +1177,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-info text-white" id="btnSalvarNovoPatrimonio">
+        <button type="button" class="btn btn-info text-white" id="btnSalvarNovoPatrimonio" data-save-section="patrimonio" data-modal-id="modalNovoPatrimonio">
           <i class="bi bi-check-lg me-2"></i>Salvar Patrimônio
         </button>
       </div>
@@ -1092,9 +1218,63 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="btnSalvarNovoContrato">
+        <button type="button" class="btn btn-primary" id="btnSalvarNovoContrato" data-save-section="contratos" data-modal-id="modalNovoContrato">
           <i class="bi bi-check-lg me-2"></i>Criar Contrato
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Novo Evento Agenda -->
+<div class="modal fade" id="modalNovoEventoAgenda" tabindex="-1" aria-labelledby="modalNovoEventoAgendaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalNovoEventoAgendaLabel"><i class="bi bi-calendar3 me-2"></i>Novo Evento</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoEventoAgenda">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Data</label>
+              <input type="date" id="eventoData" class="form-control" required>
+              <input type="hidden" id="eventoId">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Tipo</label>
+              <select id="eventoTipo" class="form-select">
+                <option value="servico">Montagem / Serviço</option>
+                <option value="manutencao">Manutenção Patrimônio</option>
+                <option value="receber">Entrada (Receber)</option>
+                <option value="pagar">Saída (Pagar)</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Descrição</label>
+              <input type="text" id="eventoDescricao" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Valor (opcional)</label>
+              <input type="text" id="eventoValor" class="form-control moeda">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Vincular a</label>
+              <select id="eventoVinculo" class="form-select">
+                <option value="">Nenhum</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Periodicidade (dias)</label>
+              <input type="number" id="eventoPeriodicidade" class="form-control" placeholder="0 = não periódico">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnSalvarEventoAgenda">Salvar Evento</button>
       </div>
     </div>
   </div>
@@ -1181,7 +1361,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-success" id="btnSalvarNovoReceber">
+        <button type="button" class="btn btn-success" id="btnSalvarNovoReceber" data-save-section="financeiro" data-modal-id="modalNovoReceber">
           <i class="bi bi-check-lg me-2"></i>Adicionar Entrada
         </button>
       </div>
@@ -1271,7 +1451,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" id="btnSalvarNovoPagar">
+        <button type="button" class="btn btn-danger" id="btnSalvarNovoPagar" data-save-section="financeiro" data-modal-id="modalNovoPagar">
           <i class="bi bi-check-lg me-2"></i>Adicionar Saída
         </button>
       </div>

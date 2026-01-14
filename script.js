@@ -16,17 +16,466 @@ let receber = JSON.parse(localStorage.getItem('receber') || '[]');
 let pagar = JSON.parse(localStorage.getItem('pagar') || '[]');
 let patrimonio = JSON.parse(localStorage.getItem('patrimonio') || '[]');
 let contratos = JSON.parse(localStorage.getItem('contratos') || '[]');
+// Agenda / Eventos
+let agenda = JSON.parse(localStorage.getItem('agenda') || '[]');
+// Configurações
+let configuracoes = JSON.parse(localStorage.getItem('configuracoes') || '{}');
+
+function carregarConfiguracoes() {
+  configuracoes = JSON.parse(localStorage.getItem('configuracoes') || '{}');
+  // defaults
+  const defaults = {
+    nomeSistema: 'MarcenariaPro',
+    tema: 'auto',
+    moeda: 'BRL',
+    periodicidadeDefault: 0,
+    confirmDelete: false,
+    autoCreateFinancial: false
+  };
+  configuracoes = Object.assign(defaults, configuracoes || {});
+
+  // aplicar ao DOM
+  document.getElementById('cfgNomeSistema') && (document.getElementById('cfgNomeSistema').value = configuracoes.nomeSistema);
+  document.getElementById('cfgTema') && (document.getElementById('cfgTema').value = configuracoes.tema);
+  document.getElementById('cfgMoeda') && (document.getElementById('cfgMoeda').value = configuracoes.moeda);
+  document.getElementById('cfgPeriodicidadeDefault') && (document.getElementById('cfgPeriodicidadeDefault').value = configuracoes.periodicidadeDefault);
+  document.getElementById('cfgConfirmDelete') && (document.getElementById('cfgConfirmDelete').checked = !!configuracoes.confirmDelete);
+  document.getElementById('cfgAutoCreateFinancial') && (document.getElementById('cfgAutoCreateFinancial').checked = !!configuracoes.autoCreateFinancial);
+
+  // aplicar nome do sistema na navbar
+  const elNome = document.getElementById('nomeSistema');
+  if (elNome) elNome.textContent = configuracoes.nomeSistema;
+}
+
+function salvarConfiguracoes() {
+  configuracoes.nomeSistema = document.getElementById('cfgNomeSistema')?.value.trim() || 'MarcenariaPro';
+  configuracoes.tema = document.getElementById('cfgTema')?.value || 'auto';
+  configuracoes.moeda = document.getElementById('cfgMoeda')?.value || 'BRL';
+  configuracoes.periodicidadeDefault = parseInt(document.getElementById('cfgPeriodicidadeDefault')?.value) || 0;
+  configuracoes.confirmDelete = !!document.getElementById('cfgConfirmDelete')?.checked;
+  configuracoes.autoCreateFinancial = !!document.getElementById('cfgAutoCreateFinancial')?.checked;
+  localStorage.setItem('configuracoes', JSON.stringify(configuracoes));
+  carregarConfiguracoes();
+  Swal.fire('Configurações salvas', '', 'success');
+}
+
+function exportarBackup() {
+  const dados = {
+    clientes, fornecedores, orcamentos, estoque, receber, pagar, patrimonio, contratos, agenda, configuracoes, dataExport: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup-marcenaria-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+function importarBackup(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const dados = JSON.parse(e.target.result);
+      if (dados.clientes) clientes = dados.clientes;
+      if (dados.fornecedores) fornecedores = dados.fornecedores;
+      if (dados.orcamentos) orcamentos = dados.orcamentos;
+      if (dados.estoque) estoque = dados.estoque;
+      if (dados.receber) receber = dados.receber;
+      if (dados.pagar) pagar = dados.pagar;
+      if (dados.patrimonio) patrimonio = dados.patrimonio;
+      if (dados.contratos) contratos = dados.contratos;
+      if (dados.agenda) agenda = dados.agenda;
+      if (dados.configuracoes) configuracoes = dados.configuracoes;
+      salvarDados(); salvarAgenda(); localStorage.setItem('configuracoes', JSON.stringify(configuracoes));
+      carregarConfiguracoes();
+      reloadSecao(secaoAtual || 'dashboard');
+      Swal.fire('Importado', 'Backup importado com sucesso.', 'success');
+    } catch (err) {
+      Swal.fire('Erro', 'Arquivo inválido.', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function limparLixeira() {
+  lixeira = [];
+  salvarLixeira();
+  atualizarBotaoRefazer();
+  Swal.fire('Pronto', 'Lixeira limpa.', 'success');
+}
+
+function limparTodosDados() {
+  Swal.fire({
+    title: 'Limpar todos os dados?',
+    text: 'Esta ação apagará todos os registros e não pode ser desfeita.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, limpar',
+    cancelButtonText: 'Cancelar'
+  }).then(result => {
+    if (result.isConfirmed) {
+      localStorage.clear();
+      location.reload();
+    }
+  });
+}
+let calendar = null;
+
+function salvarAgenda() {
+  localStorage.setItem('agenda', JSON.stringify(agenda));
+}
+
+function gerarIdAgenda() {
+  return 'ev_' + gerarId();
+}
+
+function adicionarEventoAgenda() {
+  // prepara modal: preencher vínculos
+  preencherSelectVinculosAgenda();
+  document.getElementById('formNovoEventoAgenda').reset();
+  document.getElementById('eventoData').value = new Date().toISOString().split('T')[0];
+  new bootstrap.Modal(document.getElementById('modalNovoEventoAgenda')).show();
+}
+
+function preencherSelectVinculosAgenda() {
+  const sel = document.getElementById('eventoVinculo');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Nenhum</option>';
+  // opções financeiras (receber)
+  if (receber && receber.length) {
+    const optGroup = document.createElement('optgroup');
+    optGroup.label = 'Contas a Receber';
+    receber.forEach(r => {
+      const o = document.createElement('option');
+      o.value = `rec:${r.id}`;
+      o.textContent = `Receber: ${r.descricao || r.cliente || r.id} — ${formatarMoeda(r.valor)}`;
+      optGroup.appendChild(o);
+    });
+    sel.appendChild(optGroup);
+  }
+  if (pagar && pagar.length) {
+    const optGroup = document.createElement('optgroup');
+    optGroup.label = 'Contas a Pagar';
+    pagar.forEach(p => {
+      const o = document.createElement('option');
+      o.value = `pag:${p.id}`;
+      o.textContent = `Pagar: ${p.descricao || p.fornecedorNome || p.id} — ${formatarMoeda(p.valor)}`;
+      optGroup.appendChild(o);
+    });
+    sel.appendChild(optGroup);
+  }
+  // patrimônio
+  if (patrimonio && patrimonio.length) {
+    const optGroup = document.createElement('optgroup');
+    optGroup.label = 'Patrimônio';
+    patrimonio.forEach(pt => {
+      const o = document.createElement('option');
+      o.value = `pat:${pt.id}`;
+      o.textContent = `Patrimônio: ${pt.nome || pt.codigo || pt.id}`;
+      optGroup.appendChild(o);
+    });
+    sel.appendChild(optGroup);
+  }
+}
+
+document.getElementById('btnSalvarEventoAgenda')?.addEventListener('click', () => {
+  const data = document.getElementById('eventoData')?.value;
+  const tipo = document.getElementById('eventoTipo')?.value;
+  const descricao = document.getElementById('eventoDescricao')?.value.trim();
+  const valorRaw = document.getElementById('eventoValor')?.value || '';
+  const valor = valorRaw.replace(/[^0-9,\.]/g, '').replace(',', '.') || '';
+  const vinculo = document.getElementById('eventoVinculo')?.value || '';
+  const periodicidade = parseInt(document.getElementById('eventoPeriodicidade')?.value) || 0;
+  const eventoId = document.getElementById('eventoId')?.value || '';
+
+  if (eventoId) {
+    // editar evento existente
+    const ev = agenda.find(a => a.id === eventoId);
+    if (ev) {
+      ev.data = data || ev.data;
+      ev.tipo = tipo;
+      ev.descricao = descricao;
+      ev.valor = valor ? parseFloat(valor) : null;
+      ev.vinculo = vinculo;
+      ev.periodicidade = periodicidade || 0;
+      salvarAgenda();
+      // atualizar no calendário
+      try {
+        const calEv = calendar.getEventById(ev.id);
+        if (calEv) {
+          calEv.setProp('title', ev.descricao || ev.tipo);
+          calEv.setStart(ev.data);
+        }
+      } catch (e) {}
+      carregarAgenda();
+      try { bootstrap.Modal.getInstance(document.getElementById('modalNovoEventoAgenda'))?.hide(); } catch(e){}
+      Swal.fire('Atualizado!', 'Evento atualizado com sucesso.', 'success');
+      return;
+    }
+  }
+
+  const evento = {
+    id: gerarIdAgenda(),
+    data: data || new Date().toISOString().split('T')[0],
+    tipo,
+    descricao,
+    valor: valor ? parseFloat(valor) : null,
+    vinculo,
+    periodicidade: periodicidade || 0,
+    criadoEm: new Date().toISOString(),
+    concluido: false,
+    lastDone: null
+  };
+
+  agenda.push(evento);
+  salvarAgenda();
+  carregarAgenda();
+  // se configurado, criar automaticamente entrada financeira
+  if (configuracoes && configuracoes.autoCreateFinancial) {
+    if (evento.tipo === 'receber') {
+      const rec = { id: gerarId(), descricao: evento.descricao || 'Entrada agenda', valor: evento.valor || 0, data: evento.data };
+      receber.push(rec);
+      salvarDados();
+      // vincula
+      const ev = agenda.find(a => a.id === evento.id);
+      if (ev) ev.vinculo = `rec:${rec.id}`;
+      salvarAgenda();
+    }
+    if (evento.tipo === 'pagar') {
+      const pag = { id: gerarId(), descricao: evento.descricao || 'Saída agenda', valor: evento.valor || 0, data: evento.data };
+      pagar.push(pag);
+      salvarDados();
+      const ev = agenda.find(a => a.id === evento.id);
+      if (ev) ev.vinculo = `pag:${pag.id}`;
+      salvarAgenda();
+    }
+  }
+  try { bootstrap.Modal.getInstance(document.getElementById('modalNovoEventoAgenda'))?.hide(); } catch(e){}
+  Swal.fire('Salvo!', 'Evento adicionado à agenda.', 'success');
+});
+
+function initCalendar() {
+  if (calendar) return;
+  const el = document.getElementById('calendarAgenda');
+  if (!el || typeof FullCalendar === 'undefined') return;
+  calendar = new FullCalendar.Calendar(el, {
+    initialView: 'dayGridMonth',
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' },
+    height: 600,
+    dateClick: function(info) {
+      preencherSelectVinculosAgenda();
+      document.getElementById('eventoId').value = '';
+      document.getElementById('eventoData').value = info.dateStr;
+      document.getElementById('eventoTipo').value = 'servico';
+      document.getElementById('eventoDescricao').value = '';
+      document.getElementById('eventoValor').value = '';
+      document.getElementById('eventoPeriodicidade').value = '';
+      new bootstrap.Modal(document.getElementById('modalNovoEventoAgenda')).show();
+    },
+    eventClick: function(info) {
+      const evId = info.event.id;
+      const ev = agenda.find(a => a.id === evId);
+      if (!ev) return;
+      preencherSelectVinculosAgenda();
+      document.getElementById('eventoId').value = ev.id;
+      document.getElementById('eventoData').value = ev.data;
+      document.getElementById('eventoTipo').value = ev.tipo || 'servico';
+      document.getElementById('eventoDescricao').value = ev.descricao || '';
+      document.getElementById('eventoValor').value = ev.valor ? ev.valor : '';
+      document.getElementById('eventoVinculo').value = ev.vinculo || '';
+      document.getElementById('eventoPeriodicidade').value = ev.periodicidade || '';
+      new bootstrap.Modal(document.getElementById('modalNovoEventoAgenda')).show();
+    }
+  });
+  calendar.render();
+}
+
+function carregarAgenda() {
+  initCalendar();
+  if (!calendar) return;
+  // clear existing events
+  calendar.getEvents().forEach(e => e.remove());
+  const filtro = document.getElementById('filtroAgendaData')?.value;
+  let items = agenda.slice().sort((a,b) => new Date(a.data) - new Date(b.data));
+  if (filtro) items = items.filter(i => i.data === filtro);
+
+  items.forEach(ev => {
+    let color = '#3788d8';
+    if (ev.tipo === 'manutencao') color = '#f39c12';
+    if (ev.tipo === 'receber') color = '#28a745';
+    if (ev.tipo === 'pagar') color = '#dc3545';
+    calendar.addEvent({
+      id: ev.id,
+      title: ev.descricao || ev.tipo,
+      start: ev.data,
+      allDay: true,
+      backgroundColor: color
+    });
+  });
+}
+
+function removerEventoAgenda(id) {
+  agenda = agenda.filter(a => a.id !== id);
+  salvarAgenda();
+  carregarAgenda();
+  Swal.fire('Removido', 'Evento removido da agenda.', 'success');
+}
+
+function marcarFeitoEvento(id) {
+  const ev = agenda.find(a => a.id === id);
+  if (!ev) return;
+  ev.concluido = true;
+  ev.lastDone = new Date().toISOString();
+  // se periódico, calcula próxima data
+  if (ev.periodicidade && ev.periodicidade > 0) {
+    const next = new Date(ev.data);
+    next.setDate(next.getDate() + ev.periodicidade);
+    ev.data = next.toISOString().split('T')[0];
+    ev.concluido = false; // reativar para próxima ocorrência
+  }
+  salvarAgenda();
+  carregarAgenda();
+  Swal.fire('Concluído', 'Evento marcado como concluído.', 'success');
+}
+// Lixeira para armazenar últimas exclusões (permite 'refazer')
+let lixeira = JSON.parse(localStorage.getItem('lixeira') || '[]');
+
+function salvarLixeira() {
+  localStorage.setItem('lixeira', JSON.stringify(lixeira));
+}
+
+function empurrarLixeira(tipo, item) {
+  if (!item) return;
+  lixeira.push({ tipo, item });
+  // limitar tamanho opcionalmente (ex: 50)
+  if (lixeira.length > 50) lixeira.shift();
+  salvarLixeira();
+  atualizarBotaoRefazer();
+}
+
+function refazerUltimaExclusao() {
+  if (!lixeira || lixeira.length === 0) {
+    Swal.fire('Nada para refazer', 'Não há exclusões recentes para restaurar.', 'info');
+    return;
+  }
+
+  const registro = lixeira.pop();
+  const { tipo, item } = registro;
+
+  switch (tipo) {
+    case 'cliente':
+      clientes.push(item);
+      salvarDados();
+      carregarClientes();
+      try { if (typeof reloadSecao === 'function') reloadSecao('clientes'); } catch(e){}
+      break;
+    case 'fornecedor':
+      fornecedores.push(item);
+      salvarDados();
+      carregarFornecedores();
+      try { if (typeof reloadSecao === 'function') reloadSecao('fornecedores'); } catch(e){}
+      break;
+    case 'orcamento':
+      orcamentos.push(item);
+      salvarDados();
+      carregarOrcamentos();
+      try { if (typeof reloadSecao === 'function') reloadSecao('orcamentos'); } catch(e){}
+      break;
+    case 'estoque':
+      estoque.push(item);
+      salvarDados();
+      carregarEstoque();
+      try { if (typeof reloadSecao === 'function') reloadSecao('estoque'); } catch(e){}
+      break;
+    case 'patrimonio':
+      patrimonio.push(item);
+      salvarDados();
+      carregarPatrimonio();
+      try { if (typeof reloadSecao === 'function') reloadSecao('patrimonio'); } catch(e){}
+      break;
+    case 'contrato':
+      contratos.push(item);
+      salvarDados();
+      carregarContratos();
+      try { if (typeof reloadSecao === 'function') reloadSecao('contratos'); } catch(e){}
+      break;
+    case 'receber':
+      receber.push(item);
+      salvarDados();
+      carregarFinanceiro();
+      break;
+    case 'pagar':
+      pagar.push(item);
+      salvarDados();
+      carregarFinanceiro();
+      break;
+    default:
+      // tipo desconhecido: simplesmente re-salva os dados
+      salvarDados();
+      break;
+  }
+
+  salvarLixeira();
+  atualizarBotaoRefazer();
+  atualizarTabelaAtual();
+  Swal.fire('Restaurado', 'Item restaurado com sucesso.', 'success');
+}
+
+function atualizarBotaoRefazer() {
+  const btn = document.getElementById('btnRefazer');
+  if (!btn) return;
+  btn.disabled = !(lixeira && lixeira.length > 0);
+}
+
+function atualizarTabelaAtual() {
+  switch (secaoAtual) {
+    case 'clientes':
+      if (typeof carregarClientes === 'function') carregarClientes();
+      try { if (typeof reloadSecao === 'function') reloadSecao('clientes'); } catch(e){}
+      break;
+    case 'fornecedores':
+      if (typeof carregarFornecedores === 'function') carregarFornecedores();
+      try { if (typeof reloadSecao === 'function') reloadSecao('fornecedores'); } catch(e){}
+      break;
+    case 'orcamentos':
+      if (typeof carregarOrcamentos === 'function') carregarOrcamentos();
+      try { if (typeof reloadSecao === 'function') reloadSecao('orcamentos'); } catch(e){}
+      break;
+    case 'estoque':
+      if (typeof carregarEstoque === 'function') carregarEstoque();
+      try { if (typeof reloadSecao === 'function') reloadSecao('estoque'); } catch(e){}
+      break;
+    case 'financeiro':
+      if (typeof carregarFinanceiro === 'function') carregarFinanceiro();
+      try { if (typeof reloadSecao === 'function') reloadSecao('financeiro'); } catch(e){}
+      break;
+    case 'patrimonio':
+      if (typeof carregarPatrimonio === 'function') carregarPatrimonio();
+      try { if (typeof reloadSecao === 'function') reloadSecao('patrimonio'); } catch(e){}
+      break;
+    case 'contratos':
+      if (typeof carregarContratos === 'function') carregarContratos();
+      try { if (typeof reloadSecao === 'function') reloadSecao('contratos'); } catch(e){}
+      break;
+    default:
+      // fallback: tentar recarregar seção por nome
+      try { if (typeof reloadSecao === 'function') reloadSecao(secaoAtual); } catch (e) {}
+      break;
+  }
+}
 
 // ==================== SISTEMA DE EDIÇÃO DE CÉLULAS ====================
 
 function ativarEdicaoTodos(secao) {
   modoEdicaoTodos = !modoEdicaoTodos;
-  const botao = $(`#${secao} .btn-outline-secondary`) || $(`#${secao} .btn-outline-primary`);
+  const botao = $(`[data-edit-toggle="${secao}"]`);
 
   if (modoEdicaoTodos) {
-    botao.classList.remove('btn-outline-secondary', 'btn-outline-primary');
-    botao.classList.add('btn-success');
-    botao.innerHTML = '<i class="bi bi-check-square me-2"></i>Salvar Tudo';
+    if (botao) {
+      botao.classList.remove('btn-outline-secondary', 'btn-outline-primary');
+      botao.classList.add('btn-success');
+      botao.innerHTML = '<i class="bi bi-check-square me-2"></i>Salvar Tudo';
+    }
 
     $$(`#${secao} .editable-cell`).forEach(cell => {
       cell.classList.add('editing-todos');
@@ -39,18 +488,17 @@ function ativarEdicaoTodos(secao) {
       timer: 2000
     });
   } else {
-    botao.classList.remove('btn-success');
-    if (secao === 'financeiro') {
+    if (botao) {
+      botao.classList.remove('btn-success');
       botao.classList.add('btn-outline-primary');
-    } else {
-      botao.classList.add('btn-outline-secondary');
+      botao.innerHTML = '<i class="bi bi-pencil-square me-2"></i>Editar Tudo';
     }
-    botao.innerHTML = '<i class="bi bi-pencil-square me-2"></i>Editar Tudo';
 
     $$(`#${secao} .editing-todos`).forEach(cell => {
       cell.classList.remove('editing-todos');
     });
 
+    // Salva alterações quando sai do modo de edição
     salvarAlteracoesEmMassa(secao);
   }
 }
@@ -163,15 +611,21 @@ function finalizarEdicaoCelula(salvar) {
   cell.classList.remove('editing');
 
   if (salvar && input) {
+    let valorParaSalvar = novoValor;
     if (tipo === 'currency') {
-      novoValor = formatarMoeda(parseFloat(novoValor) || 0);
+      // input.value for currency is numeric (dot as decimal); salvamos como number
+      const num = parseFloat(novoValor.replace(',', '.')) || 0;
+      valorParaSalvar = num;
+      cell.textContent = formatarMoeda(num);
     } else if (tipo === 'number') {
-      novoValor = parseInt(novoValor) || 0;
+      const num = parseInt(novoValor) || 0;
+      valorParaSalvar = num;
+      cell.textContent = num;
+    } else {
+      cell.textContent = novoValor;
     }
 
-    cell.textContent = novoValor;
-
-    atualizarDado(itemId, campo, novoValor);
+    atualizarDado(itemId, campo, valorParaSalvar);
   } else {
     cell.textContent = valorOriginal;
   }
@@ -234,6 +688,31 @@ function atualizarDado(itemId, campo, valor) {
       atualizarEstatisticas();
     }
 
+    // Recarrega apenas quando confirma a edição (Enter ou blur)
+    try {
+      switch (tipo) {
+        case 'cliente':
+          reloadSecao('clientes'); break;
+        case 'fornecedor':
+          reloadSecao('fornecedores'); break;
+        case 'orcamento':
+          reloadSecao('orcamentos'); break;
+        case 'estoque':
+          reloadSecao('estoque'); break;
+        case 'receber':
+        case 'pagar':
+          reloadSecao('financeiro'); break;
+        case 'patrimonio':
+          reloadSecao('patrimonio'); break;
+        case 'contrato':
+          reloadSecao('contratos'); break;
+        default:
+          break;
+      }
+    } catch (e) {
+      // Se reloadSecao não existir por algum motivo, ignora
+    }
+
     Swal.fire({
       title: 'Atualizado!',
       text: 'Campo atualizado com sucesso.',
@@ -260,8 +739,15 @@ function mostrarDashboard(e) {
   secaoAtual = 'dashboard';
   atualizarNavbar();
   esconderTodasSecoes();
-  $('#dashboard').style.display = 'block';
-  atualizarEstatisticas();
+  const dash = $('#dashboard');
+  if (dash) {
+    dash.style.display = 'block';
+    atualizarEstatisticas();
+  } else {
+    // Se não houver dashboard na interface atual, abrir seção 'clientes' por padrão
+    mostrarSecao('clientes');
+    return;
+  }
   window.scrollTo(0, 0);
 }
 
@@ -270,7 +756,7 @@ function mostrarSecao(secao) {
   atualizarNavbar();
   esconderTodasSecoes();
   $(`#${secao}`).style.display = 'block';
-
+  // carregar dados específicos da seção
   switch(secao) {
     case 'clientes':
       carregarClientes();
@@ -289,6 +775,9 @@ function mostrarSecao(secao) {
       break;
     case 'patrimonio':
       carregarPatrimonio();
+      break;
+    case 'agenda':
+      carregarAgenda();
       break;
     case 'contratos':
       carregarContratos();
@@ -364,7 +853,10 @@ function salvarDados() {
   localStorage.setItem('pagar', JSON.stringify(pagar));
   localStorage.setItem('patrimonio', JSON.stringify(patrimonio));
   localStorage.setItem('contratos', JSON.stringify(contratos));
+  // salva também a lixeira (últimas exclusões)
+  localStorage.setItem('lixeira', JSON.stringify(lixeira));
   atualizarEstatisticas();
+  atualizarBotaoRefazer();
 }
 
 // ==================== FUNÇÕES DE CLIENTES ====================
@@ -380,18 +872,17 @@ function adicionarCliente() {
 document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () => {
   // Pegando todos os valores
   const nome         = document.getElementById('novoClienteNome').value.trim();
-  const cnpj         = document.getElementById('novoClienteCnpj').value.trim();
+  const cpf          = document.getElementById('novoClienteCpf')?.value.trim();
   const email        = document.getElementById('novoClienteEmail').value.trim();
   const telefone     = document.getElementById('novoClienteTelefone').value.trim();
-  const fornecimento = document.getElementById('novoClienteFornecimento').value.trim();
-  const endereco     = document.getElementById('novoClienteEndereco').value.trim();
-  const bairro       = document.getElementById('novoClienteBairro').value.trim();
-  const cidade       = document.getElementById('novoClienteCidade').value.trim();
-  const estado       = document.getElementById('novoClienteEstado').value;
+  const profissao    = document.getElementById('novoClienteProfissao')?.value.trim() || '';
+  const endereco     = document.getElementById('novoClienteEndereco')?.value.trim() || '';
+  const bairro       = document.getElementById('novoClienteBairro')?.value.trim() || '';
+  const cidade       = document.getElementById('novoClienteCidade')?.value.trim() || '';
+  const estado       = document.getElementById('novoClienteEstado')?.value || '';
 
   // Validação básica
-  if (!nome || !cnpj || !email || !telefone || !fornecimento || 
-      !endereco || !bairro || !cidade || !estado) {
+  if (!nome || !cpf || !email || !telefone) {
     Swal.fire({
       title: 'Campos obrigatórios!',
       text: 'Por favor preencha todos os campos marcados com *',
@@ -410,10 +901,10 @@ document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () =>
   const novoCliente = {
     id: gerarId(),
     nome,
-    cnpj,
+    cpf,
     email,
     telefone,
-    fornecimento,
+    profissao,
     endereco,
     bairro,
     cidade,
@@ -424,6 +915,11 @@ document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () =>
   clientes.push(novoCliente);
   salvarDados();
   carregarClientes();
+
+  // Atualiza selects que usam a lista de clientes sem recarregar a página
+  preencherSelectClientes('novoReceberCliente');
+  preencherSelectClientes('novoContratoCliente');
+  preencherSelectClientes('novoOrcamentoCliente');
 
   bootstrap.Modal.getInstance(document.getElementById('modalNovoCliente')).hide();
 
@@ -437,23 +933,15 @@ document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () =>
 });
 
 function excluirCliente(id) {
-  Swal.fire({
-    title: 'Tem certeza?',
-    text: "Esta ação não pode ser desfeita!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Sim, excluir!',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      clientes = clientes.filter(c => c.id !== id);
-      salvarDados();
-      carregarClientes();
-      Swal.fire('Excluído!', 'Cliente removido com sucesso.', 'success');
-    }
-  });
+  const item = clientes.find(c => c.id === id);
+  empurrarLixeira('cliente', item);
+  clientes = clientes.filter(c => c.id !== id);
+  salvarDados();
+  carregarClientes();
+  try { if (typeof reloadSecao === 'function') reloadSecao('clientes'); } catch(e){}
+  console.log('Cliente excluído:', id);
+  atualizarTabelaAtual();
+  Swal.fire('Excluído!', 'Cliente removido com sucesso.', 'success');
 }
 
 function filtrarClientes() {
@@ -469,14 +957,16 @@ function carregarClientes(filtro = '') {
     clientesFiltrados = clientes.filter(c =>
       c.nome.toLowerCase().includes(filtro) ||
       (c.email && c.email.toLowerCase().includes(filtro)) ||
-      (c.telefone && c.telefone.includes(filtro))
+      (c.telefone && c.telefone.includes(filtro)) ||
+      (c.cpf && c.cpf.includes(filtro)) ||
+      (c.profissao && c.profissao.toLowerCase().includes(filtro))
     );
   }
 
   if (clientesFiltrados.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="11" class="text-center py-4">
+        <td colspan="10" class="text-center py-4">
           <i class="bi bi-people display-4 text-muted mb-3 d-block"></i>
           <p class="text-muted">${filtro ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado'}</p>
         </td>
@@ -487,17 +977,16 @@ function carregarClientes(filtro = '') {
   tbody.innerHTML = clientesFiltrados.map(cliente => `
   <tr>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="nome">${cliente.nome}</td>
-    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="cnpj">${cliente.cnpj || '-'}</td>
-    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="telefone">${cliente.telefone || ''}</td>
-    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="email">${cliente.email || ''}</td>
-    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="fornecimento">${cliente.fornecimento || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="cpf">${cliente.cpf || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="email">${cliente.email || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="telefone">${cliente.telefone || '-'}</td>
+    <td class="editable-cell" data-id="cli_${cliente.id}" data-field="profissao">${cliente.profissao || '-'}</td>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="endereco">${cliente.endereco || '-'}</td>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="bairro">${cliente.bairro || '-'}</td>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="cidade">${cliente.cidade || '-'}</td>
     <td class="editable-cell" data-id="cli_${cliente.id}" data-field="estado">${cliente.estado || '-'}</td>
-    <td class="non-editable-cell">${formatarData(cliente.dataCadastro)}</td>
     <td class="no-print">
-      <button class="btn btn-sm btn-outline-danger" onclick="excluirCliente('${cliente.id}')">
+      <button class="btn btn-sm btn-outline-danger btn-excluir" data-delete-type="cliente" data-id="${cliente.id}">
         <i class="bi bi-trash"></i>
       </button>
     </td>
@@ -561,9 +1050,9 @@ function carregarFornecedores(filtro = '') {
             <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="estado">${fornecedor.estado || '-'}</td>
             <td class="non-editable-cell">${formatarData(fornecedor.dataCadastro)}</td>
             <td class="no-print">
-                <button class="btn btn-sm btn-outline-danger" onclick="excluirFornecedor('${fornecedor.id}')">
-                    <i class="bi bi-trash"></i>
-                </button>
+              <button class="btn btn-sm btn-outline-danger btn-excluir" data-delete-type="fornecedor" data-id="${fornecedor.id}">
+                <i class="bi bi-trash"></i>
+              </button>
             </td>
         </tr>
     `).join('');
@@ -582,21 +1071,15 @@ function carregarFornecedores(filtro = '') {
 }
 
 function excluirFornecedor(id) {
-  Swal.fire({
-    title: 'Excluir Fornecedor',
-    text: "Tem certeza que deseja excluir este fornecedor?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sim, excluir',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      fornecedores = fornecedores.filter(f => f.id !== id);
-      salvarDados();
-      carregarFornecedores();
-      Swal.fire('Excluído!', 'Fornecedor removido com sucesso.', 'success');
-    }
-  });
+  const item = fornecedores.find(f => f.id === id);
+  empurrarLixeira('fornecedor', item);
+  fornecedores = fornecedores.filter(f => f.id !== id);
+  salvarDados();
+  carregarFornecedores();
+  try { if (typeof reloadSecao === 'function') reloadSecao('fornecedores'); } catch(e){}
+  console.log('Fornecedor excluído:', id);
+  atualizarTabelaAtual();
+  Swal.fire('Excluído!', 'Fornecedor removido com sucesso.', 'success');
 }
 
 function filtrarFornecedores() {
@@ -764,7 +1247,7 @@ function carregarOrcamentos(filtroStatus = 'todos') {
           <span class="badge ${statusClass}">${orcamento.status}</span>
         </td>
         <td class="no-print">
-          <button class="btn btn-sm btn-outline-danger" onclick="excluirOrcamento('${orcamento.id}')">
+          <button class="btn btn-sm btn-outline-danger btn-excluir" data-delete-type="orcamento" data-id="${orcamento.id}">
             <i class="bi bi-trash"></i>
           </button>
         </td>
@@ -781,21 +1264,15 @@ function carregarOrcamentos(filtroStatus = 'todos') {
 }
 
 function excluirOrcamento(id) {
-  Swal.fire({
-    title: 'Excluir Orçamento',
-    text: "Tem certeza que deseja excluir este orçamento?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sim, excluir',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      orcamentos = orcamentos.filter(o => o.id !== id);
-      salvarDados();
-      carregarOrcamentos();
-      Swal.fire('Excluído!', 'Orçamento removido com sucesso.', 'success');
-    }
-  });
+  const item = orcamentos.find(o => o.id === id);
+  empurrarLixeira('orcamento', item);
+  orcamentos = orcamentos.filter(o => o.id !== id);
+  salvarDados();
+  carregarOrcamentos();
+  try { if (typeof reloadSecao === 'function') reloadSecao('orcamentos'); } catch(e){}
+  console.log('Orçamento excluído:', id);
+  atualizarTabelaAtual();
+  Swal.fire('Excluído!', 'Orçamento removido com sucesso.', 'success');
 }
 
 // ==================== FUNÇÕES DE ESTOQUE ====================
@@ -905,7 +1382,7 @@ function carregarEstoque() {
           <span class="badge ${status.classe}">${status.texto}</span>
         </td>
         <td class="no-print">
-          <button class="btn btn-sm btn-outline-danger" onclick="excluirItemEstoque('${item.id}')">
+          <button class="btn btn-sm btn-outline-danger btn-excluir" data-delete-type="estoque" data-id="${item.id}">
             <i class="bi bi-trash"></i>
           </button>
         </td>
@@ -922,21 +1399,15 @@ function carregarEstoque() {
 }
 
 function excluirItemEstoque(id) {
-  Swal.fire({
-    title: 'Excluir Item',
-    text: "Tem certeza que deseja excluir este item do estoque?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sim, excluir',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      estoque = estoque.filter(e => e.id !== id);
-      salvarDados();
-      carregarEstoque();
-      Swal.fire('Excluído!', 'Item removido do estoque.', 'success');
-    }
-  });
+  const item = estoque.find(e => e.id === id);
+  empurrarLixeira('estoque', item);
+  estoque = estoque.filter(e => e.id !== id);
+  salvarDados();
+  carregarEstoque();
+  try { if (typeof reloadSecao === 'function') reloadSecao('estoque'); } catch(e){}
+  console.log('Item de estoque excluído:', id);
+  atualizarTabelaAtual();
+  Swal.fire('Excluído!', 'Item removido do estoque.', 'success');
 }
 
 // ==================== FUNÇÕES FINANCEIRAS ====================
@@ -1093,7 +1564,7 @@ function carregarContasReceber() {
       <td>${conta.categoria || '-'}</td>
       <td><span class="badge ${conta.status === 'pago' ? 'bg-success' : conta.status === 'atrasado' ? 'bg-danger' : 'bg-warning'}">${conta.status}</span></td>
       <td class="no-print">
-        <button class="btn btn-sm btn-outline-danger" onclick="removerContaReceber('${conta.id}')">
+        <button class="btn btn-sm btn-outline-danger btn-excluir" data-delete-type="receber" data-id="${conta.id}">
           <i class="bi bi-trash"></i>
         </button>
       </td>
@@ -1129,7 +1600,7 @@ function carregarContasPagar() {
       <td>${conta.categoria || '-'}</td>
       <td><span class="badge ${conta.status === 'pago' ? 'bg-success' : conta.status === 'atrasado' ? 'bg-danger' : 'bg-warning'}">${conta.status}</span></td>
       <td class="no-print">
-        <button class="btn btn-sm btn-outline-danger" onclick="removerContaPagar('${conta.id}')">
+        <button class="btn btn-sm btn-outline-danger btn-excluir" data-delete-type="pagar" data-id="${conta.id}">
           <i class="bi bi-trash"></i>
         </button>
       </td>
@@ -1145,16 +1616,26 @@ function carregarContasPagar() {
 }
 
 function removerContaReceber(id) {
+  const item = receber.find(c => c.id === id);
+  empurrarLixeira('receber', item);
   receber = receber.filter(c => c.id !== id);
   salvarDados();
   carregarFinanceiro();
+  try { if (typeof reloadSecao === 'function') reloadSecao('financeiro'); } catch(e){}
+  console.log('Conta a receber removida:', id);
+  atualizarTabelaAtual();
   Swal.fire('Removido!', 'Conta a receber removida.', 'success');
 }
 
 function removerContaPagar(id) {
+  const item = pagar.find(c => c.id === id);
+  empurrarLixeira('pagar', item);
   pagar = pagar.filter(c => c.id !== id);
   salvarDados();
   carregarFinanceiro();
+  try { if (typeof reloadSecao === 'function') reloadSecao('financeiro'); } catch(e){}
+  console.log('Conta a pagar removida:', id);
+  atualizarTabelaAtual();
   Swal.fire('Removido!', 'Conta a pagar removida.', 'success');
 }
 
@@ -1163,13 +1644,20 @@ function atualizarSaldo() {
   const totalPagar = pagar.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
   const saldo = totalReceber - totalPagar;
 
-  $('#totalReceitas').textContent = formatarMoeda(totalReceber);
-  $('#totalDespesas').textContent = formatarMoeda(totalPagar);
-  $('#saldoAtual').textContent = formatarMoeda(saldo);
+  const elTotalReceitas = $('#totalReceitas');
+  if (elTotalReceitas) elTotalReceitas.textContent = formatarMoeda(totalReceber);
+
+  const elTotalDespesas = $('#totalDespesas');
+  if (elTotalDespesas) elTotalDespesas.textContent = formatarMoeda(totalPagar);
+
+  const elSaldoAtual = $('#saldoAtual');
+  if (elSaldoAtual) {
+    elSaldoAtual.textContent = formatarMoeda(saldo);
+    elSaldoAtual.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
+  }
 
   const alert = $('#saldoAlert');
-  alert.className = `alert ${saldo >= 0 ? 'alert-success' : 'alert-danger'}`;
-  $('#saldoAtual').className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
+  if (alert) alert.className = `alert ${saldo >= 0 ? 'alert-success' : 'alert-danger'}`;
 }
 
 // ==================== FUNÇÕES DE PATRIMÔNIO ====================
@@ -1212,7 +1700,7 @@ function carregarPatrimonio() {
   if (patrimonio.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="text-center py-4">
+        <td colspan="9" class="text-center py-4">
           <i class="bi bi-building display-4 text-muted mb-3 d-block"></i>
           <p class="text-muted">Nenhum item no patrimônio</p>
         </td>
@@ -1228,15 +1716,18 @@ function carregarPatrimonio() {
 
     return `
       <tr>
-        <td class="editable-cell" data-id="pat_${item.id}" data-field="nome">${item.nome}</td>
+        <td class="editable-cell" data-id="pat_${item.id}" data-field="codigo">${item.codigo || '-'}</td>
+        <td class="editable-cell" data-id="pat_${item.id}" data-field="nome">${item.nome || '-'}</td>
+        <td class="editable-cell" data-id="pat_${item.id}" data-field="categoria">${item.categoria || '-'}</td>
         <td class="non-editable-cell">${formatarData(item.dataAquisicao)}</td>
-        <td class="editable-cell" data-id="pat_${item.id}" data-field="valor" data-type="currency">${formatarMoeda(item.valor)}</td>
-        <td class="editable-cell" data-id="pat_${item.id}" data-field="departamento">${item.departamento}</td>
+        <td class="editable-cell" data-id="pat_${item.id}" data-field="fornecedorNome">${item.fornecedorNome || '-'}</td>
+        <td class="editable-cell" data-id="pat_${item.id}" data-field="localizacao">${item.localizacao || '-'}</td>
         <td class="editable-cell" data-id="pat_${item.id}" data-field="estado" data-type="select-estado">
-          <span class="badge ${estadoClass}">${item.estado}</span>
+          <span class="badge ${estadoClass}">${item.estado || '-'}</span>
         </td>
+        <td class="editable-cell" data-id="pat_${item.id}" data-field="vidaUtil" data-type="number">${item.vidaUtil || 0}</td>
         <td class="no-print">
-          <button class="btn btn-sm btn-outline-danger" onclick="excluirPatrimonio('${item.id}')">
+          <button class="btn btn-sm btn-outline-danger btn-excluir" data-delete-type="patrimonio" data-id="${item.id}">
             <i class="bi bi-trash"></i>
           </button>
         </td>
@@ -1253,21 +1744,15 @@ function carregarPatrimonio() {
 }
 
 function excluirPatrimonio(id) {
-  Swal.fire({
-    title: 'Excluir Item',
-    text: "Tem certeza que deseja excluir este item do patrimônio?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sim, excluir',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      patrimonio = patrimonio.filter(p => p.id !== id);
-      salvarDados();
-      carregarPatrimonio();
-      Swal.fire('Excluído!', 'Item removido do patrimônio.', 'success');
-    }
-  });
+  const item = patrimonio.find(p => p.id === id);
+  empurrarLixeira('patrimonio', item);
+  patrimonio = patrimonio.filter(p => p.id !== id);
+  salvarDados();
+  carregarPatrimonio();
+  try { if (typeof reloadSecao === 'function') reloadSecao('patrimonio'); } catch(e){}
+  console.log('Patrimônio excluído:', id);
+  atualizarTabelaAtual();
+  Swal.fire('Excluído!', 'Item removido do patrimônio.', 'success');
 }
 
 // ==================== FUNÇÕES DE CONTRATOS ====================
@@ -1312,7 +1797,7 @@ function carregarContratos() {
           <p class="card-text text-muted small editable-cell" data-id="con_${contrato.id}" data-field="descricao" data-type="textarea">${contrato.descricao.substring(0, 100)}...</p>
           <div class="d-flex justify-content-between align-items-center mt-3">
             <small class="text-muted non-editable-cell">${formatarData(contrato.data)}</small>
-            <button class="btn btn-sm btn-outline-danger" onclick="excluirContrato('${contrato.id}')">
+            <button class="btn btn-sm btn-outline-danger btn-excluir" data-delete-type="contrato" data-id="${contrato.id}">
               <i class="bi bi-trash"></i>
             </button>
           </div>
@@ -1330,21 +1815,15 @@ function carregarContratos() {
 }
 
 function excluirContrato(id) {
-  Swal.fire({
-    title: 'Excluir Contrato',
-    text: "Tem certeza que deseja excluir este contrato?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sim, excluir',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      contratos = contratos.filter(c => c.id !== id);
-      salvarDados();
-      carregarContratos();
-      Swal.fire('Excluído!', 'Contrato removido com sucesso.', 'success');
-    }
-  });
+  const item = contratos.find(c => c.id === id);
+  empurrarLixeira('contrato', item);
+  contratos = contratos.filter(c => c.id !== id);
+  salvarDados();
+  carregarContratos();
+  try { if (typeof reloadSecao === 'function') reloadSecao('contratos'); } catch(e){}
+  console.log('Contrato excluído:', id);
+  atualizarTabelaAtual();
+  Swal.fire('Excluído!', 'Contrato removido com sucesso.', 'success');
 }
 
 // ==================== FUNÇÕES DE IMPRESSÃO ====================
@@ -1606,17 +2085,24 @@ function exportarDados() {
 
 // ==================== FUNÇÕES DE ESTATÍSTICAS ====================
 function atualizarEstatisticas() {
-  $('#totalClientes').textContent = clientes.length;
-  $('#totalOrcamentos').textContent = orcamentos.length;
-  $('#estoqueBaixo').textContent = estoque.filter(item => calcularStatusEstoque(item).texto === 'BAIXO').length;
+  const elTotalClientes = $('#totalClientes');
+  if (elTotalClientes) elTotalClientes.textContent = clientes.length;
+
+  const elTotalOrcamentos = $('#totalOrcamentos');
+  if (elTotalOrcamentos) elTotalOrcamentos.textContent = orcamentos.length;
+
+  const elEstoqueBaixo = $('#estoqueBaixo');
+  if (elEstoqueBaixo) elEstoqueBaixo.textContent = estoque.filter(item => calcularStatusEstoque(item).texto === 'BAIXO').length;
 
   const receberTotal = receber.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
   const pagarTotal = pagar.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
   const saldo = receberTotal - pagarTotal;
-  $('#saldoResumo').textContent = formatarMoeda(saldo);
 
-  const elementoSaldo = $('#saldoResumo');
-  elementoSaldo.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
+  const elSaldoResumo = $('#saldoResumo');
+  if (elSaldoResumo) {
+    elSaldoResumo.textContent = formatarMoeda(saldo);
+    elSaldoResumo.className = saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo';
+  }
 }
 
 // ==================== INICIALIZAÇÃO ====================
@@ -1675,9 +2161,117 @@ function inicializar() {
 
   salvarDados();
   atualizarEstatisticas();
+  // Adiciona botões de reload em cada tabela/ seção após inicializar dados
+  if (typeof adicionarBotoesReload === 'function') adicionarBotoesReload();
 }
 
-document.addEventListener('DOMContentLoaded', inicializar);
+document.addEventListener('DOMContentLoaded', function() {
+  inicializar();
+  atualizarBotaoRefazer();
+  carregarConfiguracoes();
+  // vincula botões de configurações
+  document.getElementById('btnExportarBackup')?.addEventListener('click', exportarBackup);
+  document.getElementById('btnImportarBackup')?.addEventListener('click', () => document.getElementById('inputImportBackup')?.click());
+  document.getElementById('inputImportBackup')?.addEventListener('change', function(e){ if (e.target.files && e.target.files[0]) importarBackup(e.target.files[0]); });
+  document.getElementById('btnLimparLixeira')?.addEventListener('click', limparLixeira);
+  document.getElementById('btnLimparDados')?.addEventListener('click', limparTodosDados);
+  document.getElementById('btnSalvarConfiguracoes')?.addEventListener('click', salvarConfiguracoes);
+});
+
+// ==================== BOTÕES DE RELOAD POR TABELA ====================
+function adicionarBotoesReload() {
+  // Para cada seção principal, adiciona um botão de reload no header
+  $$('.secao').forEach(sec => {
+    const id = sec.id;
+    if (!id) return;
+    const header = sec.querySelector('.card-header');
+    if (!header) return;
+    // evita inserir múltiplas vezes: verifica se já existe botão de reload
+    if (header.querySelector('.btn-reload-section') || header.querySelector('.bi-arrow-clockwise')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-light btn-sm ms-2 btn-reload-section';
+    btn.title = 'Recarregar tabela';
+    btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      reloadSecao(id);
+    });
+    // adiciona ao final do header (preserva botões existentes)
+    header.appendChild(btn);
+  });
+
+  // Reload específico para as listas internas do financeiro (receber/pagar)
+  ['listaReceber','listaPagar'].forEach(listaId => {
+    const el = document.getElementById(listaId);
+    if (!el) return;
+    const card = el.closest('.card');
+    if (!card) return;
+    const header = card.querySelector('.card-header');
+    if (!header || header.querySelector('.btn-reload-section') || header.querySelector('.bi-arrow-clockwise')) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-light btn-sm ms-2 btn-reload-section';
+    btn.title = 'Recarregar lista';
+    btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i>';
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // recarrega a seção financeira inteira
+      reloadSecao('financeiro');
+    });
+    header.appendChild(btn);
+  });
+}
+
+function reloadSecao(secao) {
+  switch (secao) {
+    case 'clientes':
+      carregarClientes();
+      break;
+    case 'fornecedores':
+      carregarFornecedores();
+      break;
+    case 'orcamentos':
+      carregarOrcamentos();
+      break;
+    case 'estoque':
+      carregarEstoque();
+      break;
+    case 'financeiro':
+      carregarFinanceiro();
+      break;
+    case 'patrimonio':
+      carregarPatrimonio();
+      break;
+    case 'contratos':
+      carregarContratos();
+      break;
+    case 'relatorios':
+      atualizarEstatisticas();
+      break;
+    default:
+      // tenta mostrar a seção (se existir)
+      const el = document.getElementById(secao);
+      if (el) {
+        // dispara mostrarSecao para re-executar carregamento
+        mostrarSecao(secao);
+      }
+  }
+  // feedback visual rápido
+  const toast = document.createElement('div');
+  toast.className = 'reload-toast';
+  toast.style.position = 'fixed';
+  toast.style.right = '16px';
+  toast.style.bottom = '16px';
+  toast.style.padding = '8px 12px';
+  toast.style.background = '#222';
+  toast.style.color = '#fff';
+  toast.style.borderRadius = '6px';
+  toast.style.zIndex = 9999;
+  toast.textContent = 'Tabela recarregada';
+  document.body.appendChild(toast);
+  setTimeout(() => document.body.removeChild(toast), 1200);
+}
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape' && celulaEditando) {
@@ -1685,16 +2279,70 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// Máscara CNPJ
-document.getElementById('novoClienteCnpj')?.addEventListener('input', function(e) {
-  let v = e.target.value.replace(/\D/g, '');
-  if (v.length <= 14) {
-    v = v.replace(/^(\d{2})(\d)/, "$1.$2");
-    v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
-    v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
-    v = v.replace(/(\d{4})(\d)/, "$1-$2");
+// Delegated handler para botões de excluir nas tabelas
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.btn-excluir');
+  if (!btn) return;
+
+  const tipo = btn.dataset.deleteType;
+  const id = btn.dataset.id;
+
+  if (!tipo || !id) return;
+
+  switch (tipo) {
+    case 'cliente':
+      excluirCliente(id);
+      break;
+    case 'fornecedor':
+      excluirFornecedor(id);
+      break;
+    case 'orcamento':
+      excluirOrcamento(id);
+      break;
+    case 'estoque':
+      excluirItemEstoque(id);
+      break;
+    case 'patrimonio':
+      excluirPatrimonio(id);
+      break;
+    case 'contrato':
+      excluirContrato(id);
+      break;
+    case 'receber':
+      removerContaReceber(id);
+      break;
+    case 'pagar':
+      removerContaPagar(id);
+      break;
   }
-  e.target.value = v;
+});
+
+// Listener genérico para botões de salvar: após o handler original rodar fechamos modal e recarregamos seção
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-save-section]');
+  if (!btn) return;
+  const sec = btn.dataset.saveSection;
+  const modalId = btn.dataset.modalId;
+  // executar um pouco depois para garantir que o handler de salvar já atualizou os dados
+  setTimeout(() => {
+    if (modalId) {
+      const modalEl = document.getElementById(modalId);
+      try { bootstrap.Modal.getInstance(modalEl)?.hide(); } catch (err) { /* ignore */ }
+    }
+    if (sec && typeof reloadSecao === 'function') {
+      reloadSecao(sec);
+    }
+    if (typeof atualizarEstatisticas === 'function') atualizarEstatisticas();
+  }, 60);
+});
+
+// Máscara CPF
+document.getElementById('novoClienteCpf')?.addEventListener('input', function(e) {
+  let v = e.target.value.replace(/\D/g, '');
+  v = v.replace(/(\d{3})(\d)/, '$1.$2');
+  v = v.replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+  v = v.replace(/(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+  e.target.value = v.slice(0, 14);
 });
 
 // Máscara Telefone (já existe, mas reforçando)
@@ -1809,6 +2457,12 @@ document.getElementById('btnSalvarNovoFornecedor')?.addEventListener('click', ()
   salvarDados();
   carregarFornecedores();
 
+  // Atualiza selects que listam fornecedores (estoque, financeiro, patrimônio)
+  atualizarSelectFornecedoresEstoque();
+  preencherSelectFornecedores('novoPagarFornecedor');
+  preencherSelectFornecedores('novoPatrimonioFornecedor');
+  preencherSelectFornecedores('novoEstoqueFornecedor');
+
   bootstrap.Modal.getInstance(document.getElementById('modalNovoFornecedor')).hide();
 
   Swal.fire({
@@ -1889,24 +2543,31 @@ document.getElementById('btnSalvarNovoContrato')?.addEventListener('click', () =
   Swal.fire('Sucesso!', 'Contrato criado!', 'success');
 });
 
-document.getElementById('btnSalvarNovoReceber')?.addEventListener('click', () => {
-  const descricao = document.getElementById('novoReceberDescricao').value.trim();
-  const valorStr = document.getElementById('novoReceberValor').value.replace(/[^\d,]/g, '').replace(',','.');
-  if (!descricao || !valorStr) return Swal.fire('Atenção', 'Descrição e valor obrigatórios!', 'warning');
-  receber.push({ id: gerarId(), descricao, valor: parseFloat(valorStr), data: new Date().toISOString() });
-  salvarDados(); carregarFinanceiro();
-  bootstrap.Modal.getInstance(document.getElementById('modalNovoReceber')).hide();
-  Swal.fire('Sucesso!', 'Conta a receber adicionada!', 'success');
+// Corrige possíveis backdrops ou bloqueio de tela quando modais são fechados/cancelados
+document.addEventListener('hidden.bs.modal', function(e) {
+  // Aguarda um pouco para permitir que o Bootstrap finalize limpeza padrão
+  setTimeout(() => {
+    // remove backdrops extras, se houver
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(b => b.remove());
+    // garante que a página não fique travada
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }, 50);
 });
 
-document.getElementById('btnSalvarNovoPagar')?.addEventListener('click', () => {
-  const descricao = document.getElementById('novoPagarDescricao').value.trim();
-  const valorStr = document.getElementById('novoPagarValor').value.replace(/[^\d,]/g, '').replace(',','.');
-  if (!descricao || !valorStr) return Swal.fire('Atenção', 'Descrição e valor obrigatórios!', 'warning');
-  pagar.push({ id: gerarId(), descricao, valor: parseFloat(valorStr), data: new Date().toISOString() });
-  salvarDados(); carregarFinanceiro();
-  bootstrap.Modal.getInstance(document.getElementById('modalNovoPagar')).hide();
-  Swal.fire('Sucesso!', 'Conta a pagar adicionada!', 'success');
+// Caso o botão 'Cancelar' use data-bs-dismiss, limpamos quaisquer sobras logo após o clique
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-bs-dismiss="modal"]');
+  if (!btn) return;
+  setTimeout(() => {
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(b => b.remove());
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }, 50);
 });
 
 // Funções rápidas para atalhos

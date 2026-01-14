@@ -281,3 +281,33 @@ input:invalid:focus {
   border-color: #dc3545;
   box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25);
 }
+
+/* ==================== DASHBOARD ==================== */
+.card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+}
+
+#dashboard .card {
+  cursor: default;
+}
+
+#dashboard .col-lg-3 .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+}
+
+.saldo-positivo {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.saldo-negativo {
+  color: #dc3545;
+  font-weight: bold;
+}
