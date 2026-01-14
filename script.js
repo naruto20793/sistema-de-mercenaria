@@ -520,43 +520,65 @@ function adicionarFornecedor() {
   new bootstrap.Modal(document.getElementById('modalNovoFornecedor')).show();
 }
 
-function carregarFornecedores() {
-  const tbody = $('#listaFornecedores');
+function carregarFornecedores(filtro = '') {
+    const tbody = document.getElementById('listaFornecedores');
+    let fornecedoresFiltrados = fornecedores;
 
-  if (fornecedores.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5" class="text-center py-4">
-          <i class="bi bi-truck display-4 text-muted mb-3 d-block"></i>
-          <p class="text-muted">Nenhum fornecedor cadastrado</p>
-        </td>
-      </tr>
-    `;
-    return;
-  }
+    if (filtro) {
+        const termo = filtro.toLowerCase();
+        fornecedoresFiltrados = fornecedores.filter(f =>
+            (f.nome && f.nome.toLowerCase().includes(termo)) ||
+            (f.cnpj && f.cnpj.includes(termo)) ||
+            (f.email && f.email.toLowerCase().includes(termo)) ||
+            (f.telefone && f.telefone.includes(termo)) ||
+            (f.fornecimento && f.fornecimento.toLowerCase().includes(termo)) ||
+            (f.cidade && f.cidade.toLowerCase().includes(termo))
+        );
+    }
 
-  tbody.innerHTML = fornecedores.map(fornecedor => `
-    <tr>
-      <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="nome">${fornecedor.nome}</td>
-      <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="cnpj">${fornecedor.cnpj || ''}</td>
-      <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="telefone">${fornecedor.telefone || ''}</td>
-      <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="email">${fornecedor.email || ''}</td>
-      <td class="no-print">
-        <button class="btn btn-sm btn-outline-danger" onclick="excluirFornecedor('${fornecedor.id}')">
-          <i class="bi bi-trash"></i>
-        </button>
-      </td>
-    </tr>
-  `).join('');
+    if (fornecedoresFiltrados.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="11" class="text-center py-4">
+                    <i class="bi bi-truck display-4 text-muted mb-3 d-block"></i>
+                    <p class="text-muted">${filtro ? 'Nenhum fornecedor encontrado' : 'Nenhum fornecedor cadastrado ainda'}</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
 
-  $$('#listaFornecedores .editable-cell').forEach(cell => {
-    const itemId = cell.getAttribute('data-id');
-    const campo = cell.getAttribute('data-field');
-    let tipo = 'text';
-    if (campo === 'email') tipo = 'email';
-    if (campo === 'telefone') tipo = 'tel';
-    tornarCelulaEditavel(cell, itemId, campo, tipo);
-  });
+    tbody.innerHTML = fornecedoresFiltrados.map(fornecedor => `
+        <tr>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="nome">${fornecedor.nome || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="cnpj">${fornecedor.cnpj || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="email">${fornecedor.email || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="telefone">${fornecedor.telefone || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="fornecimento">${fornecedor.fornecimento || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="endereco">${fornecedor.endereco || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="bairro">${fornecedor.bairro || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="cidade">${fornecedor.cidade || '-'}</td>
+            <td class="editable-cell" data-id="for_${fornecedor.id}" data-field="estado">${fornecedor.estado || '-'}</td>
+            <td class="non-editable-cell">${formatarData(fornecedor.dataCadastro)}</td>
+            <td class="no-print">
+                <button class="btn btn-sm btn-outline-danger" onclick="excluirFornecedor('${fornecedor.id}')">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+    // Tornar células editáveis
+    document.querySelectorAll('#listaFornecedores .editable-cell').forEach(cell => {
+        const itemId = cell.getAttribute('data-id');
+        const campo = cell.getAttribute('data-field');
+        let tipo = 'text';
+
+        if (campo === 'email') tipo = 'email';
+        if (campo === 'telefone') tipo = 'tel';
+
+        tornarCelulaEditavel(cell, itemId, campo, tipo);
+    });
 }
 
 function excluirFornecedor(id) {
@@ -575,6 +597,11 @@ function excluirFornecedor(id) {
       Swal.fire('Excluído!', 'Fornecedor removido com sucesso.', 'success');
     }
   });
+}
+
+function filtrarFornecedores() {
+    const termo = document.getElementById('buscarFornecedor')?.value || '';
+    carregarFornecedores(termo);
 }
 
 // ==================== FUNÇÕES DE ORÇAMENTOS ====================
@@ -600,27 +627,84 @@ function adicionarOrcamento() {
   modal.show();
 }
 
+// Busca dinâmica de clientes no modal de orçamento
+document.getElementById('buscaClienteOrcamento')?.addEventListener('input', function() {
+  const termo = this.value.toLowerCase().trim();
+  const select = document.getElementById('novoOrcamentoCliente');
+  select.innerHTML = '';
+
+  if (termo.length < 2) {
+    select.style.display = 'none';
+    return;
+  }
+
+  const clientesFiltrados = clientes.filter(c => 
+    c.nome.toLowerCase().includes(termo) || 
+    (c.cpf && c.cpf.includes(termo))
+  );
+
+  if (clientesFiltrados.length === 0) {
+    select.innerHTML = '<option disabled>Nenhum cliente encontrado</option>';
+    select.style.display = 'block';
+    return;
+  }
+
+  clientesFiltrados.forEach(cliente => {
+    const option = document.createElement('option');
+    option.value = cliente.id;
+    option.textContent = `${cliente.nome} ${cliente.cpf ? `(${cliente.cpf})` : ''}`;
+    select.appendChild(option);
+  });
+
+  select.style.display = 'block';
+});
+
+// Selecionar cliente ao clicar
+document.getElementById('novoOrcamentoCliente')?.addEventListener('change', function() {
+  const buscaInput = document.getElementById('buscaClienteOrcamento');
+  const selectedOption = this.options[this.selectedIndex];
+  if (selectedOption && selectedOption.value) {
+    buscaInput.value = selectedOption.textContent;
+    this.style.display = 'none';
+  }
+});
+
+// Limpar busca
+document.getElementById('btnLimparBuscaCliente')?.addEventListener('click', () => {
+  document.getElementById('buscaClienteOrcamento').value = '';
+  document.getElementById('novoOrcamentoCliente').style.display = 'none';
+  document.getElementById('novoOrcamentoCliente').innerHTML = '';
+});
+
+// Máscara de valor (já deve existir, mas reforçando)
+aplicarMascaraMoeda(document.getElementById('novoOrcamentoValor'));
+
+// Salvar novo orçamento (atualizado)
 document.getElementById('btnSalvarNovoOrcamento')?.addEventListener('click', () => {
   const clienteId = document.getElementById('novoOrcamentoCliente').value;
+  const valorStr = document.getElementById('novoOrcamentoValor').value
+    .replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
   const descricao = document.getElementById('novoOrcamentoDescricao').value.trim();
-  const valorStr = document.getElementById('novoOrcamentoValor').value.replace('R$', '').replace('.', '').replace(',', '.').trim();
+  const condPagto = document.getElementById('novoOrcamentoCondPagto').value;
 
-  if (!clienteId || !descricao || !valorStr) {
-    Swal.fire('Atenção', 'Preencha todos os campos obrigatórios!', 'warning');
+  if (!clienteId || !valorStr || parseFloat(valorStr) <= 0 || !descricao || !condPagto) {
+    Swal.fire('Atenção', 'Preencha todos os campos obrigatórios corretamente!', 'warning');
     return;
   }
 
   const cliente = clientes.find(c => c.id === clienteId);
-  if (!cliente) return;
 
   const orcamento = {
     id: gerarId(),
-    clienteId,
-    clienteNome: cliente.nome,
-    descricao,
-    valor: parseFloat(valorStr) || 0,
-    status: 'pendente',
-    data: new Date().toISOString()
+    clienteId: clienteId,
+    clienteNome: cliente ? cliente.nome : 'Cliente não identificado',
+    valor: parseFloat(valorStr),
+    descricao: descricao,
+    condPagto: condPagto,
+    data: new Date().toISOString(),
+    validade: document.getElementById('novoOrcamentoValidade').value || '',
+    status: document.getElementById('novoOrcamentoStatus').value || 'pendente',
+    observacoesInternas: document.getElementById('novoOrcamentoObservacoes').value.trim() || ''
   };
 
   orcamentos.push(orcamento);
@@ -628,8 +712,13 @@ document.getElementById('btnSalvarNovoOrcamento')?.addEventListener('click', () 
   carregarOrcamentos();
 
   bootstrap.Modal.getInstance(document.getElementById('modalNovoOrcamento')).hide();
-  
-  Swal.fire('Sucesso!', 'Orçamento criado com sucesso!', 'success');
+    
+  Swal.fire({
+    title: 'Orçamento criado!',
+    text: `Orçamento para ${cliente?.nome || 'cliente selecionado'} no valor de ${formatarMoeda(orcamento.valor)}`,
+    icon: 'success',
+    timer: 2500
+  });
 });
 
 function filtrarOrcamentos() {
@@ -715,10 +804,9 @@ function adicionarItemEstoque() {
   document.getElementById('formNovoItemEstoque').reset();
   modal.show();
 }
-
 document.getElementById('btnSalvarNovoEstoque')?.addEventListener('click', () => {
   const produto = document.getElementById('novoEstoqueProduto').value.trim();
-  
+
   if (!produto) {
     Swal.fire('Atenção', 'O nome do produto é obrigatório!', 'warning');
     return;
@@ -727,16 +815,21 @@ document.getElementById('btnSalvarNovoEstoque')?.addEventListener('click', () =>
   const quantidade = parseInt(document.getElementById('novoEstoqueQuantidade').value) || 0;
   const minimo = parseInt(document.getElementById('novoEstoqueMinimo').value) || 5;
   const valorUnitarioStr = document.getElementById('novoEstoqueValorUnitario').value
-    .replace('R$', '').replace('.', '').replace(',', '.').trim();
+    .replace(/[^^\d,]/g, '').replace(',', '.').trim();
   const valorUnitario = parseFloat(valorUnitarioStr) || 0;
+
+  const fornecedorId = document.getElementById('novoEstoqueFornecedor')?.value || '';
+  const fornecedorNome = fornecedorId ? (fornecedores.find(f => f.id === fornecedorId)?.nome || '') : document.getElementById('novoEstoqueFornecedorAlt')?.value.trim() || '';
 
   const item = {
     id: gerarId(),
     produto,
     quantidade,
     minimo,
-    fornecedor: document.getElementById('novoEstoqueFornecedor').value.trim(),
     valorUnitario,
+    fornecedorId: fornecedorId || '',
+    fornecedor: fornecedorNome,
+    observacao: document.getElementById('novoEstoqueObservacao')?.value.trim() || '',
     status: calcularStatusEstoque({quantidade, minimo}).texto,
     dataCadastro: new Date().toISOString()
   };
@@ -748,6 +841,26 @@ document.getElementById('btnSalvarNovoEstoque')?.addEventListener('click', () =>
   bootstrap.Modal.getInstance(document.getElementById('modalNovoItemEstoque')).hide();
   
   Swal.fire('Sucesso!', 'Item adicionado ao estoque!', 'success');
+});
+
+// Preenche o select de fornecedores no modal de estoque
+function atualizarSelectFornecedoresEstoque() {
+  const select = document.getElementById('novoEstoqueFornecedor');
+  if (!select) return;
+
+  select.innerHTML = '<option value="">Selecione um fornecedor...</option>';
+
+  fornecedores.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.id;
+    opt.textContent = f.nome + (f.fornecimento ? ` (${f.fornecimento})` : '');
+    select.appendChild(opt);
+  });
+}
+
+// Atualiza quando o modal for aberto
+document.getElementById('modalNovoItemEstoque')?.addEventListener('show.bs.modal', () => {
+  atualizarSelectFornecedoresEstoque();
 });
 
 function calcularStatusEstoque(item) {
@@ -1454,6 +1567,18 @@ document.getElementById('novoFornecedorTelefone')?.addEventListener('input', fun
   e.target.value = v;
 });
 
+// Máscara CNPJ para fornecedor
+document.getElementById('novoFornecedorCnpj')?.addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, '');
+    if (v.length <= 14) {
+        v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+        v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+        v = v.replace(/(\d{4})(\d)/, '$1-$2');
+    }
+    e.target.value = v;
+});
+
 // Máscara monetária simples
 function aplicarMascaraMoeda(input) {
   input.addEventListener('input', function(e) {
@@ -1471,19 +1596,57 @@ aplicarMascaraMoeda(document.getElementById('novoReceberValor'));
 aplicarMascaraMoeda(document.getElementById('novoPagarValor'));
 
 document.getElementById('btnSalvarNovoFornecedor')?.addEventListener('click', () => {
-  const razao = document.getElementById('novoFornecedorRazao').value.trim();
-  if (!razao) return Swal.fire('Atenção', 'Razão social obrigatória!', 'warning');
-  fornecedores.push({
+  // Campos obrigatórios
+  const nome        = document.getElementById('novoFornecedorNome').value.trim();
+  const cnpj        = document.getElementById('novoFornecedorCnpj').value.trim();
+  const telefone    = document.getElementById('novoFornecedorTelefone').value.trim();
+  const email       = document.getElementById('novoFornecedorEmail').value.trim();
+  const fornecimento = document.getElementById('novoFornecedorFornecimento').value.trim();
+
+  if (!nome || !cnpj || !telefone || !email || !fornecimento) {
+    Swal.fire({
+      title: 'Campos obrigatórios',
+      text: 'Preencha Nome, CNPJ, Telefone, E-mail e Principal fornecimento',
+      icon: 'warning',
+      confirmButtonText: 'Entendi'
+    });
+    return;
+  }
+
+  // Validação básica de e-mail
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    Swal.fire('E-mail inválido', 'Por favor, verifique o formato do e-mail', 'warning');
+    return;
+  }
+
+  const fornecedor = {
     id: gerarId(),
-    nome: razao,
-    cnpj: document.getElementById('novoFornecedorCnpj').value.trim(),
-    telefone: document.getElementById('novoFornecedorTelefone').value.trim(),
-    email: document.getElementById('novoFornecedorEmail').value.trim(),
+    nome,
+    cnpj,
+    telefone,
+    email,
+    fornecimento,
+    endereco:   document.getElementById('novoFornecedorEndereco').value.trim()   || '',
+    bairro:     document.getElementById('novoFornecedorBairro').value.trim()     || '',
+    cidade:     document.getElementById('novoFornecedorCidade').value.trim()     || '',
+    estado:     document.getElementById('novoFornecedorEstado').value            || '',
     dataCadastro: new Date().toISOString()
-  });
-  salvarDados(); carregarFornecedores();
+  };
+
+  fornecedores.push(fornecedor);
+  salvarDados();
+  carregarFornecedores();
+
   bootstrap.Modal.getInstance(document.getElementById('modalNovoFornecedor')).hide();
-  Swal.fire('Sucesso!', 'Fornecedor cadastrado!', 'success');
+
+  Swal.fire({
+    title: 'Fornecedor cadastrado!',
+    text: 'O novo fornecedor foi adicionado com sucesso.',
+    icon: 'success',
+    timer: 1800,
+    showConfirmButton: false
+  });
 });
 
 document.getElementById('btnSalvarNovoPatrimonio')?.addEventListener('click', () => {

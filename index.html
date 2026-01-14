@@ -102,103 +102,83 @@
     </div>
   </nav>
 
-  <!-- Conteúdo Principal -->
-  <div class="container-fluid content">
-    
-    <!-- Dashboard -->
-    <div id="dashboard">
-      <div class="row mb-4">
-        <div class="col-12">
-          <h2 id="tituloDashboard">Dashboard</h2>
-          <p class="text-muted" id="subtituloDashboard">Visão geral do sistema</p>
+  <!-- Modal Novo Orçamento - Versão recomendada 2025 -->
+  <div class="modal fade" id="modalNovoOrcamento" tabindex="-1" aria-labelledby="modalNovoOrcamentoLabel">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="bi bi-calculator me-2"></i>Novo Orçamento</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-      </div>
+      
+        <div class="modal-body">
+          <form id="formNovoOrcamento">
+            <div class="row g-3">
 
-      <!-- Estatísticas -->
-      <div class="row mb-4">
-        <div class="col-md-3 col-sm-6">
-          <div class="stats-card">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <h6 class="text-muted">Total Clientes</h6>
-                <h3 id="totalClientes">0</h3>
+              <!-- Cliente -->
+              <div class="col-md-7">
+                <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="buscaClienteOrc" 
+                       placeholder="Digite nome ou CPF para buscar..." autocomplete="off" required>
+                <select class="form-select mt-1" id="novoOrcamentoCliente" size="5" style="display:none;" required></select>
               </div>
-              <i class="bi bi-people text-primary" style="font-size: 2rem;"></i>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="stats-card">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <h6 class="text-muted">Orçamentos</h6>
-                <h3 id="totalOrcamentos">0</h3>
-              </div>
-              <i class="bi bi-calculator text-warning" style="font-size: 2rem;"></i>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="stats-card">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <h6 class="text-muted">Estoque Baixo</h6>
-                <h3 id="estoqueBaixo">0</h3>
-              </div>
-              <i class="bi bi-exclamation-triangle text-danger" style="font-size: 2rem;"></i>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="stats-card">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <h6 class="text-muted">Saldo</h6>
-                <h3 id="saldoResumo">R$ 0,00</h3>
-              </div>
-              <i class="bi bi-cash-stack text-success" style="font-size: 2rem;"></i>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Ações Rápidas -->
-      <div class="row">
-        <div class="col-md-12">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="mb-0">Ações Rápidas</h5>
-            </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-3 col-sm-6 mb-3">
-                  <button class="btn btn-primary w-100" onclick="mostrarSecao('clientes'); adicionarClienteRapido();">
-                    <i class="bi bi-person-plus me-2"></i>Novo Cliente
-                  </button>
-                </div>
-                <div class="col-md-3 col-sm-6 mb-3">
-                  <button class="btn btn-success w-100" onclick="mostrarSecao('orcamentos'); adicionarOrcamentoRapido();">
-                    <i class="bi bi-calculator me-2"></i>Novo Orçamento
-                  </button>
-                </div>
-                <div class="col-md-3 col-sm-6 mb-3">
-                  <button class="btn btn-warning w-100" onclick="mostrarSecao('estoque'); adicionarEstoqueRapido();">
-                    <i class="bi bi-box me-2"></i>Adicionar Estoque
-                  </button>
-                </div>
-                <div class="col-md-3 col-sm-6 mb-3">
-                  <button class="btn btn-info w-100" onclick="imprimirRelatorioCompleto()">
-                    <i class="bi bi-printer me-2"></i>Imprimir Relatório
-                  </button>
-                </div>
+              <!-- Valor -->
+              <div class="col-md-5">
+                <label class="form-label fw-bold">Valor Total (R$) <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="novoOrcamentoValor" required placeholder="R$ 0,00">
               </div>
+
+              <!-- Condições de pagamento -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Condições de Pagamento <span class="text-danger">*</span></label>
+                <select class="form-select" id="novoOrcamentoCondPagto" required>
+                  <option value="">Selecione...</option>
+                  <option value="avista">À vista</option>
+                  <option value="30dias">30 dias</option>
+                  <option value="306090">30/60/90 dias</option>
+                  <option value="entrada50">50% entrada + 50% entrega</option>
+                  <option value="3x">Parcelado 3x</option>
+                  <option value="6x">Parcelado 6x</option>
+                  <option value="12x">Parcelado 12x</option>
+                  <option value="outro">Outro (especificar)</option>
+                </select>
+                <textarea class="form-control mt-2" id="novoOrcamentoCondPagtoOutro" 
+                          rows="2" placeholder="Especifique outras condições..." style="display:none;"></textarea>
+              </div>
+
+              <!-- Validade -->
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Validade</label>
+                <input type="date" class="form-control" id="novoOrcamentoValidade">
+              </div>
+
+              <!-- Prazo de entrega (opcional mas muito útil) -->
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Prazo de Entrega</label>
+                <input type="text" class="form-control" id="novoOrcamentoPrazo" placeholder="Ex: 45 dias úteis">
+              </div>
+
+              <!-- Descrição -->
+              <div class="col-12">
+                <label class="form-label fw-bold">Descrição / Itens <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="novoOrcamentoDescricao" rows="7" required 
+                          placeholder="Liste os itens com medidas, materiais, acabamentos, quantidade..."></textarea>
+              </div>
+
             </div>
-          </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-success" id="btnSalvarNovoOrcamento">
+            <i class="bi bi-check-lg me-2"></i>Criar Orçamento
+          </button>
         </div>
       </div>
     </div>
-
-    <!-- Clientes -->
+  </div>
     <div id="clientes" class="secao" style="display: none;">
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -265,19 +245,34 @@
           </div>
         </div>
         <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" id="buscarFornecedor" placeholder="Buscar fornecedor..." onkeyup="filtrarFornecedores()">
+              </div>
+            </div>
+          </div>
+
           <div class="table-responsive">
             <table class="table table-hover">
               <thead class="table-light">
                 <tr>
-                  <th>Razão Social</th>
+                  <th>Nome / Razão Social</th>
                   <th>CNPJ</th>
-                  <th>Telefone</th>
                   <th>E-mail</th>
+                  <th>Telefone</th>
+                  <th>Fornecimento</th>
+                  <th>Endereço</th>
+                  <th>Bairro</th>
+                  <th>Cidade</th>
+                  <th>UF</th>
+                  <th>Cadastro</th>
                   <th class="no-print">Ações</th>
                 </tr>
               </thead>
               <tbody id="listaFornecedores">
-                <!-- Dados serão carregados aqui -->
+                <!-- Dados serão carregados aqui via JavaScript -->
               </tbody>
             </table>
           </div>
@@ -697,38 +692,98 @@
     </div>
 
 <!-- Modal Novo Orçamento (exemplo mais completo) -->
+<!-- Modal Novo Orçamento - Versão aprimorada -->
 <div class="modal fade" id="modalNovoOrcamento" tabindex="-1" aria-labelledby="modalNovoOrcamentoLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title" id="modalNovoOrcamentoLabel"><i class="bi bi-calculator me-2"></i>Novo Orçamento</h5>
+        <h5 class="modal-title" id="modalNovoOrcamentoLabel">
+          <i class="bi bi-calculator me-2"></i>Novo Orçamento
+        </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+      
       <div class="modal-body">
         <form id="formNovoOrcamento">
           <div class="row g-3">
+
+            <!-- Cliente - com busca -->
             <div class="col-md-6">
               <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
-              <select class="form-select" id="novoOrcamentoCliente" required>
-                <option value="">Selecione um cliente...</option>
-                <!-- Preenchido dinamicamente -->
+              <div class="input-group">
+                <input type="text" class="form-control" id="buscaClienteOrcamento" 
+                       placeholder="Digite nome ou CPF do cliente..." autocomplete="off">
+                <button class="btn btn-outline-secondary" type="button" id="btnLimparBuscaCliente">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+              <select class="form-select mt-1" id="novoOrcamentoCliente" required size="5" style="display:none;">
+                <!-- opções serão preenchidas dinamicamente -->
               </select>
+              <small class="text-muted">Digite nome ou CPF para buscar</small>
             </div>
+
+            <!-- Valor -->
             <div class="col-md-6">
               <label class="form-label fw-bold">Valor Total (R$) <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="novoOrcamentoValor" required placeholder="R$ 0,00">
+              <input type="text" class="form-control" id="novoOrcamentoValor" required 
+                     placeholder="R$ 0,00">
             </div>
+
+            <!-- Condições de Pagamento -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Condições de Pagamento <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoOrcamentoCondPagto" required>
+                <option value="">Selecione...</option>
+                <option value="À vista">À vista</option>
+                <option value="30 dias">30 dias</option>
+                <option value="30/60/90 dias">30/60/90 dias</option>
+                <option value="50% entrada + 50% na entrega">50% entrada + 50% na entrega</option>
+                <option value="Parcelado 3x">Parcelado em 3x</option>
+                <option value="Parcelado 6x">Parcelado em 6x</option>
+                <option value="Parcelado 12x">Parcelado em 12x</option>
+                <option value="Outro">Outro (especificar abaixo)</option>
+              </select>
+            </div>
+
+            <!-- Data de Validade -->
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Validade do Orçamento</label>
+              <input type="date" class="form-control" id="novoOrcamentoValidade">
+            </div>
+
+            <!-- Status inicial -->
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Status Inicial</label>
+              <select class="form-select" id="novoOrcamentoStatus">
+                <option value="pendente" selected>Pendente</option>
+                <option value="aprovado">Aprovado</option>
+                <option value="recusado">Recusado</option>
+              </select>
+            </div>
+
+            <!-- Descrição/Itens -->
             <div class="col-12">
-              <label class="form-label fw-bold">Descrição / Itens <span class="text-danger">*</span></label>
-              <textarea class="form-control" id="novoOrcamentoDescricao" rows="4" required placeholder="Descreva os serviços/produtos, medidas, materiais..."></textarea>
+              <label class="form-label fw-bold">Descrição / Itens do Orçamento <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="novoOrcamentoDescricao" rows="6" required 
+                        placeholder="Descreva detalhadamente: peças, medidas, materiais, acabamentos, prazo de entrega..."></textarea>
             </div>
+
+            <!-- Observações internas (opcional) -->
+            <div class="col-12">
+              <label class="form-label">Observações internas (uso da marcenaria)</label>
+              <textarea class="form-control" id="novoOrcamentoObservacoes" rows="3" 
+                        placeholder="Informações que não aparecem para o cliente (ex: custo estimado de matéria-prima, observações de produção...)"></textarea>
+            </div>
+
           </div>
         </form>
       </div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-success" id="btnSalvarNovoOrcamento">
-          <i class="bi bi-check-lg me-2"></i>Criar Orçamento
+          <i class="bi bi-check-lg me-2"></i>Salvar Orçamento
         </button>
       </div>
     </div>
@@ -736,39 +791,59 @@
 </div>
 
 <!-- Modal Novo Item de Estoque -->
-<div class="modal fade" id="modalNovoItemEstoque" tabindex="-1" aria-labelledby="modalNovoItemEstoqueLabel" aria-hidden="true">
+<div class="modal fade" id="modalNovoItemEstoque" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-warning text-dark">
-        <h5 class="modal-title" id="modalNovoItemEstoqueLabel"><i class="bi bi-box-seam me-2"></i>Novo Item de Estoque</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title"><i class="bi bi-box-seam me-2"></i>Novo Item de Estoque</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      
       <div class="modal-body">
         <form id="formNovoItemEstoque">
           <div class="row g-3">
             <div class="col-12">
-              <label class="form-label fw-bold">Nome do Produto <span class="text-danger">*</span></label>
+              <label class="form-label fw-bold">Nome do Produto / Material <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="novoEstoqueProduto" required autofocus>
             </div>
+
             <div class="col-md-4">
-              <label class="form-label">Quantidade Inicial</label>
-              <input type="number" class="form-control" id="novoEstoqueQuantidade" min="0" value="0">
+              <label class="form-label fw-bold">Quantidade Inicial <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="novoEstoqueQuantidade" min="0" value="0" required>
             </div>
+
             <div class="col-md-4">
-              <label class="form-label">Estoque Mínimo</label>
-              <input type="number" class="form-control" id="novoEstoqueMinimo" min="1" value="5">
+              <label class="form-label fw-bold">Estoque Mínimo <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="novoEstoqueMinimo" min="1" value="5" required>
             </div>
+
             <div class="col-md-4">
               <label class="form-label">Valor Unitário (R$)</label>
               <input type="text" class="form-control" id="novoEstoqueValorUnitario" placeholder="R$ 0,00">
             </div>
+
+            <!-- Campo Fornecedor agora é SELECT -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Fornecedor Principal</label>
+              <select class="form-select" id="novoEstoqueFornecedor">
+                <option value="">Selecione um fornecedor...</option>
+                <!-- Preenchido dinamicamente -->
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Fornecedor Alternativo (opcional)</label>
+              <input type="text" class="form-control" id="novoEstoqueFornecedorAlt" placeholder="Nome do segundo fornecedor">
+            </div>
+
             <div class="col-12">
-              <label class="form-label">Fornecedor Principal</label>
-              <input type="text" class="form-control" id="novoEstoqueFornecedor" placeholder="Nome do fornecedor">
+              <label class="form-label">Observação / Localização no estoque</label>
+              <input type="text" class="form-control" id="novoEstoqueObservacao" placeholder="Ex: Prateleira A-3, Cor Jatobá">
             </div>
           </div>
         </form>
       </div>
+
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-warning text-dark" id="btnSalvarNovoEstoque">
@@ -781,31 +856,93 @@
   </div>
 
 <!-- Modal Novo Fornecedor -->
+<!-- Modal Novo Fornecedor - Atualizado com campos obrigatórios -->
 <div class="modal fade" id="modalNovoFornecedor" tabindex="-1" aria-labelledby="modalNovoFornecedorLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-info text-white">
-        <h5 class="modal-title"><i class="bi bi-truck me-2"></i>Novo Fornecedor</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="modalNovoFornecedorLabel">
+          <i class="bi bi-truck me-2"></i>Novo Fornecedor
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form id="formNovoFornecedor">
           <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label fw-bold">Razão Social <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="novoFornecedorRazao" required autofocus>
+            <!-- Linha 1 - Nome e CNPJ -->
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Nome / Razão Social <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoFornecedorNome" required autofocus placeholder="Ex: Madeiras ABC Ltda">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">CNPJ <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoFornecedorCnpj" required placeholder="00.000.000/0000-00">
+            </div>
+
+            <!-- Linha 2 - Contato -->
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Telefone <span class="text-danger">*</span></label>
+              <input type="tel" class="form-control" id="novoFornecedorTelefone" required placeholder="(00) 00000-0000">
             </div>
             <div class="col-md-6">
-              <label class="form-label">CNPJ</label>
-              <input type="text" class="form-control" id="novoFornecedorCnpj" placeholder="00.000.000/0000-00">
+              <label class="form-label fw-bold">E-mail <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="novoFornecedorEmail" required placeholder="contato@madeirasabc.com.br">
             </div>
-            <div class="col-md-6">
-              <label class="form-label">Telefone</label>
-              <input type="tel" class="form-control" id="novoFornecedorTelefone" placeholder="(00) 00000-0000">
-            </div>
+
+            <!-- Linha 3 - Fornecimento -->
             <div class="col-12">
-              <label class="form-label">E-mail</label>
-              <input type="email" class="form-control" id="novoFornecedorEmail" placeholder="exemplo@dominio.com">
+              <label class="form-label fw-bold">Principal fornecimento <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoFornecedorFornecimento" required 
+                     placeholder="Ex: MDF, Compensados, Ferragens, Tintas, etc">
+            </div>
+
+            <!-- Endereço -->
+            <div class="col-12">
+              <label class="form-label">Endereço completo</label>
+              <input type="text" class="form-control" id="novoFornecedorEndereco" placeholder="Rua das Indústrias, 456 - Sala 02">
+            </div>
+
+            <!-- Linha 4 - Bairro, Cidade, Estado -->
+            <div class="col-md-4">
+              <label class="form-label">Bairro</label>
+              <input type="text" class="form-control" id="novoFornecedorBairro" placeholder="Industrial">
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Cidade</label>
+              <input type="text" class="form-control" id="novoFornecedorCidade" placeholder="Joinville">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Estado (UF)</label>
+              <select class="form-select" id="novoFornecedorEstado">
+                <option value="">Selecione</option>
+                <option value="AC">Acre</option>
+                <option value="AL">Alagoas</option>
+                <option value="AP">Amapá</option>
+                <option value="AM">Amazonas</option>
+                <option value="BA">Bahia</option>
+                <option value="CE">Ceará</option>
+                <option value="DF">Distrito Federal</option>
+                <option value="ES">Espírito Santo</option>
+                <option value="GO">Goiás</option>
+                <option value="MA">Maranhão</option>
+                <option value="MT">Mato Grosso</option>
+                <option value="MS">Mato Grosso do Sul</option>
+                <option value="MG">Minas Gerais</option>
+                <option value="PA">Pará</option>
+                <option value="PB">Paraíba</option>
+                <option value="PR">Paraná</option>
+                <option value="PE">Pernambuco</option>
+                <option value="PI">Piauí</option>
+                <option value="RJ">Rio de Janeiro</option>
+                <option value="RN">Rio Grande do Norte</option>
+                <option value="RS">Rio Grande do Sul</option>
+                <option value="RO">Rondônia</option>
+                <option value="RR">Roraima</option>
+                <option value="SC" selected>Santa Catarina</option>
+                <option value="SP">São Paulo</option>
+                <option value="SE">Sergipe</option>
+                <option value="TO">Tocantins</option>
+              </select>
             </div>
           </div>
         </form>
