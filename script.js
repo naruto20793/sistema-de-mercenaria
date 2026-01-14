@@ -8,6 +8,7 @@ let editandoOrcamentoId = null;
 let celulaEditando = null;
 let modoEdicaoTodos = false;
 let notificationsTimeout = {};
+let notificacoesList = []; // histórico de notificações
 
 let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
 let fornecedores = JSON.parse(localStorage.getItem('fornecedores') || '[]');
@@ -56,6 +57,9 @@ function mostrarNotificacao(mensagem, tipo = 'info', duracao = 3000) {
 
   container.appendChild(notifEl);
 
+  // Adicionar ao histórico
+  adicionarAoHistorico(mensagem, tipo);
+
   // Auto-remover após duracao
   if (notificationsTimeout[id]) clearTimeout(notificationsTimeout[id]);
   notificationsTimeout[id] = setTimeout(() => {
@@ -72,6 +76,71 @@ function fecharNotificacao(id) {
       delete notificationsTimeout[id];
     }, 300);
   }
+}
+
+function adicionarAoHistorico(mensagem, tipo) {
+  const agora = new Date().toLocaleTimeString('pt-BR', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  
+  notificacoesList.unshift({
+    mensagem,
+    tipo,
+    hora: agora,
+    id: 'hist_' + Date.now()
+  });
+
+  // Limitar a 20 notificações no histórico
+  if (notificacoesList.length > 20) notificacoesList.pop();
+
+  atualizarDropdownNotificacoes();
+}
+
+function atualizarDropdownNotificacoes() {
+  const listaEl = document.getElementById('notificacoesLista');
+  const badgeEl = document.getElementById('notificacoesBadge');
+  const btnLimpar = document.getElementById('btnLimparNotif');
+
+  if (notificacoesList.length === 0) {
+    listaEl.innerHTML = '<span class="dropdown-item text-muted">Nenhuma notificação</span>';
+    badgeEl.style.display = 'none';
+    if (btnLimpar) btnLimpar.style.display = 'none';
+    return;
+  }
+
+  const iconMap = {
+    'sucesso': 'bi-check-circle-fill text-success',
+    'erro': 'bi-exclamation-circle-fill text-danger',
+    'aviso': 'bi-exclamation-triangle-fill text-warning',
+    'info': 'bi-info-circle-fill text-info'
+  };
+
+  listaEl.innerHTML = notificacoesList.map(notif => `
+    <button class="dropdown-item" onclick="fecharNotificacaoHistorico('${notif.id}')">
+      <i class="bi ${iconMap[notif.tipo] || iconMap['info']} me-2"></i>
+      <div>
+        <div class="small">${notif.mensagem}</div>
+        <small class="text-muted">${notif.hora}</small>
+      </div>
+      <i class="bi bi-x ms-auto text-muted small"></i>
+    </button>
+  `).join('');
+
+  badgeEl.textContent = notificacoesList.length;
+  badgeEl.style.display = notificacoesList.length > 0 ? 'inline-block' : 'none';
+  if (btnLimpar) btnLimpar.style.display = notificacoesList.length > 0 ? 'block' : 'none';
+}
+
+function fecharNotificacaoHistorico(id) {
+  notificacoesList = notificacoesList.filter(n => n.id !== id);
+  atualizarDropdownNotificacoes();
+}
+
+function limparNotificacoes() {
+  notificacoesList = [];
+  atualizarDropdownNotificacoes();
 }
 
 function carregarConfiguracoes() {
@@ -2212,10 +2281,117 @@ function inicializar() {
   if (typeof adicionarBotoesReload === 'function') adicionarBotoesReload();
 }
 
+// ==================== SISTEMA DE ALERTAS AUTOMÁTICOS ====================
+function verificarAlertas() {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  // Verificar contas a receber vencidas
+  const receberVencidas = receber.filter(r => {
+    if (r.status === 'pago') return false;
+    const dataVenc = new Date(r.dataVencimento);
+    dataVenc.setHours(0, 0, 0, 0);
+    return dataVenc < hoje;
+  });
+
+  if (receberVencidas.length > 0) {
+    mostrarNotificacao(
+      `⚠️ ${receberVencidas.length} conta(s) a receber vencida(s)`,
+      'aviso',
+      5000
+    );
+  }
+
+  // Verificar contas a receber próximas de vencer (próximos 3 dias)
+  const receberProximas = receber.filter(r => {
+    if (r.status === 'pago') return false;
+    const dataVenc = new Date(r.dataVencimento);
+    dataVenc.setHours(0, 0, 0, 0);
+    const em3Dias = new Date(hoje);
+    em3Dias.setDate(em3Dias.getDate() + 3);
+    return dataVenc >= hoje && dataVenc <= em3Dias;
+  });
+
+  if (receberProximas.length > 0) {
+    mostrarNotificacao(
+      `💰 ${receberProximas.length} conta(s) a receber vencendo em breve`,
+      'info',
+      4000
+    );
+  }
+
+  // Verificar contas a pagar vencidas
+  const pagarVencidas = pagar.filter(p => {
+    if (p.status === 'pago') return false;
+    const dataVenc = new Date(p.dataVencimento);
+    dataVenc.setHours(0, 0, 0, 0);
+    return dataVenc < hoje;
+  });
+
+  if (pagarVencidas.length > 0) {
+    mostrarNotificacao(
+      `❌ ${pagarVencidas.length} conta(s) a pagar vencida(s)`,
+      'erro',
+      5000
+    );
+  }
+
+  // Verificar contas a pagar próximas de vencer (próximos 3 dias)
+  const pagarProximas = pagar.filter(p => {
+    if (p.status === 'pago') return false;
+    const dataVenc = new Date(p.dataVencimento);
+    dataVenc.setHours(0, 0, 0, 0);
+    const em3Dias = new Date(hoje);
+    em3Dias.setDate(em3Dias.getDate() + 3);
+    return dataVenc >= hoje && dataVenc <= em3Dias;
+  });
+
+  if (pagarProximas.length > 0) {
+    mostrarNotificacao(
+      `⏰ ${pagarProximas.length} conta(s) a pagar vencendo em breve`,
+      'aviso',
+      4000
+    );
+  }
+
+  // Verificar itens em falta no estoque (quantidade = 0)
+  const estoqueFaltando = estoque.filter(item => {
+    const qtd = parseInt(item.quantidade) || 0;
+    return qtd === 0;
+  });
+
+  if (estoqueFaltando.length > 0) {
+    mostrarNotificacao(
+      `📦 ${estoqueFaltando.length} item(ns) SEM estoque`,
+      'erro',
+      5000
+    );
+  }
+
+  // Verificar itens com estoque baixo
+  const estoqueBaixo = estoque.filter(item => {
+    const qtd = parseInt(item.quantidade) || 0;
+    const minimo = parseInt(item.minimo) || 5;
+    return qtd > 0 && qtd <= minimo;
+  });
+
+  if (estoqueBaixo.length > 0) {
+    mostrarNotificacao(
+      `⚠️ ${estoqueBaixo.length} item(ns) com estoque BAIXO`,
+      'aviso',
+      4000
+    );
+  }
+}
+
+// Verificar alertas periodicamente (a cada 5 minutos)
+setInterval(verificarAlertas, 5 * 60 * 1000);
+
 document.addEventListener('DOMContentLoaded', function() {
   inicializar();
   atualizarBotaoRefazer();
   carregarConfiguracoes();
+  verificarAlertas(); // Verificar alertas ao carregar
   // vincula botões de configurações
   document.getElementById('btnExportarBackup')?.addEventListener('click', exportarBackup);
   document.getElementById('btnImportarBackup')?.addEventListener('click', () => document.getElementById('inputImportBackup')?.click());

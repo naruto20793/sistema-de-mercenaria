@@ -100,14 +100,20 @@
         
         <!-- Botões de Ação -->
         <div class="navbar-actions">
-          <button class="btn btn-outline-light btn-sm" onclick="imprimirSecaoAtual()">
-            <i class="bi bi-printer"></i>
-            <span class="d-none d-md-inline"> Imprimir</span>
-          </button>
-          <button class="btn btn-impressao btn-sm" onclick="exportarDados()">
-            <i class="bi bi-download"></i>
-            <span class="d-none d-md-inline"> Exportar</span>
-          </button>
+          <div class="dropdown">
+            <button class="btn btn-outline-light btn-sm position-relative" type="button" id="btnNotificacoes" data-bs-toggle="dropdown" aria-expanded="false" title="Notificações">
+              <i class="bi bi-bell"></i>
+              <span id="notificacoesBadge" class="position-absolute top-0 start-100 translate-middle badge bg-danger rounded-pill" style="display: none;">0</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnNotificacoes" style="min-width: 320px; max-height: 400px; overflow-y: auto;">
+              <li><h6 class="dropdown-header">Notificações Recentes</h6></li>
+              <li id="notificacoesLista">
+                <span class="dropdown-item text-muted">Nenhuma notificação</span>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><button class="dropdown-item text-center text-muted small" onclick="limparNotificacoes()" id="btnLimparNotif" style="display: none;">Limpar tudo</button></li>
+            </ul>
+          </div>
           <button id="btnRefazer" class="btn btn-outline-light btn-sm ms-2" onclick="refazerUltimaExclusao()" title="Refazer última exclusão" disabled>
             <i class="bi bi-arrow-counterclockwise"></i>
             <span class="d-none d-md-inline"> Refazer</span>

@@ -83,6 +83,16 @@ body {
 
 .navbar-actions .btn {
   margin-left: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  vertical-align: middle;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-impressao {
@@ -413,4 +423,49 @@ input:invalid:focus {
     max-width: calc(100% - 40px);
     right: 20px;
   }
+}
+
+/* ==================== SINO DE NOTIFICAÇÕES ==================== */
+#btnNotificacoes {
+  position: relative;
+  transition: transform 0.2s;
+}
+
+#btnNotificacoes:hover {
+  transform: scale(1.1);
+}
+
+#notificacoesBadge {
+  font-size: 0.65rem;
+  padding: 2px 5px !important;
+}
+
+.dropdown-menu[aria-labelledby="btnNotificacoes"] {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: none;
+  border-radius: 8px;
+}
+
+.dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-header {
+  padding: 8px 12px;
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
