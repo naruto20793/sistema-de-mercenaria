@@ -227,15 +227,20 @@
           <div class="table-responsive">
             <table class="table table-hover">
               <thead class="table-light">
-                <tr>
-                  <th>Nome</th>
-                  <th>Telefone</th>
-                  <th>E-mail</th>
-                  <th>Endereço</th>
-                  <th>Cadastro</th>
-                  <th class="no-print">Ações</th>
-                </tr>
-              </thead>
+  <tr>
+    <th>Nome/Razão Social</th>
+    <th>CNPJ</th>
+    <th>Telefone</th>
+    <th>E-mail</th>
+    <th>Fornecimento</th>
+    <th>Endereço</th>
+    <th>Bairro</th>
+    <th>Cidade</th>
+    <th>UF</th>
+    <th>Cadastro</th>
+    <th class="no-print">Ações</th>
+  </tr>
+</thead>
               <tbody id="listaClientes">
                 <!-- Dados serão carregados aqui -->
               </tbody>
@@ -591,45 +596,105 @@
       </div>
     </div>
 
-      <!-- Modal Novo Cliente -->
-<div class="modal fade" id="modalNovoCliente" tabindex="-1" aria-labelledby="modalNovoClienteLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="modalNovoClienteLabel"><i class="bi bi-person-plus me-2"></i>Novo Cliente</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form id="formNovoCliente">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label fw-bold">Nome completo <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="novoClienteNome" required autofocus placeholder="Ex: João Silva">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Telefone</label>
-              <input type="tel" class="form-control" id="novoClienteTelefone" placeholder="(00) 00000-0000">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">E-mail</label>
-              <input type="email" class="form-control" id="novoClienteEmail" placeholder="exemplo@dominio.com">
-            </div>
-            <div class="col-12">
-              <label class="form-label">Endereço completo</label>
-              <textarea class="form-control" id="novoClienteEndereco" rows="2" placeholder="Rua, número, bairro, cidade - UF"></textarea>
-            </div>
+    <!-- Modal Novo Cliente - Atualizado com todos os campos solicitados -->
+    <div class="modal fade" id="modalNovoCliente" tabindex="-1" aria-labelledby="modalNovoClienteLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="modalNovoClienteLabel">
+              <i class="bi bi-person-plus me-2"></i>Novo Cliente
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="btnSalvarNovoCliente">
-          <i class="bi bi-check-lg me-2"></i>Salvar Cliente
-        </button>
+          <div class="modal-body">
+            <form id="formNovoCliente">
+              <div class="row g-3">
+                <!-- Linha 1 -->
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">Nome / Razão Social <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="novoClienteNome" required autofocus placeholder="Ex: João da Silva ou Móveis Planejados Ltda">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold">CNPJ <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="novoClienteCnpj" required placeholder="00.000.000/0000-00">
+                </div>
+
+                <!-- Linha 2 -->
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Telefone <span class="text-danger">*</span></label>
+                  <input type="tel" class="form-control" id="novoClienteTelefone" required placeholder="(00) 00000-0000">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">E-mail <span class="text-danger">*</span></label>
+                  <input type="email" class="form-control" id="novoClienteEmail" required placeholder="contato@empresa.com">
+                </div>
+
+                <!-- Linha 3 -->
+                <div class="col-12">
+                  <label class="form-label fw-bold">Fornecimento / Segmento <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="novoClienteFornecimento" required placeholder="Ex: Fornecedor de MDF, Ferragens, Tintas, Marcenaria...">
+                </div>
+
+                <!-- Endereço -->
+                <div class="col-12">
+                  <label class="form-label fw-bold">Endereço <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="novoClienteEndereco" required placeholder="Rua das Acácias, 456 - Sala 02">
+                </div>
+
+                <!-- Linha 4 -->
+                <div class="col-md-4">
+                  <label class="form-label fw-bold">Bairro <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="novoClienteBairro" required placeholder="Centro">
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label fw-bold">Cidade <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="novoClienteCidade" required placeholder="Florianópolis">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold">Estado (UF) <span class="text-danger">*</span></label>
+                  <select class="form-select" id="novoClienteEstado" required>
+                    <option value="">Selecione</option>
+                    <option value="AC">AC - Acre</option>
+                    <option value="AL">AL - Alagoas</option>
+                    <option value="AP">AP - Amapá</option>
+                    <option value="AM">AM - Amazonas</option>
+                    <option value="BA">BA - Bahia</option>
+                    <option value="CE">CE - Ceará</option>
+                    <option value="DF">DF - Distrito Federal</option>
+                    <option value="ES">ES - Espírito Santo</option>
+                    <option value="GO">GO - Goiás</option>
+                    <option value="MA">MA - Maranhão</option>
+                    <option value="MT">MT - Mato Grosso</option>
+                    <option value="MS">MS - Mato Grosso do Sul</option>
+                    <option value="MG">MG - Minas Gerais</option>
+                    <option value="PA">PA - Pará</option>
+                    <option value="PB">PB - Paraíba</option>
+                    <option value="PR">PR - Paraná</option>
+                    <option value="PE">PE - Pernambuco</option>
+                    <option value="PI">PI - Piauí</option>
+                    <option value="RJ">RJ - Rio de Janeiro</option>
+                    <option value="RN">RN - Rio Grande do Norte</option>
+                    <option value="RS">RS - Rio Grande do Sul</option>
+                    <option value="RO">RO - Rondônia</option>
+                    <option value="RR">RR - Roraima</option>
+                    <option value="SC" selected>SC - Santa Catarina</option>
+                    <option value="SP">SP - São Paulo</option>
+                    <option value="SE">SE - Sergipe</option>
+                    <option value="TO">TO - Tocantins</option>
+                  </select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="btnSalvarNovoCliente">
+              <i class="bi bi-check-lg me-2"></i>Salvar Cliente
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
 <!-- Modal Novo Orçamento (exemplo mais completo) -->
 <div class="modal fade" id="modalNovoOrcamento" tabindex="-1" aria-labelledby="modalNovoOrcamentoLabel" aria-hidden="true">
@@ -714,6 +779,199 @@
   </div>
 </div>
   </div>
+
+<!-- Modal Novo Fornecedor -->
+<div class="modal fade" id="modalNovoFornecedor" tabindex="-1" aria-labelledby="modalNovoFornecedorLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title"><i class="bi bi-truck me-2"></i>Novo Fornecedor</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoFornecedor">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Razão Social <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoFornecedorRazao" required autofocus>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">CNPJ</label>
+              <input type="text" class="form-control" id="novoFornecedorCnpj" placeholder="00.000.000/0000-00">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Telefone</label>
+              <input type="tel" class="form-control" id="novoFornecedorTelefone" placeholder="(00) 00000-0000">
+            </div>
+            <div class="col-12">
+              <label class="form-label">E-mail</label>
+              <input type="email" class="form-control" id="novoFornecedorEmail" placeholder="exemplo@dominio.com">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-info text-white" id="btnSalvarNovoFornecedor">
+          <i class="bi bi-check-lg me-2"></i>Salvar Fornecedor
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Novo Patrimônio -->
+<div class="modal fade" id="modalNovoPatrimonio" tabindex="-1" aria-labelledby="modalNovoPatrimonioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title"><i class="bi bi-building me-2"></i>Novo Item de Patrimônio</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoPatrimonio">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Nome do Item <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoPatrimonioNome" required autofocus>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Valor (R$) <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoPatrimonioValor" required placeholder="R$ 0,00">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Data de Aquisição</label>
+              <input type="date" class="form-control" id="novoPatrimonioData">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Departamento</label>
+              <input type="text" class="form-control" id="novoPatrimonioDepartamento" placeholder="Ex: Oficina">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Estado</label>
+              <select class="form-select" id="novoPatrimonioEstado">
+                <option value="bom">Bom</option>
+                <option value="regular">Regular</option>
+                <option value="ruim">Ruim</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-info text-white" id="btnSalvarNovoPatrimonio">
+          <i class="bi bi-check-lg me-2"></i>Adicionar ao Patrimônio
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Novo Contrato -->
+<div class="modal fade" id="modalNovoContrato" tabindex="-1" aria-labelledby="modalNovoContratoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i>Novo Contrato</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoContrato">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Cliente <span class="text-danger">*</span></label>
+              <select class="form-select" id="novoContratoCliente" required>
+                <option value="">Selecione um cliente...</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="novoContratoDescricao" rows="4" required placeholder="Descreva os termos do contrato..."></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="novoContratoStatus">
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnSalvarNovoContrato">
+          <i class="bi bi-check-lg me-2"></i>Criar Contrato
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nova Conta a Receber -->
+<div class="modal fade" id="modalNovoReceber" tabindex="-1" aria-labelledby="modalNovoReceberLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Nova Conta a Receber</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoReceber">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoReceberDescricao" required autofocus>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Valor (R$) <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoReceberValor" required placeholder="R$ 0,00">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" id="btnSalvarNovoReceber">
+          <i class="bi bi-check-lg me-2"></i>Adicionar Conta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nova Conta a Pagar -->
+<div class="modal fade" id="modalNovoPagar" tabindex="-1" aria-labelledby="modalNovoPagarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="bi bi-cash-coin me-2"></i>Nova Conta a Pagar</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNovoPagar">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Descrição <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoPagarDescricao" required autofocus>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">Valor (R$) <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="novoPagarValor" required placeholder="R$ 0,00">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger text-white" id="btnSalvarNovoPagar">
+          <i class="bi bi-check-lg me-2"></i>Adicionar Conta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
