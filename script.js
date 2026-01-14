@@ -7,6 +7,7 @@ let editandoClienteId = null;
 let editandoOrcamentoId = null;
 let celulaEditando = null;
 let modoEdicaoTodos = false;
+let notificationsTimeout = {};
 
 let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
 let fornecedores = JSON.parse(localStorage.getItem('fornecedores') || '[]');
@@ -20,6 +21,58 @@ let contratos = JSON.parse(localStorage.getItem('contratos') || '[]');
 let agenda = JSON.parse(localStorage.getItem('agenda') || '[]');
 // Configurações
 let configuracoes = JSON.parse(localStorage.getItem('configuracoes') || '{}');
+
+// ==================== SISTEMA DE NOTIFICAÇÕES ====================
+function mostrarNotificacao(mensagem, tipo = 'info', duracao = 3000) {
+  const container = document.getElementById('notificationsContainer');
+  if (!container) return;
+
+  const id = 'notif_' + Date.now();
+  const iconMap = {
+    'sucesso': 'bi-check-circle-fill',
+    'erro': 'bi-exclamation-circle-fill',
+    'aviso': 'bi-exclamation-triangle-fill',
+    'info': 'bi-info-circle-fill'
+  };
+  const bgMap = {
+    'sucesso': 'bg-success',
+    'erro': 'bg-danger',
+    'aviso': 'bg-warning',
+    'info': 'bg-info'
+  };
+
+  const notifEl = document.createElement('div');
+  notifEl.id = id;
+  notifEl.className = `notification notification-${tipo} ${bgMap[tipo] || bgMap['info']}`;
+  notifEl.innerHTML = `
+    <div class="notification-content">
+      <i class="bi ${iconMap[tipo] || iconMap['info']}"></i>
+      <span>${mensagem}</span>
+    </div>
+    <button class="notification-close" onclick="fecharNotificacao('${id}')">
+      <i class="bi bi-x"></i>
+    </button>
+  `;
+
+  container.appendChild(notifEl);
+
+  // Auto-remover após duracao
+  if (notificationsTimeout[id]) clearTimeout(notificationsTimeout[id]);
+  notificationsTimeout[id] = setTimeout(() => {
+    fecharNotificacao(id);
+  }, duracao);
+}
+
+function fecharNotificacao(id) {
+  const notif = document.getElementById(id);
+  if (notif) {
+    notif.classList.add('hide');
+    setTimeout(() => {
+      notif.remove();
+      delete notificationsTimeout[id];
+    }, 300);
+  }
+}
 
 function carregarConfiguracoes() {
   configuracoes = JSON.parse(localStorage.getItem('configuracoes') || '{}');
@@ -56,7 +109,7 @@ function salvarConfiguracoes() {
   configuracoes.autoCreateFinancial = !!document.getElementById('cfgAutoCreateFinancial')?.checked;
   localStorage.setItem('configuracoes', JSON.stringify(configuracoes));
   carregarConfiguracoes();
-  Swal.fire('Configurações salvas', '', 'success');
+  mostrarNotificacao('Configurações salvas com sucesso.', 'sucesso');
 }
 
 function exportarBackup() {
@@ -418,7 +471,7 @@ function refazerUltimaExclusao() {
   salvarLixeira();
   atualizarBotaoRefazer();
   atualizarTabelaAtual();
-  Swal.fire('Restaurado', 'Item restaurado com sucesso.', 'success');
+  mostrarNotificacao('Item restaurado com sucesso.', 'sucesso');
 }
 
 function atualizarBotaoRefazer() {
@@ -923,13 +976,7 @@ document.getElementById('btnSalvarNovoCliente')?.addEventListener('click', () =>
 
   bootstrap.Modal.getInstance(document.getElementById('modalNovoCliente')).hide();
 
-  Swal.fire({
-    title: 'Cliente cadastrado!',
-    text: `${nome} foi adicionado com sucesso`,
-    icon: 'success',
-    timer: 2000,
-    showConfirmButton: false
-  });
+  mostrarNotificacao('Cliente "' + nome + '" adicionado com sucesso.', 'sucesso');
 });
 
 function excluirCliente(id) {
@@ -941,7 +988,7 @@ function excluirCliente(id) {
   try { if (typeof reloadSecao === 'function') reloadSecao('clientes'); } catch(e){}
   console.log('Cliente excluído:', id);
   atualizarTabelaAtual();
-  Swal.fire('Excluído!', 'Cliente removido com sucesso.', 'success');
+  mostrarNotificacao('Cliente removido com sucesso.', 'sucesso');
 }
 
 function filtrarClientes() {
