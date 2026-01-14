@@ -906,6 +906,8 @@ function mostrarSecao(secao) {
       break;
     case 'relatorios':
       atualizarEstatisticas();
+      // Gerar gráficos após um pequeno delay para garantir que o DOM está pronto
+      setTimeout(() => gerarGraficos(), 100);
       break;
   }
 
@@ -2200,6 +2202,398 @@ function exportarDados() {
 }
 
 // ==================== FUNÇÕES DE ESTATÍSTICAS ====================
+// ==================== FUNÇÕES DE GRÁFICOS ====================
+let chartsInstances = {};
+
+function gerarGraficos() {
+  if (secaoAtual !== 'relatorios') return;
+
+  // Gráficos Financeiros
+  gerarGraficoFinanceiroPizza();
+  gerarGraficoFinanceiroLinha();
+  gerarGraficoFinanceiroBarras();
+
+  // Gráficos Estoque
+  gerarGraficoEstoqueDoughnut();
+  gerarGraficoEstoqueBarras();
+
+  // Gráficos Clientes
+  gerarGraficoClientesPizza();
+  gerarGraficoClientesBarras();
+
+  // Resumo Executivo
+  atualizarResumoExecutivo();
+  gerarGraficoRadarResumo();
+}
+
+function gerarGraficoFinanceiroPizza() {
+  const ctx = document.getElementById('chartPizzaFinanceiro');
+  if (!ctx) return;
+
+  const receberTotal = receber.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+  const pagarTotal = pagar.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+
+  if (chartsInstances.pizzaFinanceiro) chartsInstances.pizzaFinanceiro.destroy();
+
+  chartsInstances.pizzaFinanceiro = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Receitas', 'Despesas'],
+      datasets: [{
+        data: [receberTotal, pagarTotal],
+        backgroundColor: ['#28a745', '#dc3545'],
+        borderColor: ['#20c997', '#fd7e14'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return formatarMoeda(context.parsed);
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function gerarGraficoFinanceiroLinha() {
+  const ctx = document.getElementById('chartLinhaFinanceiro');
+  if (!ctx) return;
+
+  // Agrupar por mês
+  const meses = {};
+  const hoje = new Date();
+  const ultimosMeses = 6;
+
+  for (let i = ultimosMeses - 1; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    const mesChave = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    meses[mesChave] = { receita: 0, despesa: 0 };
+  }
+
+  receber.forEach(r => {
+    const data = new Date(r.dataCadastro || r.dataVencimento);
+    const mesChave = data.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    if (meses[mesChave]) meses[mesChave].receita += parseFloat(r.valor || 0);
+  });
+
+  pagar.forEach(p => {
+    const data = new Date(p.dataCadastro || p.dataVencimento);
+    const mesChave = data.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    if (meses[mesChave]) meses[mesChave].despesa += parseFloat(p.valor || 0);
+  });
+
+  const labels = Object.keys(meses);
+  const receitas = labels.map(m => meses[m].receita);
+  const despesas = labels.map(m => meses[m].despesa);
+
+  if (chartsInstances.linhaFinanceiro) chartsInstances.linhaFinanceiro.destroy();
+
+  chartsInstances.linhaFinanceiro = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Receitas',
+          data: receitas,
+          borderColor: '#28a745',
+          backgroundColor: 'rgba(40, 167, 69, 0.1)',
+          fill: true,
+          tension: 0.4
+        },
+        {
+          label: 'Despesas',
+          data: despesas,
+          borderColor: '#dc3545',
+          backgroundColor: 'rgba(220, 53, 69, 0.1)',
+          fill: true,
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + formatarMoeda(context.parsed.y);
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return formatarMoeda(value);
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function gerarGraficoFinanceiroBarras() {
+  const ctx = document.getElementById('chartBarraFinanceiro');
+  if (!ctx) return;
+
+  const pagas = receber.filter(r => r.status === 'pago').length;
+  const pendentes = receber.filter(r => r.status === 'pendente').length;
+  const atrasadas = receber.filter(r => r.status === 'atrasado').length;
+
+  if (chartsInstances.barraFinanceiro) chartsInstances.barraFinanceiro.destroy();
+
+  chartsInstances.barraFinanceiro = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Pagas', 'Pendentes', 'Atrasadas'],
+      datasets: [{
+        label: 'Contas a Receber',
+        data: [pagas, pendentes, atrasadas],
+        backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+        borderColor: ['#20c997', '#fd7e14', '#fd7e14'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      indexAxis: 'x',
+      plugins: {
+        legend: { position: 'bottom' }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+}
+
+function gerarGraficoEstoqueDoughnut() {
+  const ctx = document.getElementById('chartDoughnutEstoque');
+  if (!ctx) return;
+
+  const otimo = estoque.filter(i => calcularStatusEstoque(i).texto === 'ÓTIMO').length;
+  const bom = estoque.filter(i => calcularStatusEstoque(i).texto === 'BOM').length;
+  const baixo = estoque.filter(i => calcularStatusEstoque(i).texto === 'BAIXO').length;
+  const critico = estoque.filter(i => calcularStatusEstoque(i).texto === 'CRÍTICO').length;
+
+  if (chartsInstances.doughnutEstoque) chartsInstances.doughnutEstoque.destroy();
+
+  chartsInstances.doughnutEstoque = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Ótimo', 'Bom', 'Baixo', 'Crítico'],
+      datasets: [{
+        data: [otimo, bom, baixo, critico],
+        backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#dc3545'],
+        borderColor: ['#20c997', '#0dcaf0', '#fd7e14', '#fd7e14'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+}
+
+function gerarGraficoEstoqueBarras() {
+  const ctx = document.getElementById('chartBarraEstoque');
+  if (!ctx) return;
+
+  const top10 = estoque.slice(0, 10);
+  const labels = top10.map(i => i.nome || i.codigo || 'Item');
+  const quantidades = top10.map(i => parseInt(i.quantidade) || 0);
+
+  if (chartsInstances.barraEstoque) chartsInstances.barraEstoque.destroy();
+
+  chartsInstances.barraEstoque = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Quantidade',
+        data: quantidades,
+        backgroundColor: '#17a2b8',
+        borderColor: '#0dcaf0',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      indexAxis: 'y',
+      scales: {
+        x: { beginAtZero: true }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+function gerarGraficoClientesPizza() {
+  const ctx = document.getElementById('chartPizzaClientes');
+  if (!ctx) return;
+
+  const cidades = {};
+  clientes.forEach(c => {
+    const cidade = c.cidade || 'Não informado';
+    cidades[cidade] = (cidades[cidade] || 0) + 1;
+  });
+
+  const labels = Object.keys(cidades);
+  const dados = Object.values(cidades);
+  const cores = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+
+  if (chartsInstances.pizzaClientes) chartsInstances.pizzaClientes.destroy();
+
+  chartsInstances.pizzaClientes = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: dados,
+        backgroundColor: cores.slice(0, labels.length),
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+}
+
+function gerarGraficoClientesBarras() {
+  const ctx = document.getElementById('chartBarraClientes');
+  if (!ctx) return;
+
+  const meses = {};
+  const hoje = new Date();
+  const ultimosMeses = 6;
+
+  for (let i = ultimosMeses - 1; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    const mesChave = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    meses[mesChave] = 0;
+  }
+
+  clientes.forEach(c => {
+    const data = new Date(c.dataCadastro);
+    const mesChave = data.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    if (meses[mesChave] !== undefined) meses[mesChave]++;
+  });
+
+  const labels = Object.keys(meses);
+  const dados = Object.values(meses);
+
+  if (chartsInstances.barraClientes) chartsInstances.barraClientes.destroy();
+
+  chartsInstances.barraClientes = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Novos Clientes',
+        data: dados,
+        backgroundColor: '#007bff',
+        borderColor: '#0056b3',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: { y: { beginAtZero: true } },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+function atualizarResumoExecutivo() {
+  const receberTotal = receber.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+  const pagarTotal = pagar.reduce((s, v) => s + parseFloat(v.valor || 0), 0);
+  const saldo = receberTotal - pagarTotal;
+  const estoqueTotal = estoque.reduce((s, i) => s + (parseInt(i.quantidade) || 0), 0);
+
+  document.getElementById('resumoReceitaTotal').textContent = formatarMoeda(receberTotal);
+  document.getElementById('resumoDespesaTotal').textContent = formatarMoeda(pagarTotal);
+  document.getElementById('resumoSaldoTotal').textContent = formatarMoeda(saldo);
+  document.getElementById('resumoEstoqueTotal').textContent = estoqueTotal;
+}
+
+function gerarGraficoRadarResumo() {
+  const ctx = document.getElementById('chartRadarResumo');
+  if (!ctx) return;
+
+  const maxClientes = Math.max(clientes.length * 2, 20);
+  const maxOrcamentos = Math.max(orcamentos.length * 2, 20);
+  const maxFornecedores = Math.max(fornecedores.length * 2, 20);
+
+  if (chartsInstances.radarResumo) chartsInstances.radarResumo.destroy();
+
+  chartsInstances.radarResumo = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['Clientes', 'Fornecedores', 'Orçamentos', 'Itens Estoque', 'Contratos'],
+      datasets: [{
+        label: 'Quantidade de Registros',
+        data: [
+          clientes.length,
+          fornecedores.length,
+          orcamentos.length,
+          estoque.length,
+          contratos.length
+        ],
+        borderColor: '#667eea',
+        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+        borderWidth: 2,
+        fill: true,
+        pointRadius: 5,
+        pointBackgroundColor: '#667eea'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { position: 'bottom' }
+      },
+      scales: {
+        r: {
+          beginAtZero: true,
+          ticks: { stepSize: 5 }
+        }
+      }
+    }
+  });
+}
+
 function atualizarEstatisticas() {
   const elTotalClientes = $('#totalClientes');
   if (elTotalClientes) elTotalClientes.textContent = clientes.length;
