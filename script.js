@@ -1009,6 +1009,22 @@ function gerarId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
+// ==================== CÓDIGOS DE ESTOQUE ====================
+function gerarCodigoEstoquePreview() {
+  const key = 'estoque_codigo_counter';
+  const counter = parseInt(localStorage.getItem(key) || '0', 10) || 0;
+  const next = counter + 1;
+  return `EST-${String(next).padStart(4, '0')}`;
+}
+
+function gerarCodigoEstoque(commit = false) {
+  const key = 'estoque_codigo_counter';
+  let counter = parseInt(localStorage.getItem(key) || '0', 10) || 0;
+  counter = counter + 1;
+  if (commit) localStorage.setItem(key, String(counter));
+  return `EST-${String(counter).padStart(4, '0')}`;
+}
+
 function salvarDados() {
   localStorage.setItem('clientes', JSON.stringify(clientes));
   localStorage.setItem('fornecedores', JSON.stringify(fornecedores));
@@ -1473,6 +1489,7 @@ document.getElementById('btnSalvarNovoEstoque')?.addEventListener('click', () =>
 
   const item = {
     id: gerarId(),
+    codigo: gerarCodigoEstoque(true),
     produto,
     quantidade,
     minimo,
@@ -1512,6 +1529,8 @@ function atualizarSelectFornecedoresEstoque() {
 // Atualiza quando o modal for aberto
 document.getElementById('modalNovoItemEstoque')?.addEventListener('show.bs.modal', () => {
   atualizarSelectFornecedoresEstoque();
+  const codigoInput = document.getElementById('novoEstoqueCodigo');
+  if (codigoInput) codigoInput.value = gerarCodigoEstoquePreview();
 });
 
 function calcularStatusEstoque(item) {
@@ -1532,7 +1551,7 @@ function carregarEstoque() {
   if (estoque.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" class="text-center py-4">
+        <td colspan="9" class="text-center py-4">
           <i class="bi bi-box display-4 text-muted mb-3 d-block"></i>
           <p class="text-muted">Nenhum item no estoque</p>
         </td>
@@ -1546,6 +1565,7 @@ function carregarEstoque() {
 
     return `
       <tr class="${status.linha}">
+        <td class="non-editable-cell">${item.codigo || ''}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="produto">${item.produto}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="quantidade" data-type="number">${item.quantidade}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="minimo" data-type="number">${item.minimo}</td>

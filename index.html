@@ -440,6 +440,7 @@
             <table class="table table-hover table-estoque">
               <thead class="table-light">
                 <tr>
+                  <th>Código</th>
                   <th>Produto</th>
                   <th>Quantidade</th>
                   <th>Mínimo</th>
@@ -1083,6 +1084,11 @@
             <div class="col-12">
               <label class="form-label fw-bold">Nome do Produto / Material <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="novoEstoqueProduto" required autofocus>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Código</label>
+              <input type="text" class="form-control" id="novoEstoqueCodigo" readonly placeholder="Gerado automaticamente">
             </div>
 
             <div class="col-md-4">
