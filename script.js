@@ -1551,7 +1551,7 @@ function carregarEstoque() {
   if (estoque.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="9" class="text-center py-4">
+        <td colspan="10" class="text-center py-4">
           <i class="bi bi-box display-4 text-muted mb-3 d-block"></i>
           <p class="text-muted">Nenhum item no estoque</p>
         </td>
@@ -1570,6 +1570,7 @@ function carregarEstoque() {
         <td class="editable-cell" data-id="est_${item.id}" data-field="quantidade" data-type="number">${item.quantidade}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="minimo" data-type="number">${item.minimo}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="fornecedor">${item.fornecedor || ''}</td>
+        <td class="editable-cell" data-id="est_${item.id}" data-field="observacao">${item.observacao || ''}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="valorCusto" data-type="currency">${formatarMoeda(item.valorCusto || item.valorUnitario || 0)}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="valorVenda" data-type="currency">${formatarMoeda(item.valorVenda || item.valorUnitario || 0)}</td>
         <td class="non-editable-cell">
