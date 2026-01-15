@@ -26,14 +26,36 @@
     <div class="container-fluid">
       <!-- Logo -->
       <a class="navbar-brand" href="#" onclick="mostrarDashboard(event)">
-        <i class="bi bi-tools"></i>
+        <img src="martelo_e_serrote_simbolo.png" alt="Martelo e Serrote" class="logo-icon">
         <span id="nomeSistema">MarcenariaPro</span>
       </a>
       
       <!-- Botão Hamburguer -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarPrincipal">
-        <span class="navbar-toggler-icon" style="filter: invert(1);">☰</span>
+        <span class="navbar-toggler-icon">☰</span>
       </button>
+
+      <!-- Botões de Ação (Notificações e Refazer) - Sempre Visíveis -->
+      <div class="navbar-actions-fixed">
+        <div class="dropdown">
+          <button class="btn btn-outline-light btn-sm position-relative" type="button" id="btnNotificacoes" data-bs-toggle="dropdown" aria-expanded="false" title="Notificações">
+            <i class="bi bi-bell"></i>
+            <span id="notificacoesBadge" class="position-absolute top-0 start-100 translate-middle badge bg-danger rounded-pill" style="display: none;">0</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnNotificacoes" style="min-width: 320px; max-height: 400px; overflow-y: auto;">
+            <li><h6 class="dropdown-header">Notificações Recentes</h6></li>
+            <li id="notificacoesLista">
+              <span class="dropdown-item text-muted">Nenhuma notificação</span>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item text-center text-muted small" onclick="limparNotificacoes()" id="btnLimparNotif" style="display: none;">Limpar tudo</button></li>
+          </ul>
+        </div>
+        <button id="btnRefazer" class="btn btn-outline-light btn-sm ms-2" onclick="refazerUltimaExclusao()" title="Refazer última exclusão" disabled>
+          <i class="bi bi-arrow-counterclockwise"></i>
+          <span class="d-none d-md-inline"> Refazer</span>
+        </button>
+      </div>
       
       <!-- Menu -->
       <div class="collapse navbar-collapse" id="navbarPrincipal">
@@ -99,28 +121,6 @@
             </a>
           </li>
         </ul>
-        
-        <!-- Botões de Ação -->
-        <div class="navbar-actions">
-          <div class="dropdown">
-            <button class="btn btn-outline-light btn-sm position-relative" type="button" id="btnNotificacoes" data-bs-toggle="dropdown" aria-expanded="false" title="Notificações">
-              <i class="bi bi-bell"></i>
-              <span id="notificacoesBadge" class="position-absolute top-0 start-100 translate-middle badge bg-danger rounded-pill" style="display: none;">0</span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnNotificacoes" style="min-width: 320px; max-height: 400px; overflow-y: auto;">
-              <li><h6 class="dropdown-header">Notificações Recentes</h6></li>
-              <li id="notificacoesLista">
-                <span class="dropdown-item text-muted">Nenhuma notificação</span>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li><button class="dropdown-item text-center text-muted small" onclick="limparNotificacoes()" id="btnLimparNotif" style="display: none;">Limpar tudo</button></li>
-            </ul>
-          </div>
-          <button id="btnRefazer" class="btn btn-outline-light btn-sm ms-2" onclick="refazerUltimaExclusao()" title="Refazer última exclusão" disabled>
-            <i class="bi bi-arrow-counterclockwise"></i>
-            <span class="d-none d-md-inline"> Refazer</span>
-          </button>
-        </div>
       </div>
     </div>
   </nav>
@@ -131,7 +131,7 @@
     <!-- Header Boas-vindas -->
     <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
       <div class="card-body text-white p-5">
-        <h1 class="mb-2"><i class="bi bi-tools me-2"></i>MarcenariaPro</h1>
+        <h1 class="mb-2"><img src="martelo_e_serrote_simbolo.png" alt="Martelo e Serrote" class="logo-icon me-2">MarcenariaPro</h1>
         <p class="fs-5 mb-0">Bem-vindo ao seu sistema de gestão. Escolha uma seção no menu ou veja os destaques abaixo.</p>
       </div>
     </div>
@@ -437,14 +437,15 @@
             <div>Itens com estoque baixo são marcados em vermelho. Clique duas vezes para editar valores.</div>
           </div>
           <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover table-estoque">
               <thead class="table-light">
                 <tr>
                   <th>Produto</th>
                   <th>Quantidade</th>
                   <th>Mínimo</th>
                   <th>Fornecedor</th>
-                  <th>Valor Unitário</th>
+                  <th>Valor de Custo</th>
+                  <th>Valor de Venda</th>
                   <th class="non-editable-cell">Status</th>
                   <th class="no-print">Ações</th>
                 </tr>
@@ -1095,8 +1096,13 @@
             </div>
 
             <div class="col-md-4">
-              <label class="form-label">Valor Unitário (R$)</label>
-              <input type="text" class="form-control" id="novoEstoqueValorUnitario" placeholder="R$ 0,00">
+              <label class="form-label">Valor de Custo (R$)</label>
+              <input type="text" class="form-control" id="novoEstoqueValorCusto" placeholder="R$ 0,00">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Valor de Venda (R$)</label>
+              <input type="text" class="form-control" id="novoEstoqueValorVenda" placeholder="R$ 0,00">
             </div>
 
             <!-- Campo Fornecedor agora é SELECT -->

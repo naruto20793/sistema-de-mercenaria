@@ -9,6 +9,7 @@ let celulaEditando = null;
 let modoEdicaoTodos = false;
 let notificationsTimeout = {};
 let notificacoesList = []; // histórico de notificações
+let notificacoesExibidas = {}; // rastreamento de notificações para cooldown
 
 let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
 let fornecedores = JSON.parse(localStorage.getItem('fornecedores') || '[]');
@@ -27,6 +28,24 @@ let configuracoes = JSON.parse(localStorage.getItem('configuracoes') || '{}');
 function mostrarNotificacao(mensagem, tipo = 'info', duracao = 3000) {
   const container = document.getElementById('notificationsContainer');
   if (!container) return;
+
+  // Criar chave única para a notificação
+  const chaveNotif = tipo + '::' + mensagem;
+  const agora = Date.now();
+  const COOLDOWN_30MIN = 30 * 60 * 1000; // 30 minutos em milissegundos
+
+  // Verificar se a notificação foi exibida recentemente
+  if (notificacoesExibidas[chaveNotif]) {
+    const ultimaExibicao = notificacoesExibidas[chaveNotif];
+    if (agora - ultimaExibicao < COOLDOWN_30MIN) {
+      // Notificação foi exibida há menos de 30 minutos, ignorar
+      console.log('Notificação ignorada (cooldown ativo):', chaveNotif);
+      return;
+    }
+  }
+
+  // Registrar que esta notificação foi exibida agora
+  notificacoesExibidas[chaveNotif] = agora;
 
   const id = 'notif_' + Date.now();
   const iconMap = {
@@ -1440,9 +1459,14 @@ document.getElementById('btnSalvarNovoEstoque')?.addEventListener('click', () =>
 
   const quantidade = parseInt(document.getElementById('novoEstoqueQuantidade').value) || 0;
   const minimo = parseInt(document.getElementById('novoEstoqueMinimo').value) || 5;
-  const valorUnitarioStr = document.getElementById('novoEstoqueValorUnitario').value
+  
+  const valorCustoStr = document.getElementById('novoEstoqueValorCusto').value
     .replace(/[^^\d,]/g, '').replace(',', '.').trim();
-  const valorUnitario = parseFloat(valorUnitarioStr) || 0;
+  const valorCusto = parseFloat(valorCustoStr) || 0;
+  
+  const valorVendaStr = document.getElementById('novoEstoqueValorVenda').value
+    .replace(/[^^\d,]/g, '').replace(',', '.').trim();
+  const valorVenda = parseFloat(valorVendaStr) || 0;
 
   const fornecedorId = document.getElementById('novoEstoqueFornecedor')?.value || '';
   const fornecedorNome = fornecedorId ? (fornecedores.find(f => f.id === fornecedorId)?.nome || '') : document.getElementById('novoEstoqueFornecedorAlt')?.value.trim() || '';
@@ -1452,7 +1476,8 @@ document.getElementById('btnSalvarNovoEstoque')?.addEventListener('click', () =>
     produto,
     quantidade,
     minimo,
-    valorUnitario,
+    valorCusto,
+    valorVenda,
     fornecedorId: fornecedorId || '',
     fornecedor: fornecedorNome,
     observacao: document.getElementById('novoEstoqueObservacao')?.value.trim() || '',
@@ -1507,7 +1532,7 @@ function carregarEstoque() {
   if (estoque.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="text-center py-4">
+        <td colspan="8" class="text-center py-4">
           <i class="bi bi-box display-4 text-muted mb-3 d-block"></i>
           <p class="text-muted">Nenhum item no estoque</p>
         </td>
@@ -1525,7 +1550,8 @@ function carregarEstoque() {
         <td class="editable-cell" data-id="est_${item.id}" data-field="quantidade" data-type="number">${item.quantidade}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="minimo" data-type="number">${item.minimo}</td>
         <td class="editable-cell" data-id="est_${item.id}" data-field="fornecedor">${item.fornecedor || ''}</td>
-        <td class="editable-cell" data-id="est_${item.id}" data-field="valorUnitario" data-type="currency">${formatarMoeda(item.valorUnitario)}</td>
+        <td class="editable-cell" data-id="est_${item.id}" data-field="valorCusto" data-type="currency">${formatarMoeda(item.valorCusto || item.valorUnitario || 0)}</td>
+        <td class="editable-cell" data-id="est_${item.id}" data-field="valorVenda" data-type="currency">${formatarMoeda(item.valorVenda || item.valorUnitario || 0)}</td>
         <td class="non-editable-cell">
           <span class="badge ${status.classe}">${status.texto}</span>
         </td>

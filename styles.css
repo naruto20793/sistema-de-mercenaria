@@ -55,6 +55,26 @@ body {
 .navbar-superior .container-fluid {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.navbar-brand {
+  margin-right: 0 !important;
+  order: 1;
+}
+
+.navbar-toggler {
+  order: 2;
+  margin-right: auto;
+}
+
+.navbar-actions-fixed {
+  order: 3;
+}
+
+.navbar-collapse {
+  order: 4;
+  width: 100%;
 }
 
 .navbar-superior .navbar-collapse {
@@ -77,6 +97,42 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Rotacionar ícone do martelo para a esquerda */
+.navbar-brand .bi-hammer {
+  display: inline-block;
+  transform: scaleX(-1) !important;
+  transform-origin: center;
+  vertical-align: middle;
+}
+
+/* Logo imagem (martelo + serrote) */
+.logo-icon {
+  display: inline-block;
+  max-width: 120px; /* nunca maior que isso */
+  width: auto;      /* permite tamanhos responsivos */
+  height: auto;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Tamanhos específicos por contexto (navbar menor, dashboard maior) */
+.navbar-brand .logo-icon {
+  width: 32px; /* fixar tamanho pequeno na navbar */
+}
+
+#dashboard .logo-icon,
+.secao h1 .logo-icon {
+  width: 56px; /* maior no cabeçalho do dashboard, sem cobrir a tela */
+}
+
+/* Garantir que a imagem do logo fique com o cabo (handle) para a esquerda */
+.navbar-brand .logo-icon,
+#dashboard .logo-icon,
+.secao h1 .logo-icon {
+  transform: scaleX(-1) !important;
+  transform-origin: center !important;
 }
 
 .navbar-brand:hover {
@@ -102,6 +158,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.navbar-actions-fixed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 1rem;
 }
 
 .nav-link-top {
@@ -268,6 +331,42 @@ body {
 /* ==================== TABELAS EDITÁVEIS ==================== */
 .table {
   margin-bottom: 0;
+}
+
+/* Tabela de Estoque com texto preto */
+.table-estoque {
+  color: #00000000 !important;
+}
+
+.table-estoque td,
+.table-estoque th {
+  color: #000 !important;
+}
+
+.table-estoque tbody tr {
+  color: #000 !important;
+}
+
+.table-estoque .editable-cell,
+.table-estoque .non-editable-cell {
+  color: #000 !important;
+}
+
+/* Badge de Status em branco */
+.table-estoque .non-editable-cell .badge {
+  color: #fff !important;
+}
+
+.table-estoque .badge,
+.table-estoque .badge-estoque-baixo,
+.table-estoque .badge-estoque-ok,
+.table-estoque .badge-estoque-excedente {
+  color: #fff !important;
+}
+
+/* Cabeçalho Status em branco */
+.table-estoque th:nth-child(7) {
+  color: #fff !important;
 }
 
 .table th {
@@ -601,10 +700,60 @@ input:invalid:focus {
   font-size: 0.9rem;
 }
 
+.dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-item {
+  color: #333 !important;
+}
+
+.dropdown-menu[aria-labelledby="btnNotificacoes"] .text-muted {
+  color: #666 !important;
+}
+
+/* Rotacionar ícone do martelo no dashboard também */
+h1 .bi-hammer {
+  transform: scaleX(-1);
+}
+
+.secao h1 .bi-hammer {
+  transform: scaleX(-1) !important;
+}
+
+#dashboard h1 .bi-hammer {
+  display: inline-block !important;
+  transform: scaleX(-1) !important;
+  transform-origin: center !important;
+  vertical-align: middle !important;
+}
+
+.bi-hammer {
+  display: inline-block !important;
+  transform: scaleX(-1) !important;
+  transform-origin: center !important;
+  vertical-align: middle !important;
+}
+
 /* ==================== TEMA ESCURO ==================== */
 body.dark-theme {
   background: #1a1a1a;
   color: #e0e0e0;
+}
+
+body.dark-theme,
+body.dark-theme * {
+  color: #e0e0e0 !important;
+}
+
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6,
+body.dark-theme label,
+body.dark-theme span,
+body.dark-theme p,
+body.dark-theme li,
+body.dark-theme a {
+  color: #e0e0e0 !important;
 }
 
 body.dark-theme .navbar-superior {
@@ -687,14 +836,29 @@ body.dark-theme .table-hover tbody tr:hover {
 }
 
 body.dark-theme .btn-outline-secondary {
-  color: #aaa;
+  color: #e0e0e0 !important;
   border-color: #555;
 }
 
 body.dark-theme .btn-outline-secondary:hover {
   background: #555;
-  color: #fff;
+  color: #fff !important;
   border-color: #666;
+}
+
+body.dark-theme .btn-outline-danger,
+body.dark-theme .btn-outline-danger i {
+  color: #000 !important;
+}
+
+body.dark-theme .btn-outline-danger:hover {
+  background: #dc3545;
+  color: #000 !important;
+  border-color: #dc3545;
+}
+
+body.dark-theme .btn-outline-danger:hover i {
+  color: #000 !important;
 }
 
 body.dark-theme .modal-content {
@@ -748,7 +912,56 @@ body.dark-theme .dropdown-menu {
 }
 
 body.dark-theme .dropdown-item {
-  color: #e0e0e0;
+  color: #e0e0e0 !important;
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-header {
+  color: #e0e0e0 !important;
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-item {
+  color: #e0e0e0 !important;
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-item .small {
+  color: #e0e0e0 !important;
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-item .text-muted {
+  color: #b0b0b0 !important;
+}
+
+/* Ícones das notificações mantêm cores originais em qualquer tema */
+.dropdown-menu[aria-labelledby="btnNotificacoes"] .dropdown-item i {
+  text-shadow: -0.5px -0.5px 0 #000,
+               0.5px -0.5px 0 #000,
+               -0.5px 0.5px 0 #000,
+               0.5px 0.5px 0 #000,
+               -0.5px 0 0 #000,
+               0.5px 0 0 #000,
+               0 -0.5px 0 #000,
+               0 0.5px 0 #000;
+  filter: drop-shadow(0px 0px 0.5px #000);
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .text-success {
+  color: #28a745 !important;
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .text-danger {
+  color: #dc3545 !important;
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .text-warning {
+  color: #ffc107 !important;
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .text-info {
+  color: #17a2b8 !important;
+}
+
+body.dark-theme .dropdown-menu[aria-labelledby="btnNotificacoes"] .text-muted {
+  color: #b0b0b0 !important;
 }
 
 body.dark-theme .dropdown-item:hover,
