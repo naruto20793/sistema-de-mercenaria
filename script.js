@@ -3313,3 +3313,21 @@ document.addEventListener('click', function(e) {
 function adicionarClienteRapido() { adicionarCliente(); }
 function adicionarOrcamentoRapido() { adicionarOrcamento(); }
 function adicionarEstoqueRapido() { adicionarItemEstoque(); }
+
+// Recolhe o colapso da navbar ao clicar em qualquer opção (útil em telas pequenas)
+document.addEventListener('DOMContentLoaded', () => {
+  const seletor = '.nav-link-top, .navbar-brand, .navbar-actions-fixed .dropdown > button, .navbar-actions-fixed .btn';
+  document.querySelectorAll(seletor).forEach(el => {
+    el.addEventListener('click', () => {
+      const collapseEl = document.getElementById('navbarPrincipal');
+      if (!collapseEl) return;
+      try {
+        const instance = bootstrap.Collapse.getInstance(collapseEl) || new bootstrap.Collapse(collapseEl, { toggle: false });
+        instance.hide();
+      } catch (e) {
+        // fallback: toggle collapse class
+        collapseEl.classList.remove('show');
+      }
+    });
+  });
+});

@@ -866,10 +866,16 @@ body.dark-theme .modal-content {
   color: #e0e0e0;
 }
 
-body.dark-theme .modal-header {
-  background: #252525;
-  border-color: #444;
-  color: #e0e0e0;
+/* Estoque: tornar o texto 'Status' branco no tema escuro */
+body.dark-theme .table-estoque thead th.non-editable-cell,
+body.dark-theme .table-estoque thead th.non-editable-cell * {
+  color: #ffffff !important;
+}
+
+/* Cobertura extra para outros possíveis flags de tema */
+.dark-mode .table-estoque thead th.non-editable-cell,
+[data-theme="dark"] .table-estoque thead th.non-editable-cell {
+  color: #ffffff !important;
 }
 
 body.dark-theme .modal-body {
